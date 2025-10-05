@@ -1,0 +1,25 @@
+# Core Django packages
+Django==5.2.7
+djangorestframework==3.16.1
+
+# Database support
+psycopg2-binary==2.9.10  # PostgreSQL adapter
+
+# Configuration management
+python-decouple==3.8
+
+# Image handling
+Pillow==11.3.0
+
+# Development and testing (optional)
+# django-debug-toolbar==4.2.0
+# pytest-django==4.8.0
+# factory-boy==3.3.0
+
+# Production deployment (optional)
+# gunicorn==21.2.0
+# whitenoise==6.6.0
+# django-cors-headers==4.3.1
+
+# API documentation (optional)
+# drf-spectacular==0.27.0

@@ -115,22 +115,22 @@ const ManageStaffPage = () => {
       {statistics && (
         <div className="statistics-grid">
           <div className="stat-card">
-            <div className="stat-number">{statistics.total_staff}</div>
+            <div className="stat-number">{statistics.total_staff || 0}</div>
             <div className="stat-label">Total Staff</div>
             <div className="stat-icon">👥</div>
           </div>
           <div className="stat-card">
-            <div className="stat-number">{statistics.doctors}</div>
+            <div className="stat-number">{statistics.doctors || 0}</div>
             <div className="stat-label">Doctors</div>
             <div className="stat-icon">👨‍⚕️</div>
           </div>
           <div className="stat-card">
-            <div className="stat-number">{statistics.nurses}</div>
+            <div className="stat-number">{statistics.nurses || 0}</div>
             <div className="stat-label">Nurses</div>
             <div className="stat-icon">👩‍⚕️</div>
           </div>
           <div className="stat-card">
-            <div className="stat-number">{statistics.consultants}</div>
+            <div className="stat-number">{statistics.consultants || 0}</div>
             <div className="stat-label">Consultants</div>
             <div className="stat-icon">🩺</div>
           </div>
@@ -273,20 +273,33 @@ const ManageStaffPage = () => {
                     </td>
                     <td>
                       <div className="action-buttons">
-                        <Link 
-                          to={`/staff/${member.id}/edit`} 
-                          className="btn btn-secondary btn-sm"
-                          title="Edit Staff Member"
-                        >
-                          <i className="fas fa-edit"></i>
-                        </Link>
-                        <button 
-                          onClick={() => handleDeleteStaff(member.id)}
-                          className="btn btn-danger btn-sm"
-                          title="Delete Staff Member"
-                        >
-                          <i className="fas fa-trash"></i>
-                        </button>
+                        <div className="action-btn-tooltip">
+                          <Link 
+                            to={`/staff/${member.id}`} 
+                            className="btn btn-primary btn-sm"
+                          >
+                            <i className="fas fa-eye"></i>
+                          </Link>
+                          <span className="tooltip-text">View Details</span>
+                        </div>
+                        <div className="action-btn-tooltip">
+                          <Link 
+                            to={`/staff/${member.id}/edit`} 
+                            className="btn btn-secondary btn-sm"
+                          >
+                            <i className="fas fa-edit"></i>
+                          </Link>
+                          <span className="tooltip-text">Edit Staff</span>
+                        </div>
+                        <div className="action-btn-tooltip">
+                          <button 
+                            onClick={() => handleDeleteStaff(member.id)}
+                            className="btn btn-danger btn-sm"
+                          >
+                            <i className="fas fa-trash"></i>
+                          </button>
+                          <span className="tooltip-text">Delete Staff</span>
+                        </div>
                       </div>
                     </td>
                   </tr>

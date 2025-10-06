@@ -17,7 +17,7 @@ const PatientDashboard = () => {
       icon: '📋',
       links: [
         { path: `/patient/${selectedPatient.id}/consultations`, label: 'View Consultations' },
-        { path: `/patient/${selectedPatient.id}/consultations/add`, label: 'Add Consultation' },
+        { path: `/consultations/add`, label: 'Add Consultation' },
         { path: `/patient/${selectedPatient.id}/appointments/add`, label: 'Book Appointment' },
         { path: `/patient/${selectedPatient.id}/diagnoses/add`, label: 'Add Diagnosis' },
         { path: `/patient/${selectedPatient.id}/treatments/add`, label: 'Add Treatment' }

@@ -45,7 +45,6 @@ const HomePage = () => {
       links: [
         { path: '/patients', label: 'View All Patients' },
         { path: '/patients/add', label: 'Add New Patient' },
-        { path: '/patients/insurance/add', label: 'Add Insurance Info' },
         { path: '/patients/medical-history/add', label: 'Add Medical History' }
       ]
     },

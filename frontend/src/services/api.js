@@ -123,6 +123,14 @@ export const apiService = {
   getStaffStatistics: () =>
     axios.get('/staff/statistics/'),
 
+  // Get doctors (staff filtered by user_type=doctor)
+  getDoctors: () =>
+    axios.get('/staff/', { params: { user_type: 'doctor' } }),
+
+  // Get nurses (staff filtered by user_type=nurse)
+  getNurses: () =>
+    axios.get('/staff/', { params: { user_type: 'nurse' } }),
+
   // User Management
   getUsers: (params = {}) =>
     axios.get('/users/', { params }),

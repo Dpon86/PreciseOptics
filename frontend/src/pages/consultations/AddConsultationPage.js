@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { usePatient } from '../../context/PatientContext';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 
 const AddConsultationPage = () => {
+  const { selectedPatient } = usePatient();
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     patient: '',
     visit: '',
@@ -63,29 +67,111 @@ const AddConsultationPage = () => {
     fetchInitialData();
   }, []);
 
+  // Auto-select patient from context when component loads
+  useEffect(() => {
+    if (selectedPatient && selectedPatient.id) {
+      setFormData(prev => ({
+        ...prev,
+        patient: selectedPatient.id,
+        // Auto-fill from selected patient data
+        current_medications: selectedPatient.current_medications || '',
+        allergies: selectedPatient.allergies || '',
+        past_medical_history: selectedPatient.medical_history || ''
+      }));
+    }
+  }, [selectedPatient]);
+
+  // Auto-select current user as consulting doctor/nurse when doctors data loads
+  useEffect(() => {
+    if (user && doctors.length > 0) {
+      // Find current user in the doctors/nurses list
+      const currentUserStaff = doctors.find(doctor => 
+        doctor.user_details?.id === user.id || 
+        doctor.user_details?.username === user.username ||
+        doctor.user === user.id
+      );
+      
+      if (currentUserStaff) {
+        setFormData(prev => ({
+          ...prev,
+          consulting_doctor: currentUserStaff.id
+        }));
+      }
+    }
+  }, [user, doctors]);
+
   const fetchInitialData = async () => {
     try {
-      const [patientsRes, doctorsRes] = await Promise.all([
+      setLoading(true);
+      setError('');
+      
+      const [patientsRes, doctorsRes, nursesRes] = await Promise.all([
         api.getPatients(),
-        api.getDoctors()
-        // api.getPatientVisits() - commented out as not currently used
+        api.getDoctors(),
+        api.getNurses()
       ]);
       
-      setPatients(patientsRes.data.results || patientsRes.data || []);
-      setDoctors(doctorsRes.data.results || doctorsRes.data || []);
-      // setVisits(visitsRes.data.results || visitsRes.data || []); // Commented out - visits state not currently used
+      console.log('Raw Patients response:', patientsRes);
+      console.log('Raw Doctors response:', doctorsRes);
+      console.log('Raw Nurses response:', nursesRes);
+      
+      // Handle different response structures
+      const patientsData = patientsRes.data?.results || patientsRes.data || [];
+      const doctorsData = doctorsRes.data?.results || doctorsRes.data || [];
+      const nursesData = nursesRes.data?.results || nursesRes.data || [];
+      
+      // Combine doctors and nurses for the consulting staff dropdown
+      const allStaffData = [...doctorsData, ...nursesData];
+      
+      console.log('Processed Patients data:', patientsData);
+      console.log('Processed All Staff data:', allStaffData);
+      
+      setPatients(patientsData);
+      setDoctors(allStaffData);
+      
     } catch (err) {
       console.error('Error fetching initial data:', err);
-      setError('Failed to load form data');
+      setError(`Failed to load form data: ${err.response?.status} - ${err.response?.statusText || err.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    
+    // Auto-fill patient information when patient is selected
+    if (name === 'patient' && value) {
+      const selectedPatient = patients.find(patient => patient.id === value);
+      if (selectedPatient) {
+        setFormData(prev => ({
+          ...prev,
+          [name]: type === 'checkbox' ? checked : value,
+          // Auto-fill from patient data
+          current_medications: selectedPatient.current_medications || '',
+          allergies: selectedPatient.allergies || '',
+          past_medical_history: selectedPatient.medical_history || ''
+        }));
+        return;
+      }
+    }
+    
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+  };
+
+  // Get selected patient details
+  const getSelectedPatient = () => {
+    if (!formData.patient) return null;
+    return patients.find(patient => patient.id.toString() === formData.patient.toString());
+  };
+
+  // Get selected doctor details
+  const getSelectedDoctor = () => {
+    if (!formData.consulting_doctor) return null;
+    return doctors.find(doctor => doctor.id.toString() === formData.consulting_doctor.toString());
   };
 
   const handleSubmit = async (e) => {
@@ -109,15 +195,109 @@ const AddConsultationPage = () => {
   };
 
   return (
-    <div className="form-container">
-      <h1>Add New Consultation</h1>
-      
+      <div className="form-container">
+        <h1>Add New Consultation</h1>
+        
       {error && (
         <div className="error-message">
           {error}
         </div>
       )}
       
+      {/* Selected Patient Information */}
+      {getSelectedPatient() && (
+        <div className="form-section patient-info-section">
+          <h3>Selected Patient Information</h3>
+          {(() => {
+            const selectedPatient = getSelectedPatient();
+            return (
+              <div className="patient-summary">
+                <div className="patient-basic-info">
+                  <div className="info-item">
+                    <span className="info-label">Name:</span>
+                    <span className="info-value">
+                      {selectedPatient.first_name} {selectedPatient.last_name}
+                    </span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">Date of Birth:</span>
+                    <span className="info-value">
+                      {selectedPatient.date_of_birth ? new Date(selectedPatient.date_of_birth).toLocaleDateString() : 'Not provided'}
+                    </span>
+                  </div>
+                </div>
+                
+                <details className="patient-details-dropdown">
+                  <summary>View Additional Patient Details</summary>
+                  <div className="patient-info-grid">
+                    <div className="info-item">
+                      <span className="info-label">Patient ID:</span>
+                      <span className="info-value">{selectedPatient.patient_id || selectedPatient.id}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">Age:</span>
+                      <span className="info-value">
+                        {selectedPatient.age || 'Unknown'} years
+                      </span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">Gender:</span>
+                      <span className="info-value">{selectedPatient.gender === 'M' ? 'Male' : selectedPatient.gender === 'F' ? 'Female' : 'Not specified'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">Phone:</span>
+                      <span className="info-value">{selectedPatient.phone_number || 'Not provided'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">Email:</span>
+                      <span className="info-value">{selectedPatient.email || 'Not provided'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">Blood Group:</span>
+                      <span className="info-value">{selectedPatient.blood_group || 'Not specified'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">NHS Number:</span>
+                      <span className="info-value">{selectedPatient.nhs_number || 'Not provided'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">Allergies:</span>
+                      <span className="info-value">{selectedPatient.allergies || 'None known'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">Current Medications:</span>
+                      <span className="info-value">{selectedPatient.current_medications || 'None'}</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="info-label">Emergency Contact:</span>
+                      <span className="info-value">
+                        {selectedPatient.emergency_contact_name 
+                          ? `${selectedPatient.emergency_contact_name} (${selectedPatient.emergency_contact_relationship}) - ${selectedPatient.emergency_contact_phone}`
+                          : 'Not provided'
+                        }
+                      </span>
+                    </div>
+                    <div className="info-item full-width">
+                      <span className="info-label">Address:</span>
+                      <span className="info-value">
+                        {[
+                          selectedPatient.address_line_1,
+                          selectedPatient.address_line_2,
+                          selectedPatient.city,
+                          selectedPatient.state,
+                          selectedPatient.postal_code,
+                          selectedPatient.country
+                        ].filter(Boolean).join(', ') || 'Not provided'}
+                      </span>
+                    </div>
+                  </div>
+                </details>
+              </div>
+            );
+          })()}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="consultation-form">
         {/* Basic Information */}
         <div className="form-section">
@@ -137,17 +317,21 @@ const AddConsultationPage = () => {
                 required
               >
                 <option value="">Select Patient</option>
-                {patients.map(patient => (
-                  <option key={patient.id} value={patient.id}>
-                    {patient.first_name} {patient.last_name} ({patient.patient_id})
-                  </option>
-                ))}
+                {patients.length > 0 ? (
+                  patients.map(patient => (
+                    <option key={patient.id} value={patient.id}>
+                      {patient.full_name || `${patient.first_name} ${patient.last_name}`} ({patient.patient_id}) - Age: {patient.age} - {patient.phone_number || 'No phone'}
+                    </option>
+                  ))
+                ) : (
+                  !loading && <option value="" disabled>No patients available</option>
+                )}
               </select>
             </div>
             
             <div className="form-group">
               <label htmlFor="consulting_doctor" className="form-label">
-                Consulting Doctor *
+                Consulting Staff (Doctor/Nurse) *
               </label>
               <select
                 id="consulting_doctor"
@@ -157,12 +341,16 @@ const AddConsultationPage = () => {
                 className="form-input"
                 required
               >
-                <option value="">Select Doctor</option>
-                {doctors.map(doctor => (
-                  <option key={doctor.id} value={doctor.id}>
-                    Dr. {doctor.first_name} {doctor.last_name}
-                  </option>
-                ))}
+                <option value="">Select Staff Member</option>
+                {doctors.length > 0 ? (
+                  doctors.map(doctor => (
+                    <option key={doctor.id} value={doctor.id}>
+                      {doctor.user_details?.user_type === 'doctor' ? 'Dr.' : 'Nurse'} {doctor.user_details?.first_name} {doctor.user_details?.last_name} - {doctor.specialization} ({doctor.department})
+                    </option>
+                  ))
+                ) : (
+                  !loading && <option value="" disabled>No staff available</option>
+                )}
               </select>
             </div>
           </div>
@@ -226,6 +414,10 @@ const AddConsultationPage = () => {
             </div>
           </div>
         </div>
+
+
+
+
 
         {/* Chief Complaint and History */}
         <div className="form-section">
@@ -438,6 +630,85 @@ const AddConsultationPage = () => {
             />
           </div>
         </div>
+
+        {/* Add Tests Section */}
+        {getSelectedPatient() && (
+          <div className="form-section add-tests-section">
+            <details className="add-tests-dropdown">
+              <summary className="add-tests-header">
+                <i className="fas fa-plus-circle"></i>
+                <span>Add Tests</span>
+                <i className="fas fa-chevron-down dropdown-arrow"></i>
+              </summary>
+              
+              <div className="add-tests-content">
+                <p className="section-description">Manage eye examinations and tests for this patient</p>
+                
+                <div className="eye-tests-grid">
+                  <div className="eye-test-card">
+                    <h4>General</h4>
+                    <div className="test-links">
+                      <a href={`/patient/${getSelectedPatient().id}/eye-tests`} className="test-link">
+                        <i className="fas fa-list"></i>
+                        View All Eye Tests
+                      </a>
+                    </div>
+                  </div>
+                  
+                  <div className="eye-test-card">
+                    <h4>Vision Tests</h4>
+                    <div className="test-links">
+                      <a href={`/patient/${getSelectedPatient().id}/eye-tests/visual-acuity/add`} className="test-link">
+                        <i className="fas fa-eye-dropper"></i>
+                        Visual Acuity Test
+                      </a>
+                      <a href={`/patient/${getSelectedPatient().id}/eye-tests/refraction/add`} className="test-link">
+                        <i className="fas fa-glasses"></i>
+                        Refraction Test
+                      </a>
+                      <a href={`/patient/${getSelectedPatient().id}/eye-tests/visual-field/add`} className="test-link">
+                        <i className="fas fa-circle-notch"></i>
+                        Visual Field Test
+                      </a>
+                    </div>
+                  </div>
+                  
+                  <div className="eye-test-card">
+                    <h4>Pressure & Examination</h4>
+                    <div className="test-links">
+                      <a href={`/patient/${getSelectedPatient().id}/eye-tests/tonometry/add`} className="test-link">
+                        <i className="fas fa-compress"></i>
+                        Tonometry Test
+                      </a>
+                      <a href={`/patient/${getSelectedPatient().id}/eye-tests/ophthalmoscopy/add`} className="test-link">
+                        <i className="fas fa-search"></i>
+                        Ophthalmoscopy
+                      </a>
+                      <a href={`/patient/${getSelectedPatient().id}/eye-tests/slit-lamp/add`} className="test-link">
+                        <i className="fas fa-microscope"></i>
+                        Slit Lamp Exam
+                      </a>
+                    </div>
+                  </div>
+                  
+                  <div className="eye-test-card">
+                    <h4>Advanced Imaging</h4>
+                    <div className="test-links">
+                      <a href={`/patient/${getSelectedPatient().id}/eye-tests/oct/add`} className="test-link">
+                        <i className="fas fa-camera"></i>
+                        OCT Scan
+                      </a>
+                      <a href={`/patient/${getSelectedPatient().id}/eye-tests/fluorescein/add`} className="test-link">
+                        <i className="fas fa-tint"></i>
+                        Fluorescein Angiography
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </details>
+          </div>
+        )}
 
         {/* Follow-up & Referrals */}
         <div className="form-section">

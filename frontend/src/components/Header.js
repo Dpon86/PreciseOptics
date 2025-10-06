@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const Header = () => {
+const Header = ({ onMenuClick }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout, user } = useAuth();
@@ -22,6 +22,13 @@ const Header = () => {
     <header className="header">
       <div className="header-content">
         <div className="header-left">
+          <button 
+            onClick={onMenuClick} 
+            className="btn btn-menu"
+            aria-label="Open navigation menu"
+          >
+            ☰
+          </button>
           {showBackButton && (
             <button onClick={handleBack} className="btn btn-back">
               ← Back

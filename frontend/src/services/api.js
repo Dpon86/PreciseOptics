@@ -52,18 +52,113 @@ export const apiService = {
   getPatient: (id) =>
     axios.get(`/api/patients/${id}/`),
 
-  // Patient Visits
-  getVisits: (params = {}) =>
-    axios.get('/api/visits/', { params }),
+  // Consultations
+  getConsultations: (params = {}) =>
+    axios.get('/api/consultations/', { params }),
   
-  createVisit: (data) =>
-    axios.post('/api/visits/', data),
+  createConsultation: (data) =>
+    axios.post('/api/consultations/', data),
   
-  updateVisit: (id, data) =>
-    axios.put(`/api/visits/${id}/`, data),
+  updateConsultation: (id, data) =>
+    axios.put(`/api/consultations/${id}/`, data),
   
-  checkInVisit: (id) =>
-    axios.post(`/api/visits/${id}/check_in/`),
+  getConsultation: (id) =>
+    axios.get(`/api/consultations/${id}/`),
+
+  // Eye Tests
+  getEyeTests: (params = {}) =>
+    axios.get('/api/eye-tests/', { params }),
+  
+  createVisualAcuityTest: (data) =>
+    axios.post('/api/eye-tests/', data),
+  
+  updateEyeTest: (id, data) =>
+    axios.put(`/api/eye-tests/${id}/`, data),
+  
+  getEyeTest: (id) =>
+    axios.get(`/api/eye-tests/${id}/`),
+
+  // Medications
+  getMedications: (params = {}) =>
+    axios.get('/api/medications/', { params }),
+  
+  createMedication: (data) =>
+    axios.post('/api/medications/', data),
+  
+  updateMedication: (id, data) =>
+    axios.put(`/api/medications/${id}/`, data),
+  
+  getMedication: (id) =>
+    axios.get(`/api/medications/${id}/`),
+
+  // Prescriptions
+  getPrescriptions: (params = {}) =>
+    axios.get('/api/prescriptions/', { params }),
+  
+  createPrescription: (data) =>
+    axios.post('/api/prescriptions/', data),
+  
+  updatePrescription: (id, data) =>
+    axios.put(`/api/prescriptions/${id}/`, data),
+  
+  getPrescription: (id) =>
+    axios.get(`/api/prescriptions/${id}/`),
+
+  // Staff Management
+  getStaff: (params = {}) =>
+    axios.get('/staff/', { params }),
+  
+  createStaff: (data) =>
+    axios.post('/staff/', data),
+  
+  updateStaff: (id, data) =>
+    axios.put(`/staff/${id}/`, data),
+  
+  getStaffMember: (id) =>
+    axios.get(`/staff/${id}/`),
+  
+  deleteStaff: (id) =>
+    axios.delete(`/staff/${id}/`),
+  
+  getStaffStatistics: () =>
+    axios.get('/staff/statistics/'),
+
+  // User Management
+  getUsers: (params = {}) =>
+    axios.get('/users/', { params }),
+  
+  getUser: (id) =>
+    axios.get(`/users/${id}/`),
+  
+  updateUser: (id, data) =>
+    axios.put(`/users/${id}/`, data),
+
+  // Lookups
+  getDepartments: () =>
+    axios.get('/departments/'),
+  
+  getSpecializations: () =>
+    axios.get('/specializations/'),
+  
+  getUserTypes: () =>
+    axios.get('/user-types/'),
+
+  // Audit Logs
+  getAuditLogs: (params = {}) =>
+    axios.get('/api/audit-logs/', { params }),
+  
+  createAuditLog: (data) =>
+    axios.post('/api/audit-logs/', data),
+  
+  getAuditLog: (id) =>
+    axios.get(`/api/audit-logs/${id}/`),
+
+  // Patient Access Logs
+  getPatientAccessLogs: (params = {}) =>
+    axios.get('/api/patient-access-logs/', { params }),
+  
+  createPatientAccessLog: (data) =>
+    axios.post('/api/patient-access-logs/', data),
 
   // Generic CRUD operations for other models
   create: (endpoint, data) =>
@@ -86,6 +181,13 @@ export const apiService = {
         'Content-Type': 'multipart/form-data',
       },
     }),
+
+  // Specializations
+  createSpecialization: (data) =>
+    axios.post('/api/accounts/specializations/', data),
+  
+  deleteSpecialization: (id) =>
+    axios.delete(`/api/accounts/specializations/${id}/`),
 };
 
 export default apiService;

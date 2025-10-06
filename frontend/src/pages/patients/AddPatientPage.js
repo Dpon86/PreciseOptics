@@ -1,25 +1,33 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import api from '../../services/api';
 
 const AddPatientPage = () => {
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
+    middle_name: '',
     date_of_birth: '',
     gender: '',
     phone_number: '',
+    alternate_phone: '',
     email: '',
-    address: '',
+    address_line_1: '',
+    address_line_2: '',
     city: '',
     state: '',
-    zip_code: '',
-    country: 'United States',
-    occupation: '',
-    employer: '',
-    marital_status: '',
-    referral_source: '',
-    notes: ''
+    postal_code: '',
+    country: 'UK',
+    emergency_contact_name: '',
+    emergency_contact_relationship: '',
+    emergency_contact_phone: '',
+    insurance_provider: '',
+    insurance_number: '',
+    nhs_number: '',
+    allergies: '',
+    medical_history: '',
+    current_medications: '',
+    blood_group: ''
   });
   
   const [error, setError] = useState('');
@@ -39,7 +47,7 @@ const AddPatientPage = () => {
     setError('');
     
     try {
-      const response = await api.post('/patients/patients/', formData);
+      const response = await api.createPatient(formData);
       
       if (response.status === 201) {
         alert('Patient added successfully!');
@@ -80,6 +88,20 @@ const AddPatientPage = () => {
                 onChange={handleChange}
                 className="form-input"
                 required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="middle_name" className="form-label">
+                Middle Name
+              </label>
+              <input
+                type="text"
+                id="middle_name"
+                name="middle_name"
+                value={formData.middle_name}
+                onChange={handleChange}
+                className="form-input"
               />
             </div>
             
@@ -171,17 +193,31 @@ const AddPatientPage = () => {
           </div>
           
           <div className="form-group">
-            <label htmlFor="address" className="form-label">
-              Address *
+            <label htmlFor="address_line_1" className="form-label">
+              Address Line 1 *
             </label>
             <input
               type="text"
-              id="address"
-              name="address"
-              value={formData.address}
+              id="address_line_1"
+              name="address_line_1"
+              value={formData.address_line_1}
               onChange={handleChange}
               className="form-input"
               required
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="address_line_2" className="form-label">
+              Address Line 2
+            </label>
+            <input
+              type="text"
+              id="address_line_2"
+              name="address_line_2"
+              value={formData.address_line_2}
+              onChange={handleChange}
+              className="form-input"
             />
           </div>
           
@@ -217,14 +253,14 @@ const AddPatientPage = () => {
             </div>
             
             <div className="form-group">
-              <label htmlFor="zip_code" className="form-label">
-                ZIP Code *
+              <label htmlFor="postal_code" className="form-label">
+                Postal Code *
               </label>
               <input
                 type="text"
-                id="zip_code"
-                name="zip_code"
-                value={formData.zip_code}
+                id="postal_code"
+                name="postal_code"
+                value={formData.postal_code}
                 onChange={handleChange}
                 className="form-input"
                 required
@@ -234,87 +270,192 @@ const AddPatientPage = () => {
         </div>
         
         <div className="form-section">
-          <h3>Additional Information</h3>
+          <h3>Emergency Contact *</h3>
           
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="occupation" className="form-label">
-                Occupation
+              <label htmlFor="emergency_contact_name" className="form-label">
+                Emergency Contact Name *
               </label>
               <input
                 type="text"
-                id="occupation"
-                name="occupation"
-                value={formData.occupation}
+                id="emergency_contact_name"
+                name="emergency_contact_name"
+                value={formData.emergency_contact_name}
                 onChange={handleChange}
                 className="form-input"
+                required
               />
             </div>
             
             <div className="form-group">
-              <label htmlFor="employer" className="form-label">
-                Employer
+              <label htmlFor="emergency_contact_relationship" className="form-label">
+                Relationship *
               </label>
               <input
                 type="text"
-                id="employer"
-                name="employer"
-                value={formData.employer}
+                id="emergency_contact_relationship"
+                name="emergency_contact_relationship"
+                value={formData.emergency_contact_relationship}
                 onChange={handleChange}
                 className="form-input"
+                placeholder="e.g., Spouse, Parent, Sibling"
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="emergency_contact_phone" className="form-label">
+                Emergency Contact Phone *
+              </label>
+              <input
+                type="tel"
+                id="emergency_contact_phone"
+                name="emergency_contact_phone"
+                value={formData.emergency_contact_phone}
+                onChange={handleChange}
+                className="form-input"
+                required
               />
             </div>
           </div>
+        </div>
+        
+        <div className="form-section">
+          <h3>Medical Information</h3>
           
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="marital_status" className="form-label">
-                Marital Status
+              <label htmlFor="blood_group" className="form-label">
+                Blood Group
               </label>
               <select
-                id="marital_status"
-                name="marital_status"
-                value={formData.marital_status}
+                id="blood_group"
+                name="blood_group"
+                value={formData.blood_group}
                 onChange={handleChange}
                 className="form-input"
               >
-                <option value="">Select Status</option>
-                <option value="single">Single</option>
-                <option value="married">Married</option>
-                <option value="divorced">Divorced</option>
-                <option value="widowed">Widowed</option>
+                <option value="">Select Blood Group</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
               </select>
             </div>
             
             <div className="form-group">
-              <label htmlFor="referral_source" className="form-label">
-                Referral Source
+              <label htmlFor="alternate_phone" className="form-label">
+                Alternate Phone
               </label>
               <input
-                type="text"
-                id="referral_source"
-                name="referral_source"
-                value={formData.referral_source}
+                type="tel"
+                id="alternate_phone"
+                name="alternate_phone"
+                value={formData.alternate_phone}
                 onChange={handleChange}
                 className="form-input"
-                placeholder="e.g., Dr. Smith, Online, Family"
               />
             </div>
           </div>
           
           <div className="form-group">
-            <label htmlFor="notes" className="form-label">
-              Notes
+            <label htmlFor="allergies" className="form-label">
+              Known Allergies
             </label>
             <textarea
-              id="notes"
-              name="notes"
-              value={formData.notes}
+              id="allergies"
+              name="allergies"
+              value={formData.allergies}
+              onChange={handleChange}
+              className="form-textarea"
+              rows="2"
+              placeholder="List any known allergies..."
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="current_medications" className="form-label">
+              Current Medications
+            </label>
+            <textarea
+              id="current_medications"
+              name="current_medications"
+              value={formData.current_medications}
+              onChange={handleChange}
+              className="form-textarea"
+              rows="2"
+              placeholder="List current medications..."
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="medical_history" className="form-label">
+              Medical History
+            </label>
+            <textarea
+              id="medical_history"
+              name="medical_history"
+              value={formData.medical_history}
               onChange={handleChange}
               className="form-textarea"
               rows="3"
-              placeholder="Additional notes about the patient"
+              placeholder="Previous medical conditions, surgeries, etc..."
             />
+          </div>
+        </div>
+        
+        <div className="form-section">
+          <h3>Insurance Information</h3>
+          
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="insurance_provider" className="form-label">
+                Insurance Provider
+              </label>
+              <input
+                type="text"
+                id="insurance_provider"
+                name="insurance_provider"
+                value={formData.insurance_provider}
+                onChange={handleChange}
+                className="form-input"
+                placeholder="e.g., NHS, Bupa, Vitality"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="insurance_number" className="form-label">
+                Policy Number
+              </label>
+              <input
+                type="text"
+                id="insurance_number"
+                name="insurance_number"
+                value={formData.insurance_number}
+                onChange={handleChange}
+                className="form-input"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="nhs_number" className="form-label">
+                NHS Number
+              </label>
+              <input
+                type="text"
+                id="nhs_number"
+                name="nhs_number"
+                value={formData.nhs_number}
+                onChange={handleChange}
+                className="form-input"
+                placeholder="e.g., 123 456 7890"
+              />
+            </div>
           </div>
         </div>
         

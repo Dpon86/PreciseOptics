@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../services/api';
+import api from '../../services/api';
 
 const PatientsPage = () => {
   const [patients, setPatients] = useState([]);
@@ -14,7 +14,7 @@ const PatientsPage = () => {
 
   const fetchPatients = async () => {
     try {
-      const response = await api.get('/patients/patients/');
+      const response = await api.getPatients();
       setPatients(response.data.results || response.data);
       setLoading(false);
     } catch (err) {

@@ -1,93 +1,65 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { usePatient } from '../context/PatientContext';
+import PatientSelector from '../components/PatientSelector';
+import PatientDashboard from '../components/PatientDashboard';
 
 const HomePage = () => {
-  const navigationCards = [
-    // Patient Management
+  const { selectedPatient } = usePatient();
+
+  const globalActions = [
+    // Reports Section - No patient required
     {
-      title: 'Patients',
-      description: 'Manage patient records and information',
+      title: 'Reports & Analytics',
+      description: 'Generate reports and view analytics',
+      icon: '📊',
+      links: [
+        { path: '/reports/patient-medications', label: 'Patient Medications Report' },
+        { path: '/reports/drug-audit', label: 'Drug Audit Report' },
+        { path: '/reports/patient-visits', label: 'Patient Visits Report' },
+        { path: '/reports/eye-tests-summary', label: 'Eye Tests Summary' },
+        { path: '/reports/revenue-analysis', label: 'Revenue Analysis' },
+        { path: '/audit', label: 'Audit Logs' }
+      ]
+    },
+    
+    // Medications Management - No patient required
+    {
+      title: 'Medications & Inventory',
+      description: 'Manage medications, inventory, and suppliers',
+      icon: '💊',
+      links: [
+        { path: '/medications', label: 'View All Medications' },
+        { path: '/medications/add', label: 'Add New Medication' },
+        { path: '/manufacturers/add', label: 'Add Manufacturer' },
+        { path: '/medication-categories/add', label: 'Add Category' },
+        { path: '/inventory/add', label: 'Manage Inventory' }
+      ]
+    },
+    
+    // Patient Management - No patient required
+    {
+      title: 'Patient Management',
+      description: 'Manage all patient records and information',
       icon: '👥',
       links: [
-        { path: '/patients', label: 'View Patients' },
-        { path: '/patients/add', label: 'Add Patient' },
-        { path: '/patients/insurance/add', label: 'Add Insurance' },
-        { path: '/patients/emergency-contact/add', label: 'Add Emergency Contact' },
+        { path: '/patients', label: 'View All Patients' },
+        { path: '/patients/add', label: 'Add New Patient' },
+        { path: '/patients/insurance/add', label: 'Add Insurance Info' },
         { path: '/patients/medical-history/add', label: 'Add Medical History' }
       ]
     },
     
-    // Staff Management
+    // System Management - No patient required
     {
-      title: 'Staff',
-      description: 'Manage hospital staff and users',
-      icon: '🏥',
+      title: 'System Administration',
+      description: 'System settings and administration',
+      icon: '⚙️',
       links: [
-        { path: '/staff', label: 'View Staff' },
+        { path: '/staff', label: 'Manage Staff' },
         { path: '/staff/add', label: 'Add Staff Member' },
         { path: '/specializations/add', label: 'Add Specialization' },
-        { path: '/staff/schedule/add', label: 'Add Schedule' }
-      ]
-    },
-    
-    // Medications
-    {
-      title: 'Medications',
-      description: 'Manage medications and pharmacy',
-      icon: '💊',
-      links: [
-        { path: '/medications', label: 'View Medications' },
-        { path: '/medications/add', label: 'Add Medication' },
-        { path: '/manufacturers/add', label: 'Add Manufacturer' },
-        { path: '/medication-categories/add', label: 'Add Category' },
-        { path: '/inventory/add', label: 'Add Inventory' },
-        { path: '/prescriptions/add', label: 'Add Prescription' }
-      ]
-    },
-    
-    // Consultations
-    {
-      title: 'Consultations',
-      description: 'Manage appointments and consultations',
-      icon: '📋',
-      links: [
-        { path: '/consultations', label: 'View Consultations' },
-        { path: '/consultations/add', label: 'Add Consultation' },
-        { path: '/appointments/add', label: 'Add Appointment' },
-        { path: '/diagnoses/add', label: 'Add Diagnosis' },
-        { path: '/treatments/add', label: 'Add Treatment' },
-        { path: '/surgeries/add', label: 'Add Surgery' }
-      ]
-    },
-    
-    // Eye Tests
-    {
-      title: 'Eye Tests',
-      description: 'Manage eye examinations and tests',
-      icon: '👁️',
-      links: [
-        { path: '/eye-tests', label: 'View Eye Tests' },
-        { path: '/eye-tests/visual-acuity/add', label: 'Visual Acuity Test' },
-        { path: '/eye-tests/refraction/add', label: 'Refraction Test' },
-        { path: '/eye-tests/tonometry/add', label: 'Tonometry Test' },
-        { path: '/eye-tests/ophthalmoscopy/add', label: 'Ophthalmoscopy' },
-        { path: '/eye-tests/slit-lamp/add', label: 'Slit Lamp Exam' },
-        { path: '/eye-tests/visual-field/add', label: 'Visual Field Test' },
-        { path: '/eye-tests/oct/add', label: 'OCT Scan' },
-        { path: '/eye-tests/fluorescein/add', label: 'Fluorescein Angiography' }
-      ]
-    },
-    
-    // Audit & Reports
-    {
-      title: 'Audit & Reports',
-      description: 'View audit logs and generate reports',
-      icon: '📊',
-      links: [
-        { path: '/audit', label: 'View Audit Logs' },
-        { path: '/reports/patient-medications', label: 'Patient Medications Report' },
-        { path: '/reports/drug-audit', label: 'Drug Audit Report' },
-        { path: '/reports/patient-visits', label: 'Patient Visits Report' }
+        { path: '/forms-overview', label: 'Forms Overview' }
       ]
     }
   ];
@@ -99,27 +71,41 @@ const HomePage = () => {
         <p>Eye Hospital Management System Dashboard</p>
       </div>
       
-      <div className="navigation-grid">
-        {navigationCards.map((card, index) => (
-          <div key={index} className="nav-card">
-            <div className="nav-card-header">
-              <span className="nav-card-icon">{card.icon}</span>
-              <h3>{card.title}</h3>
+      {/* Patient Selection Section - Always Visible */}
+      <div className="patient-selection-section">
+        <h2>Patient Services</h2>
+        {!selectedPatient ? (
+          <PatientSelector />
+        ) : (
+          <PatientDashboard />
+        )}
+      </div>
+      
+      {/* Global Actions - Always Available */}
+      <div className="global-actions-section">
+        <h2>General Management</h2>
+        <div className="global-actions-grid">
+          {globalActions.map((section, index) => (
+            <div key={index} className="global-action-card">
+              <div className="global-action-header">
+                <span className="global-action-icon">{section.icon}</span>
+                <h3>{section.title}</h3>
+              </div>
+              <p className="global-action-description">{section.description}</p>
+              <div className="global-action-links">
+                {section.links.map((link, linkIndex) => (
+                  <Link 
+                    key={linkIndex} 
+                    to={link.path} 
+                    className="global-action-link"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
             </div>
-            <p className="nav-card-description">{card.description}</p>
-            <div className="nav-card-links">
-              {card.links.map((link, linkIndex) => (
-                <Link 
-                  key={linkIndex} 
-                  to={link.path} 
-                  className="nav-link"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

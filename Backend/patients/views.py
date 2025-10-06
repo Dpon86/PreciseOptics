@@ -4,9 +4,11 @@ API views for PreciseOptics Eye Hospital Management System - Patients
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from precise_optics.permissions import ReadOnlyOrAuthenticatedPermission
 from django.utils import timezone
 from django.db import models
 from .models import Patient, PatientVisit
+from .serializers import PatientSerializer, PatientVisitSerializer, PatientCreateSerializer
 
 
 class PatientViewSet(viewsets.ModelViewSet):
@@ -14,7 +16,16 @@ class PatientViewSet(viewsets.ModelViewSet):
     ViewSet for managing patients
     """
     queryset = Patient.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = PatientSerializer
+    permission_classes = [ReadOnlyOrAuthenticatedPermission]
+    
+    def get_serializer_class(self):
+        """Return different serializer for creation"""
+        if self.action == 'create':
+            return PatientCreateSerializer
+        return PatientSerializer
+    
+
     
     def get_queryset(self):
         """Filter patients based on user permissions"""
@@ -67,7 +78,8 @@ class PatientVisitViewSet(viewsets.ModelViewSet):
     ViewSet for managing patient visits
     """
     queryset = PatientVisit.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = PatientVisitSerializer
+    permission_classes = [ReadOnlyOrAuthenticatedPermission]
     
     def get_queryset(self):
         """Filter visits based on parameters"""

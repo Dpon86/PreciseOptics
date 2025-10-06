@@ -28,7 +28,7 @@ const PatientDashboard = () => {
     {
       title: 'Eye Tests',
       description: 'Manage eye examinations and tests for this patient',
-      icon: '�️',
+      icon: '👁️',
       links: [
         { path: `/patient/${selectedPatient.id}/eye-tests`, label: 'View Eye Tests' },
         { path: `/patient/${selectedPatient.id}/eye-tests/visual-acuity/add`, label: 'Visual Acuity Test' },

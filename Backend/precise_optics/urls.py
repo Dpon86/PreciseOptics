@@ -26,6 +26,7 @@ urlpatterns = [
     path('', include('medications.urls')),
     path('', include('eye_tests.urls')),
     path('', include('audit.urls')),
+    path('', include('reports.urls')),
 ]
 
 # Serve media files in development

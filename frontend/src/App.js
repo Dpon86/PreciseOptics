@@ -32,6 +32,10 @@ import {
   // Reports
   PatientMedicationsReportPage,
   ConsultationReportPage,
+  DrugAuditReportPage,
+  PatientVisitsReportPage,
+  EyeTestsSummaryReportPage,
+  PatientProgressDashboard,
   // Audit
   AuditLogsPage,
   AddAuditLogPage,
@@ -323,6 +327,38 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <ConsultationReportPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/reports/drug-audit" 
+            element={
+              <ProtectedRoute>
+                <DrugAuditReportPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/reports/patient-visits" 
+            element={
+              <ProtectedRoute>
+                <PatientVisitsReportPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/reports/eye-tests-summary" 
+            element={
+              <ProtectedRoute>
+                <EyeTestsSummaryReportPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/patient/:patientId/progress" 
+            element={
+              <ProtectedRoute>
+                <PatientProgressDashboard />
               </ProtectedRoute>
             } 
           />

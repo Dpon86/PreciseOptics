@@ -196,6 +196,19 @@ export const apiService = {
   
   deleteSpecialization: (id) =>
     axios.delete(`/api/accounts/specializations/${id}/`),
+
+  // Reports
+  getDrugAuditReport: (params = {}) =>
+    axios.get('/api/reports/drug-audit/', { params }),
+  
+  getPatientVisitsReport: (params = {}) =>
+    axios.get('/api/reports/patient-visits/', { params }),
+  
+  getEyeTestsSummaryReport: (params = {}) =>
+    axios.get('/api/reports/eye-tests-summary/', { params }),
+  
+  getPatientProgressDashboard: (patientId, params = {}) =>
+    axios.get(`/api/reports/patient-progress/${patientId}/`, { params }),
 };
 
 export default apiService;

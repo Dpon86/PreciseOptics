@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'consultations',
     'eye_tests',
     'audit',
+    'reports',
 ]
 
 MIDDLEWARE = [

@@ -2203,6 +2203,513 @@ body {
   margin: 0;
 }
 
+/* Reports Page Styles */
+.report-page {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.report-header {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+}
+
+.report-header h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.report-header p {
+  margin: 0;
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+/* Filters */
+.report-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.filter-group select {
+  padding: 0.75rem;
+  border: 2px solid #e9ecef;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: border-color 0.3s ease;
+}
+
+.filter-group select:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Summary Cards */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.summary-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #007bff;
+  transition: transform 0.2s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+}
+
+.summary-card h3 {
+  margin: 0 0 1rem 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.metric-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 0.5rem;
+}
+
+.metric-change {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.metric-change.positive {
+  color: #28a745;
+}
+
+.metric-change.negative {
+  color: #dc3545;
+}
+
+/* Charts Grid */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.chart-container {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.chart-container.full-width {
+  grid-column: 1 / -1;
+}
+
+.chart-container h3 {
+  margin: 0 0 1rem 0;
+  color: #495057;
+  font-size: 1.2rem;
+  border-bottom: 2px solid #f8f9fa;
+  padding-bottom: 0.5rem;
+}
+
+/* Analysis Table */
+.detailed-analysis {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.detailed-analysis h3 {
+  margin: 0 0 1.5rem 0;
+  color: #495057;
+}
+
+.analysis-table-container {
+  overflow-x: auto;
+}
+
+.analysis-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.analysis-table th,
+.analysis-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.analysis-table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+}
+
+.analysis-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+/* Progress Indicators */
+.improvement {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.improvement.excellent {
+  background: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+}
+
+.improvement.good {
+  background: rgba(23, 162, 184, 0.2);
+  color: #17a2b8;
+}
+
+.improvement.fair {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+}
+
+.progress {
+  font-weight: 600;
+}
+
+.progress.excellent {
+  color: #28a745;
+}
+
+.progress.good {
+  color: #17a2b8;
+}
+
+.progress.fair {
+  color: #ffc107;
+}
+
+.trend {
+  font-weight: 600;
+}
+
+.trend.positive {
+  color: #28a745;
+}
+
+.trend.negative {
+  color: #dc3545;
+}
+
+/* Export Section */
+.export-section {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.export-btn {
+  background: white;
+  border: 2px solid #007bff;
+  color: #007bff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.export-btn:hover {
+  background: #007bff;
+  color: white;
+}
+
+.export-btn.primary {
+  background: #007bff;
+  color: white;
+}
+
+.export-btn.primary:hover {
+  background: #0056b3;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+  font-size: 1.2rem;
+  color: #6c757d;
+}
+
+/* Patient Dashboard Specific Styles */
+.patient-dashboard {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.patient-header {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.patient-info h1 {
+  margin: 0 0 1rem 0;
+  font-size: 2.2rem;
+}
+
+.patient-details {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.patient-details span {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+.next-appointment {
+  text-align: center;
+}
+
+.appointment-date {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+}
+
+/* Progress Summary */
+.progress-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.progress-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.progress-card.excellent {
+  border-left: 6px solid #28a745;
+}
+
+.progress-card.good {
+  border-left: 6px solid #17a2b8;
+}
+
+.progress-card.warning {
+  border-left: 6px solid #ffc107;
+}
+
+.progress-value {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0.5rem 0;
+}
+
+.progress-detail {
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+}
+
+.progress-trend {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Time Selector */
+.time-selector {
+  background: white;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.time-selector select {
+  padding: 0.5rem;
+  border: 2px solid #e9ecef;
+  border-radius: 6px;
+}
+
+/* Progress Charts */
+.progress-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.chart-description {
+  color: #6c757d;
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+/* Medications Section */
+.medications-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.medications-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.medication-card {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.adherence-badge {
+  text-align: center;
+  background: #28a745;
+  color: white;
+  padding: 1rem;
+  border-radius: 50px;
+  min-width: 80px;
+}
+
+.adherence-score {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.adherence-label {
+  font-size: 0.8rem;
+}
+
+/* Patient Actions */
+.patient-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  background: white;
+  border: 2px solid #28a745;
+  color: #28a745;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+  background: #28a745;
+  color: white;
+}
+
+.action-btn.primary {
+  background: #28a745;
+  color: white;
+}
+
+/* Health Tips */
+.health-tips {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.tips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.tip-card {
+  background: #e8f5e8;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.tip-card i {
+  font-size: 2rem;
+  color: #28a745;
+  margin-bottom: 1rem;
+}
+
 /* Add Tests Section Styles */
 .add-tests-section {
   background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
@@ -2417,5 +2924,59 @@ body {
   .selected-staff-banner {
     padding: 0.75rem;
     margin-bottom: 1rem;
+  }
+  
+  /* Reports Mobile Responsive */
+  .report-page {
+    padding: 1rem;
+  }
+  
+  .report-header {
+    padding: 1.5rem;
+  }
+  
+  .report-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .report-filters {
+    grid-template-columns: 1fr;
+  }
+  
+  .summary-cards {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+  
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .export-section {
+    flex-direction: column;
+  }
+  
+  .patient-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .patient-details {
+    justify-content: center;
+  }
+  
+  .progress-summary {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+  
+  .progress-charts {
+    grid-template-columns: 1fr;
+  }
+  
+  .patient-actions {
+    flex-direction: column;
+  }
+  
+  .tips-grid {
+    grid-template-columns: 1fr;
   }
 }

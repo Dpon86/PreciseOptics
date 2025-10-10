@@ -76,7 +76,7 @@ class StaffProfile(models.Model):
     years_of_experience = models.PositiveIntegerField(default=0)
     consultation_fee = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     availability_schedule = models.JSONField(default=dict, help_text="Weekly schedule in JSON format")
-    emergency_contact = models.CharField(max_length=15, null=True, blank=True)
+    emergency_contact = models.CharField(max_length=20, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
     hire_date = models.DateField(null=True, blank=True)
     is_consultant = models.BooleanField(default=False)

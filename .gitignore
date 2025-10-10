@@ -59,6 +59,9 @@ frontend/.env.production.local
 *.swo
 *~
 
+# MySQL installation directory
+mysql-9.4.0-winx64/
+
 # OS files
 .DS_Store
 .DS_Store?

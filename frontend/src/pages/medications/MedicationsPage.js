@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
+import './MedicationsPage.css';
 
 const MedicationsPage = () => {
   const [medications, setMedications] = useState([]);
@@ -59,18 +60,22 @@ const MedicationsPage = () => {
             <div key={medication.id} className="medication-card">
               <div className="card-header">
                 <h3>{medication.name}</h3>
-                <span className={`status-badge ${medication.approval_status ? 'approved' : 'pending'}`}>
-                  {medication.approval_status ? 'Approved' : 'Pending'}
-                </span>
+                <div className="status-container">
+                  <span className={`status-badge ${medication.approval_status ? 'approved' : 'pending'}`}>
+                    {medication.approval_status ? 'Approved' : 'Pending'}
+                  </span>
+                </div>
               </div>
               <div className="card-content">
-                <p><strong>Generic Name:</strong> {medication.generic_name}</p>
-                <p><strong>Strength:</strong> {medication.strength}</p>
-                <p><strong>Type:</strong> {medication.medication_type}</p>
-                <p><strong>Manufacturer:</strong> {medication.manufacturer}</p>
-                {medication.current_stock !== undefined && (
-                  <p><strong>Stock:</strong> {medication.current_stock}</p>
-                )}
+                <div className="medication-details">
+                  <p><strong>Generic Name:</strong> {medication.generic_name}</p>
+                  <p><strong>Strength:</strong> {medication.strength}</p>
+                  <p><strong>Type:</strong> {medication.medication_type}</p>
+                  <p><strong>Manufacturer:</strong> {medication.manufacturer}</p>
+                  {medication.current_stock !== undefined && (
+                    <p><strong>Stock:</strong> {medication.current_stock}</p>
+                  )}
+                </div>
               </div>
               <div className="card-actions">
                 <Link to={`/medications/${medication.id}`} className="btn btn-secondary">

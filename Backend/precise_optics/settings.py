@@ -4,17 +4,7 @@ Django settings for precise_optics project - PreciseOptics Eye Hospital Manageme
 
 import os
 from pathlib import Path
-
-# Simple config function to replace decouple temporarily
-def config(key, default=None, cast=None):
-    value = os.environ.get(key, default)
-    if cast and value is not None:
-        if cast == bool and isinstance(value, str):
-            return value.lower() in ('true', '1', 'yes', 'on')
-        elif cast == bool:
-            return bool(value)
-        return cast(value)
-    return value
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -48,7 +38,6 @@ INSTALLED_APPS = [
     'consultations',
     'eye_tests',
     'audit',
-    'reports',
 ]
 
 MIDDLEWARE = [

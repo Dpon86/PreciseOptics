@@ -46,6 +46,7 @@ import {
   AddSpecializationPage,
   FormsOverviewPage
 } from './pages';
+import AdminDashboard from './pages/AdminDashboard';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import './App_new.css';
@@ -274,6 +275,14 @@ function AppContent() {
             } 
           />
           {/* System Routes */}
+          <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } 
+          />
           <Route 
             path="/system" 
             element={

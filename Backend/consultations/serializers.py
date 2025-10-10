@@ -69,11 +69,11 @@ class ConsultationSerializer(serializers.ModelSerializer):
             'id', 'patient', 'patient_name', 'visit', 'consulting_doctor', 'doctor_name',
             'consultation_type', 'status', 'scheduled_time', 'actual_start_time', 'actual_end_time',
             'duration_minutes', 'chief_complaint', 'history_of_present_illness', 'past_ocular_history',
-            'systemic_history', 'allergies', 'current_medications', 'social_history',
-            'examination_findings', 'assessment', 'differential_diagnosis', 'treatment_plan',
-            'medications_prescribed', 'investigations_ordered', 'follow_up_instructions',
-            'next_appointment_date', 'referrals', 'billing_notes', 'consultation_fee',
-            'notes', 'vital_signs', 'documents', 'images', 'created_at', 'updated_at'
+            'past_medical_history', 'family_history', 'allergies', 'current_medications', 'social_history',
+            'general_examination', 'clinical_impression', 'diagnosis_primary', 'diagnosis_secondary',
+            'treatment_plan', 'follow_up_required', 'follow_up_duration', 'follow_up_instructions',
+            'referral_required', 'referral_to', 'referral_reason', 'consultation_notes',
+            'vital_signs', 'documents', 'images', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'patient_name', 'doctor_name', 'duration_minutes', 
                            'vital_signs', 'documents', 'images', 'created_at', 'updated_at']
@@ -95,5 +95,5 @@ class ConsultationCreateSerializer(serializers.ModelSerializer):
         fields = [
             'patient', 'visit', 'consulting_doctor', 'consultation_type',
             'scheduled_time', 'chief_complaint', 'history_of_present_illness',
-            'past_ocular_history', 'systemic_history', 'allergies', 'current_medications'
+            'past_ocular_history', 'past_medical_history', 'allergies', 'current_medications'
         ]

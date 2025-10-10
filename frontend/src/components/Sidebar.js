@@ -8,7 +8,8 @@ const Sidebar = ({ isOpen, onClose }) => {
     {
       category: 'Dashboard',
       items: [
-        { path: '/', label: 'Home', icon: '🏠' }
+        { path: '/', label: 'Home', icon: '🏠' },
+        { path: '/admin', label: 'Admin Dashboard', icon: '📊' }
       ]
     },
     {

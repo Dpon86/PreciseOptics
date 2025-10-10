@@ -66,17 +66,38 @@ export const apiService = {
     axios.get(`/api/consultations/${id}/`),
 
   // Eye Tests
-  getEyeTests: (params = {}) =>
-    axios.get('/api/eye-tests/', { params }),
+  getVisualAcuityTests: (params = {}) =>
+    axios.get('/api/visual-acuity-tests/', { params }),
+  
+  getRefractionTests: (params = {}) =>
+    axios.get('/api/refraction-tests/', { params }),
+  
+  getCataractAssessments: (params = {}) =>
+    axios.get('/api/cataract-assessments/', { params }),
+  
+  getGlaucomaAssessments: (params = {}) =>
+    axios.get('/api/glaucoma-assessments/', { params }),
+  
+  getVisualFieldTests: (params = {}) =>
+    axios.get('/api/visual-field-tests/', { params }),
+  
+  getRetinalAssessments: (params = {}) =>
+    axios.get('/api/retinal-assessments/', { params }),
+  
+  getDiabeticRetinopathyScreenings: (params = {}) =>
+    axios.get('/api/diabetic-retinopathy-screenings/', { params }),
+  
+  getOCTScans: (params = {}) =>
+    axios.get('/api/oct-scans/', { params }),
   
   createVisualAcuityTest: (data) =>
-    axios.post('/api/eye-tests/', data),
+    axios.post('/api/visual-acuity-tests/', data),
   
   updateEyeTest: (id, data) =>
-    axios.put(`/api/eye-tests/${id}/`, data),
+    axios.put(`/api/visual-acuity-tests/${id}/`, data),
   
   getEyeTest: (id) =>
-    axios.get(`/api/eye-tests/${id}/`),
+    axios.get(`/api/visual-acuity-tests/${id}/`),
 
   // Medications
   getMedications: (params = {}) =>

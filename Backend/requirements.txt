@@ -1,9 +1,11 @@
 # Core Django packages
 Django==5.2.7
 djangorestframework==3.16.1
+django-filter==23.5
 
 # Database support
 psycopg2-binary==2.9.10  # PostgreSQL adapter
+mysqlclient==2.2.0       # MySQL adapter
 
 # Configuration management
 python-decouple==3.8

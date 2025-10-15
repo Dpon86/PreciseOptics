@@ -1,0 +1,573 @@
+/* Medication Effectiveness Report Page Styles */
+
+.medication-effectiveness-report {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+/* Header */
+.report-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.report-header h1 {
+  margin: 0 0 10px 0;
+  font-size: 2.5rem;
+  font-weight: 600;
+}
+
+.report-header p {
+  margin: 0;
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+/* Loading State */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f4f6;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error State */
+.error-container {
+  margin-bottom: 20px;
+}
+
+.error-message {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 15px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.error-icon {
+  font-size: 1.2rem;
+}
+
+/* Filter Section */
+.filter-section {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.filter-row {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 200px;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.filter-group input[type="date"],
+.filter-group input[type="number"] {
+  padding: 8px 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.filter-group input[type="date"]:focus,
+.filter-group input[type="number"]:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.filter-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #667eea;
+}
+
+/* View Navigation */
+.view-navigation {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.nav-button {
+  padding: 12px 24px;
+  border: 2px solid #e5e7eb;
+  background: white;
+  color: #6b7280;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-button:hover {
+  border-color: #667eea;
+  color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+.nav-button.active {
+  border-color: #667eea;
+  background: #667eea;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+}
+
+/* Report Content */
+.report-content {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  margin-bottom: 30px;
+}
+
+/* Overview Section */
+.overview-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+  margin-bottom: 30px;
+}
+
+.overview-card {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 25px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.overview-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.card-icon {
+  font-size: 2rem;
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-header h3 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 1.3rem;
+}
+
+.card-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.stat:last-child {
+  border-bottom: none;
+}
+
+.stat label {
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.stat span {
+  font-weight: 700;
+  color: #1f2937;
+  font-size: 1.1rem;
+}
+
+.summary-insights {
+  background: #f0f9ff;
+  border: 2px solid #bae6fd;
+  border-radius: 12px;
+  padding: 25px;
+  margin-top: 30px;
+}
+
+.summary-insights h3 {
+  margin: 0 0 15px 0;
+  color: #0c4a6e;
+  font-size: 1.4rem;
+}
+
+.summary-insights ul {
+  margin: 0;
+  color: #0f172a;
+  line-height: 1.6;
+}
+
+.summary-insights li {
+  margin-bottom: 8px;
+}
+
+/* Tables Section */
+.data-table-container {
+  margin-bottom: 40px;
+}
+
+.data-table-container h3 {
+  color: #1f2937;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  border-bottom: 3px solid #667eea;
+  padding-bottom: 10px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.effectiveness-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.effectiveness-table th {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 15px 10px;
+  text-align: left;
+  font-weight: 600;
+  border: none;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.effectiveness-table th:first-child {
+  border-top-left-radius: 12px;
+  min-width: 200px;
+}
+
+.effectiveness-table th:last-child {
+  border-top-right-radius: 12px;
+}
+
+.effectiveness-table td {
+  padding: 15px 10px;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: top;
+}
+
+.effectiveness-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.medication-name {
+  font-weight: 600;
+  color: #1f2937;
+  background: #f9fafb !important;
+  position: sticky;
+  left: 0;
+  z-index: 5;
+}
+
+.improvement-cell {
+  text-align: center;
+  min-width: 120px;
+}
+
+.improvement-value {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #059669;
+  margin-bottom: 4px;
+}
+
+.patient-count {
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.overall-average {
+  background: #fef3c7;
+  text-align: center;
+  font-size: 1.2rem;
+  color: #92400e;
+}
+
+/* Charts Section */
+.chart-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+}
+
+.chart-controls label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.chart-controls select {
+  padding: 8px 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  color: #374151;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 30px;
+}
+
+.chart-container {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border: 2px solid #f1f5f9;
+}
+
+.chart-container canvas {
+  max-height: 400px !important;
+}
+
+/* No Data Message */
+.no-data-message {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 2px dashed #d1d5db;
+}
+
+.no-data-message p {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+/* Export Section */
+.export-section {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  padding: 25px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.export-button {
+  padding: 12px 24px;
+  border: 2px solid #667eea;
+  background: white;
+  color: #667eea;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.export-button:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.25);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .medication-effectiveness-report {
+    padding: 15px;
+  }
+  
+  .report-header {
+    padding: 20px;
+  }
+  
+  .report-header h1 {
+    font-size: 2rem;
+  }
+  
+  .filter-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+  
+  .filter-group {
+    min-width: auto;
+    flex-wrap: wrap;
+  }
+  
+  .view-navigation {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .nav-button {
+    flex: 1;
+    min-width: 140px;
+    justify-content: center;
+  }
+  
+  .overview-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .effectiveness-table {
+    font-size: 0.9rem;
+  }
+  
+  .effectiveness-table th,
+  .effectiveness-table td {
+    padding: 10px 8px;
+  }
+  
+  .chart-container {
+    padding: 15px;
+  }
+  
+  .export-section {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .report-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .report-header p {
+    font-size: 1rem;
+  }
+  
+  .effectiveness-table {
+    font-size: 0.8rem;
+  }
+  
+  .improvement-value {
+    font-size: 1rem;
+  }
+  
+  .patient-count {
+    font-size: 0.75rem;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .medication-effectiveness-report {
+    background: white;
+    padding: 20px;
+  }
+  
+  .filter-section,
+  .view-navigation,
+  .export-section {
+    display: none;
+  }
+  
+  .report-header {
+    background: #667eea !important;
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+  }
+  
+  .overview-card,
+  .chart-container,
+  .data-table-container {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  
+  .effectiveness-table {
+    font-size: 0.8rem;
+  }
+}

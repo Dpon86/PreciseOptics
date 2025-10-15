@@ -58,80 +58,105 @@ const EyeTestsSummaryReportPage = () => {
     try {
       setLoading(true);
       
-      // Use mock data for now until API endpoint is ready
-      const mockData = {
-        iopTrends: {
-          labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'],
-          datasets: [{
-            label: 'IOP (mmHg)',
-            data: [18, 16, 15, 14, 13, 12],
-            borderColor: 'rgba(54, 162, 235, 1)',
-            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            tension: 0.4
-          }]
-        },
-        visualAcuityProgress: {
-          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-          datasets: [{
-            label: 'Right Eye (Decimal)',
-            data: [0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-            borderColor: 'rgba(75, 192, 192, 1)',
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            tension: 0.4
-          }, {
-            label: 'Left Eye (Decimal)',
-            data: [0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
-            borderColor: 'rgba(255, 99, 132, 1)',
-            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            tension: 0.4
-          }]
-        },
-        testFrequency: {
-          labels: ['Visual Acuity', 'IOP Test', 'Visual Field', 'OCT', 'Fundoscopy'],
-          datasets: [{
-            label: 'Test Count',
-            data: [120, 95, 78, 65, 88],
-            backgroundColor: 'rgba(153, 102, 255, 0.6)',
-            borderColor: 'rgba(153, 102, 255, 1)',
-            borderWidth: 1
-          }]
-        },
-        medicationCorrelation: {
-          datasets: [{
-            label: 'Medication Effectiveness',
-            data: [
-              { x: 85, y: 25 }, { x: 90, y: 30 }, { x: 78, y: 18 },
-              { x: 92, y: 35 }, { x: 88, y: 28 }, { x: 95, y: 40 }
-            ],
-            backgroundColor: 'rgba(255, 99, 132, 0.6)'
-          }]
-        },
-        comprehensiveAssessment: {
-          labels: ['Visual Acuity', 'IOP Control', 'Visual Field', 'Medication Adherence', 'Quality of Life', 'Treatment Response'],
-          datasets: [{
-            label: 'Patient Score',
-            data: [85, 78, 92, 88, 75, 82],
-            borderColor: 'rgba(255, 206, 86, 1)',
-            backgroundColor: 'rgba(255, 206, 86, 0.2)',
-            pointBackgroundColor: 'rgba(255, 206, 86, 1)',
-            pointBorderColor: '#fff',
-            pointHoverBackgroundColor: '#fff',
-            pointHoverBorderColor: 'rgba(255, 206, 86, 1)'
-          }]
+      // Fetch actual data from API
+      try {
+        const response = await api.getEyeTestsSummaryReport({ ...filters, selectedPatient, selectedTest });
+        if (response.data.success) {
+          setEyeTestData(response.data.data);
+        } else {
+          // No data available - show empty state
+          setEyeTestData({
+            iopTrends: {
+              labels: ['No Data'],
+              datasets: [{
+                label: 'IOP (mmHg)',
+                data: [0],
+                borderColor: 'rgba(128, 128, 128, 1)',
+                backgroundColor: 'rgba(128, 128, 128, 0.2)'
+              }]
+            },
+            visualAcuityProgress: {
+              labels: ['No Data'],
+              datasets: [{
+                label: 'No Data Available',
+                data: [0],
+                borderColor: 'rgba(128, 128, 128, 1)',
+                backgroundColor: 'rgba(128, 128, 128, 0.2)'
+              }]
+            },
+            testFrequency: {
+              labels: ['No Data'],
+              datasets: [{
+                label: 'Test Count',
+                data: [0],
+                backgroundColor: 'rgba(128, 128, 128, 0.6)'
+              }]
+            },
+            medicationCorrelation: {
+              datasets: [{
+                label: 'No Data Available',
+                data: [],
+                backgroundColor: 'rgba(128, 128, 128, 0.6)'
+              }]
+            },
+            comprehensiveAssessment: {
+              labels: ['No Data'],
+              datasets: [{
+                label: 'No Data Available',
+                data: [0],
+                borderColor: 'rgba(128, 128, 128, 1)',
+                backgroundColor: 'rgba(128, 128, 128, 0.2)'
+              }]
+            }
+          });
         }
-      };
-
-      setEyeTestData(mockData);
-
-      // TODO: Uncomment when API endpoint is ready
-      /*
-      const response = await api.getEyeTestsSummaryReport({ ...filters, selectedPatient, selectedTest });
-      if (response.data.success) {
-        setEyeTestData(response.data.data);
-      } else {
-        setEyeTestData(mockData);
+      } catch (apiError) {
+        console.log('API endpoint not available, showing empty state');
+        setEyeTestData({
+          iopTrends: {
+            labels: ['No Data'],
+            datasets: [{
+              label: 'IOP (mmHg)',
+              data: [0],
+              borderColor: 'rgba(128, 128, 128, 1)',
+              backgroundColor: 'rgba(128, 128, 128, 0.2)'
+            }]
+          },
+          visualAcuityProgress: {
+            labels: ['No Data'],
+            datasets: [{
+              label: 'No Data Available',
+              data: [0],
+              borderColor: 'rgba(128, 128, 128, 1)',
+              backgroundColor: 'rgba(128, 128, 128, 0.2)'
+            }]
+          },
+          testFrequency: {
+            labels: ['No Data'],
+            datasets: [{
+              label: 'Test Count',
+              data: [0],
+              backgroundColor: 'rgba(128, 128, 128, 0.6)'
+            }]
+          },
+          medicationCorrelation: {
+            datasets: [{
+              label: 'No Data Available',
+              data: [],
+              backgroundColor: 'rgba(128, 128, 128, 0.6)'
+            }]
+          },
+          comprehensiveAssessment: {
+            labels: ['No Data'],
+            datasets: [{
+              label: 'No Data Available',
+              data: [0],
+              borderColor: 'rgba(128, 128, 128, 1)',
+              backgroundColor: 'rgba(128, 128, 128, 0.2)'
+            }]
+          }
+        });
       }
-      */
     } catch (error) {
       console.error('Error fetching eye test data:', error);
       // Fallback to safe empty structure

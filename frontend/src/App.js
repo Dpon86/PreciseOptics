@@ -11,9 +11,12 @@ import {
   // Patient Management
   PatientsPage,
   AddPatientPage,
+  AddDiagnosisPage,
+  AddTreatmentPage,
   // Consultation Management
   ConsultationsPage,
   AddConsultationPage,
+  ConsultationDetailPage,
   // Eye Tests
   EyeTestsPage,
   AddVisualAcuityTestPage,
@@ -35,6 +38,7 @@ import {
   DrugAuditReportPage,
   PatientVisitsReportPage,
   EyeTestsSummaryReportPage,
+  MedicationEffectivenessReportPage,
   PatientProgressDashboard,
   // Audit
   AuditLogsPage,
@@ -147,6 +151,22 @@ function AppContent() {
             } 
           />
           <Route 
+            path="/patients/:patientId/add-diagnosis" 
+            element={
+              <ProtectedRoute>
+                <AddDiagnosisPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/patients/:patientId/add-treatment" 
+            element={
+              <ProtectedRoute>
+                <AddTreatmentPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/consultations" 
             element={
               <ProtectedRoute>
@@ -159,6 +179,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <AddConsultationPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/consultations/:id" 
+            element={
+              <ProtectedRoute>
+                <ConsultationDetailPage />
               </ProtectedRoute>
             } 
           />
@@ -360,6 +388,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <EyeTestsSummaryReportPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/reports/medication-effectiveness" 
+            element={
+              <ProtectedRoute>
+                <MedicationEffectivenessReportPage />
               </ProtectedRoute>
             } 
           />

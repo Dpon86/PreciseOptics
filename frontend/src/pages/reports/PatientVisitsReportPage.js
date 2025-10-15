@@ -51,78 +51,103 @@ const PatientVisitsReportPage = () => {
     try {
       setLoading(true);
       
-      // Use mock data for now until API endpoint is ready
-      const mockData = {
-        dailyVisits: {
-          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-          datasets: [{
-            label: 'Daily Visits',
-            data: [45, 52, 38, 67, 73, 28, 15],
-            borderColor: 'rgba(75, 192, 192, 1)',
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            tension: 0.4
-          }]
-        },
-        visitsByType: {
-          labels: ['Consultation', 'Follow-up', 'Emergency', 'Surgery', 'Screening'],
-          datasets: [{
-            label: 'Visits by Type',
-            data: [156, 89, 23, 45, 67],
-            backgroundColor: [
-              'rgba(255, 99, 132, 0.6)',
-              'rgba(54, 162, 235, 0.6)',
-              'rgba(255, 205, 86, 0.6)',
-              'rgba(75, 192, 192, 0.6)',
-              'rgba(153, 102, 255, 0.6)'
-            ]
-          }]
-        },
-        monthlyTrends: {
-          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-          datasets: [{
-            label: 'Monthly Visits',
-            data: [1250, 1180, 1420, 1380, 1560, 1480],
-            borderColor: 'rgba(255, 99, 132, 1)',
-            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            tension: 0.4
-          }]
-        },
-        departmentVisits: {
-          labels: ['Ophthalmology', 'Optometry', 'Surgery', 'Emergency', 'Pediatric'],
-          datasets: [{
-            label: 'Department Visits',
-            data: [320, 245, 180, 95, 140],
-            backgroundColor: 'rgba(54, 162, 235, 0.6)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 1
-          }]
-        },
-        waitTimes: {
-          labels: ['0-15 min', '15-30 min', '30-45 min', '45-60 min', '60+ min'],
-          datasets: [{
-            data: [35, 45, 15, 3, 2],
-            backgroundColor: [
-              'rgba(34, 197, 94, 0.6)',
-              'rgba(234, 179, 8, 0.6)',
-              'rgba(249, 115, 22, 0.6)',
-              'rgba(239, 68, 68, 0.6)',
-              'rgba(147, 51, 234, 0.6)'
-            ]
-          }]
+      // Fetch actual data from API
+      try {
+        const response = await api.getPatientVisitsReport(filters);
+        if (response.data.success) {
+          setVisitsData(response.data.data);
+        } else {
+          // No data available - show empty state
+          setVisitsData({
+            dailyVisits: { 
+              labels: ['No Data'], 
+              datasets: [{
+                label: 'Daily Visits',
+                data: [0],
+                borderColor: 'rgba(128, 128, 128, 1)',
+                backgroundColor: 'rgba(128, 128, 128, 0.2)'
+              }]
+            },
+            visitsByType: { 
+              labels: ['No Data'], 
+              datasets: [{
+                label: 'Visits by Type',
+                data: [0],
+                backgroundColor: ['rgba(128, 128, 128, 0.6)']
+              }]
+            },
+            monthlyTrends: { 
+              labels: ['No Data'], 
+              datasets: [{
+                label: 'Monthly Visits',
+                data: [0],
+                borderColor: 'rgba(128, 128, 128, 1)',
+                backgroundColor: 'rgba(128, 128, 128, 0.2)'
+              }]
+            },
+            departmentVisits: { 
+              labels: ['No Data'], 
+              datasets: [{
+                label: 'Department Visits',
+                data: [0],
+                backgroundColor: 'rgba(128, 128, 128, 0.6)'
+              }]
+            },
+            waitTimes: { 
+              labels: ['No Data'], 
+              datasets: [{
+                data: [0],
+                backgroundColor: ['rgba(128, 128, 128, 0.6)']
+              }]
+            }
+          });
         }
-      };
-
-      setVisitsData(mockData);
-
-      // TODO: Uncomment when API endpoint is ready
-      /*
-      const response = await api.getPatientVisitsReport(filters);
-      if (response.data.success) {
-        setVisitsData(response.data.data);
-      } else {
-        setVisitsData(mockData);
+      } catch (apiError) {
+        console.log('API endpoint not available, showing empty state');
+        setVisitsData({
+          dailyVisits: { 
+            labels: ['No Data'], 
+            datasets: [{
+              label: 'Daily Visits',
+              data: [0],
+              borderColor: 'rgba(128, 128, 128, 1)',
+              backgroundColor: 'rgba(128, 128, 128, 0.2)'
+            }]
+          },
+          visitsByType: { 
+            labels: ['No Data'], 
+            datasets: [{
+              label: 'Visits by Type',
+              data: [0],
+              backgroundColor: ['rgba(128, 128, 128, 0.6)']
+            }]
+          },
+          monthlyTrends: { 
+            labels: ['No Data'], 
+            datasets: [{
+              label: 'Monthly Visits',
+              data: [0],
+              borderColor: 'rgba(128, 128, 128, 1)',
+              backgroundColor: 'rgba(128, 128, 128, 0.2)'
+            }]
+          },
+          departmentVisits: { 
+            labels: ['No Data'], 
+            datasets: [{
+              label: 'Department Visits',
+              data: [0],
+              backgroundColor: 'rgba(128, 128, 128, 0.6)'
+            }]
+          },
+          waitTimes: { 
+            labels: ['No Data'], 
+            datasets: [{
+              data: [0],
+              backgroundColor: ['rgba(128, 128, 128, 0.6)']
+            }]
+          }
+        });
       }
-      */
     } catch (error) {
       console.error('Error fetching visits data:', error);
       // Fallback to safe empty structure

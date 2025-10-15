@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
+    'django_filters',
     
     # Local apps
     'accounts',
@@ -37,7 +38,9 @@ INSTALLED_APPS = [
     'medications',
     'consultations',
     'eye_tests',
+    'treatments',
     'audit',
+    'reports',
 ]
 
 MIDDLEWARE = [
@@ -72,18 +75,32 @@ TEMPLATES = [
 WSGI_APPLICATION = 'precise_optics.wsgi.application'
 
 # Database configuration
-# For development, you can use SQLite. For production, use PostgreSQL
+# For development, you can use SQLite. For production, use MySQL or PostgreSQL
+DB_ENGINE = config('DB_ENGINE', default='django.db.backends.sqlite3')
+DB_NAME = config('DB_NAME', default='db.sqlite3')
+
 DATABASES = {
     'default': {
-        'ENGINE': config('DB_ENGINE', default='django.db.backends.sqlite3'),
-        'NAME': config('DB_NAME', default=BASE_DIR / 'db.sqlite3'),
+        'ENGINE': DB_ENGINE,
+        'NAME': DB_NAME if DB_ENGINE != 'django.db.backends.sqlite3' else BASE_DIR / DB_NAME,
         'USER': config('DB_USER', default=''),
         'PASSWORD': config('DB_PASSWORD', default=''),
         'HOST': config('DB_HOST', default=''),
         'PORT': config('DB_PORT', default=''),
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'" if 'mysql' in DB_ENGINE else {},
+        } if 'mysql' in DB_ENGINE else {},
     }
 }
 
+# For MySQL production setup, update your .env file with:
+# DB_ENGINE=django.db.backends.mysql
+# DB_NAME=precise_optics_db
+# DB_USER=your_mysql_user
+# DB_PASSWORD=your_mysql_password
+# DB_HOST=localhost
+# DB_PORT=3306
+#
 # For PostgreSQL production setup, update your .env file with:
 # DB_ENGINE=django.db.backends.postgresql
 # DB_NAME=precise_optics_db

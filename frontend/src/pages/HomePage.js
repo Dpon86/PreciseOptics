@@ -18,6 +18,7 @@ const HomePage = () => {
         { path: '/reports/drug-audit', label: 'Drug Audit Report' },
         { path: '/reports/patient-visits', label: 'Patient Visits Report' },
         { path: '/reports/eye-tests-summary', label: 'Eye Tests Summary' },
+        { path: '/reports/medication-effectiveness', label: 'Medication Effectiveness' },
         { path: '/reports/revenue-analysis', label: 'Revenue Analysis' },
         { path: '/audit', label: 'Audit Logs' }
       ]

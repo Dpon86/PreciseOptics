@@ -62,64 +62,93 @@ const DrugAuditReportPage = () => {
     try {
       setLoading(true);
       
-      // For now, use mock data since API endpoint might not exist yet
-      // TODO: Replace with actual API call when backend endpoint is ready
-      const mockData = {
-        medicationEffectiveness: {
-          labels: ['Latanoprost', 'Timolol', 'Brimonidine', 'Dorzolamide', 'Bimatoprost'],
-          datasets: [{
-            label: 'IOP Reduction (%)',
-            data: [25, 18, 22, 16, 28],
-            backgroundColor: 'rgba(54, 162, 235, 0.6)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 1
-          }]
-        },
-        timelineTrends: {
-          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-          datasets: [{
-            label: 'Average IOP (mmHg)',
-            data: [18.2, 17.8, 16.5, 15.9, 15.2, 14.8],
-            borderColor: 'rgba(75, 192, 192, 1)',
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            tension: 0.4
-          }]
-        },
-        sideEffectDistribution: {
-          labels: ['None', 'Mild', 'Moderate', 'Severe'],
-          datasets: [{
-            data: [65, 25, 8, 2],
-            backgroundColor: [
-              'rgba(75, 192, 192, 0.6)',
-              'rgba(255, 206, 86, 0.6)',
-              'rgba(255, 99, 132, 0.6)',
-              'rgba(255, 0, 0, 0.6)'
-            ]
-          }]
-        },
-        adherenceRates: {
-          labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-          datasets: [{
-            label: 'Adherence Rate (%)',
-            data: [95, 88, 82, 78],
-            backgroundColor: 'rgba(153, 102, 255, 0.6)',
-            borderColor: 'rgba(153, 102, 255, 1)',
-            borderWidth: 1
-          }]
+      // Fetch actual data from API
+      try {
+        const response = await api.getDrugAuditReport(filters);
+        if (response.data.success) {
+          setDrugData(response.data.data);
+        } else {
+          // No data available - show empty state
+          setDrugData({
+            medicationEffectiveness: {
+              labels: ['No Data'],
+              datasets: [{
+                label: 'No Data Available',
+                data: [0],
+                backgroundColor: 'rgba(128, 128, 128, 0.6)',
+                borderColor: 'rgba(128, 128, 128, 1)',
+                borderWidth: 1
+              }]
+            },
+            timelineTrends: {
+              labels: ['No Data'],
+              datasets: [{
+                label: 'No Data Available',
+                data: [0],
+                borderColor: 'rgba(128, 128, 128, 1)',
+                backgroundColor: 'rgba(128, 128, 128, 0.2)'
+              }]
+            },
+            sideEffectDistribution: {
+              labels: ['No Data'],
+              datasets: [{
+                data: [100],
+                backgroundColor: ['rgba(128, 128, 128, 0.6)']
+              }]
+            },
+            adherenceRates: {
+              labels: ['No Data'],
+              datasets: [{
+                label: 'No Data Available',
+                data: [0],
+                backgroundColor: 'rgba(128, 128, 128, 0.6)',
+                borderColor: 'rgba(128, 128, 128, 1)',
+                borderWidth: 1
+              }]
+            }
+          });
         }
-      };
-
-      setDrugData(mockData);
-
-      // Uncomment when API endpoint is ready:
-      /*
-      const response = await api.getDrugAuditReport(filters);
-      if (response.data.success) {
-        setDrugData(response.data.data);
-      } else {
-        setDrugData(mockData);
+      } catch (apiError) {
+        console.log('API endpoint not available, showing empty state');
+        setDrugData({
+          medicationEffectiveness: {
+            labels: ['No Data'],
+            datasets: [{
+              label: 'No Data Available',
+              data: [0],
+              backgroundColor: 'rgba(128, 128, 128, 0.6)',
+              borderColor: 'rgba(128, 128, 128, 1)',
+              borderWidth: 1
+            }]
+          },
+          timelineTrends: {
+            labels: ['No Data'],
+            datasets: [{
+              label: 'No Data Available',
+              data: [0],
+              borderColor: 'rgba(128, 128, 128, 1)',
+              backgroundColor: 'rgba(128, 128, 128, 0.2)'
+            }]
+          },
+          sideEffectDistribution: {
+            labels: ['No Data'],
+            datasets: [{
+              data: [100],
+              backgroundColor: ['rgba(128, 128, 128, 0.6)']
+            }]
+          },
+          adherenceRates: {
+            labels: ['No Data'],
+            datasets: [{
+              label: 'No Data Available',
+              data: [0],
+              backgroundColor: 'rgba(128, 128, 128, 0.6)',
+              borderColor: 'rgba(128, 128, 128, 1)',
+              borderWidth: 1
+            }]
+          }
+        });
       }
-      */
     } catch (error) {
       console.error('Error fetching drug audit data:', error);
       // Fallback to empty safe structure

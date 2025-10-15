@@ -16,11 +16,11 @@ const PatientDashboard = () => {
       description: 'Manage appointments and consultations for this patient',
       icon: '📋',
       links: [
-        { path: `/patient/${selectedPatient.id}/consultations`, label: 'View Consultations' },
+        { path: `/patients/${selectedPatient.id}/consultations`, label: 'View Consultations' },
         { path: `/consultations/add`, label: 'Add Consultation' },
-        { path: `/patient/${selectedPatient.id}/appointments/add`, label: 'Book Appointment' },
-        { path: `/patient/${selectedPatient.id}/diagnoses/add`, label: 'Add Diagnosis' },
-        { path: `/patient/${selectedPatient.id}/treatments/add`, label: 'Add Treatment' }
+        { path: `/patients/${selectedPatient.id}/appointments/add`, label: 'Book Appointment' },
+        { path: `/patients/${selectedPatient.id}/add-diagnosis`, label: 'Add Diagnosis' },
+        { path: `/patients/${selectedPatient.id}/add-treatment`, label: 'Add Treatment' }
       ]
     },
     
@@ -30,15 +30,15 @@ const PatientDashboard = () => {
       description: 'Manage eye examinations and tests for this patient',
       icon: '👁️',
       links: [
-        { path: `/patient/${selectedPatient.id}/eye-tests`, label: 'View Eye Tests' },
-        { path: `/patient/${selectedPatient.id}/eye-tests/visual-acuity/add`, label: 'Visual Acuity Test' },
-        { path: `/patient/${selectedPatient.id}/eye-tests/refraction/add`, label: 'Refraction Test' },
-        { path: `/patient/${selectedPatient.id}/eye-tests/tonometry/add`, label: 'Tonometry Test' },
-        { path: `/patient/${selectedPatient.id}/eye-tests/ophthalmoscopy/add`, label: 'Ophthalmoscopy' },
-        { path: `/patient/${selectedPatient.id}/eye-tests/slit-lamp/add`, label: 'Slit Lamp Exam' },
-        { path: `/patient/${selectedPatient.id}/eye-tests/visual-field/add`, label: 'Visual Field Test' },
-        { path: `/patient/${selectedPatient.id}/eye-tests/oct/add`, label: 'OCT Scan' },
-        { path: `/patient/${selectedPatient.id}/eye-tests/fluorescein/add`, label: 'Fluorescein Angiography' }
+        { path: `/eye-tests`, label: 'View Eye Tests' },
+        { path: `/eye-tests/visual-acuity/add`, label: 'Visual Acuity Test' },
+        { path: `/eye-tests/refraction/add`, label: 'Refraction Test' },
+        { path: `/eye-tests/tonometry/add`, label: 'Tonometry Test' },
+        { path: `/eye-tests/ophthalmoscopy/add`, label: 'Ophthalmoscopy' },
+        { path: `/eye-tests/slit-lamp/add`, label: 'Slit Lamp Exam' },
+        { path: `/eye-tests/visual-field/add`, label: 'Visual Field Test' },
+        { path: `/eye-tests/oct/add`, label: 'OCT Scan' },
+        { path: `/eye-tests/fluorescein/add`, label: 'Fluorescein Angiography' }
       ]
     },
     
@@ -48,9 +48,9 @@ const PatientDashboard = () => {
       description: 'Manage medications and prescriptions for this patient',
       icon: '💊',
       links: [
-        { path: `/patient/${selectedPatient.id}/medications`, label: 'View Medications' },
-        { path: `/patient/${selectedPatient.id}/prescriptions/add`, label: 'Add Prescription' },
-        { path: `/patient/${selectedPatient.id}/medications/history`, label: 'Medication History' }
+        { path: `/medications`, label: 'View Medications' },
+        { path: `/prescriptions/add`, label: 'Add Prescription' },
+        { path: `/medications`, label: 'Medication History' }
       ]
     }
   ];

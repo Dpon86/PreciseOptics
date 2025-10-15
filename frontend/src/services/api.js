@@ -65,6 +65,16 @@ export const apiService = {
   getConsultation: (id) =>
     axios.get(`/api/consultations/${id}/`),
 
+  // Consultation related data
+  getVitalSigns: (consultationId) =>
+    axios.get(`/api/vital-signs/?consultation=${consultationId}`),
+
+  getConsultationDocuments: (consultationId) =>
+    axios.get(`/api/consultation-documents/?consultation=${consultationId}`),
+
+  getConsultationImages: (consultationId) =>
+    axios.get(`/api/consultation-images/?consultation=${consultationId}`),
+
   // Eye Tests
   getVisualAcuityTests: (params = {}) =>
     axios.get('/api/visual-acuity-tests/', { params }),
@@ -211,6 +221,32 @@ export const apiService = {
       },
     }),
 
+  // Diagnoses
+  getDiagnoses: (params = {}) =>
+    axios.get('/api/diagnoses/', { params }),
+  
+  createDiagnosis: (data) =>
+    axios.post('/api/diagnoses/', data),
+  
+  updateDiagnosis: (id, data) =>
+    axios.put(`/api/diagnoses/${id}/`, data),
+  
+  getDiagnosis: (id) =>
+    axios.get(`/api/diagnoses/${id}/`),
+
+  // Treatments
+  getTreatments: (params = {}) =>
+    axios.get('/api/treatments/', { params }),
+  
+  createTreatment: (data) =>
+    axios.post('/api/treatments/', data),
+  
+  updateTreatment: (id, data) =>
+    axios.put(`/api/treatments/${id}/`, data),
+  
+  getTreatment: (id) =>
+    axios.get(`/api/treatments/${id}/`),
+
   // Specializations
   createSpecialization: (data) =>
     axios.post('/api/accounts/specializations/', data),
@@ -230,6 +266,9 @@ export const apiService = {
   
   getPatientProgressDashboard: (patientId, params = {}) =>
     axios.get(`/api/reports/patient-progress/${patientId}/`, { params }),
+
+  getMedicationEffectivenessReport: (params = {}) =>
+    axios.get('/api/reports/medication-effectiveness/', { params }),
 };
 
 export default apiService;

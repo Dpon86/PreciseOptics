@@ -75,7 +75,7 @@ class PrescriptionViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Filter prescriptions based on parameters"""
-        queryset = Prescription.objects.select_related('patient', 'prescribed_by')
+        queryset = Prescription.objects.select_related('patient', 'prescribing_doctor')
         
         # Filter by patient
         patient_id = self.request.query_params.get('patient', None)
@@ -85,14 +85,14 @@ class PrescriptionViewSet(viewsets.ModelViewSet):
         # Filter by prescribing doctor
         doctor_id = self.request.query_params.get('doctor', None)
         if doctor_id:
-            queryset = queryset.filter(prescribed_by_id=doctor_id)
+            queryset = queryset.filter(prescribing_doctor_id=doctor_id)
         
         # Filter by status
         status_filter = self.request.query_params.get('status', None)
         if status_filter:
             queryset = queryset.filter(status=status_filter)
         
-        return queryset.order_by('-prescription_date')
+        return queryset.order_by('-date_prescribed')
 
 
 class PrescriptionItemViewSet(viewsets.ModelViewSet):

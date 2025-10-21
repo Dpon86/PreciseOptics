@@ -52,9 +52,9 @@ class RefractionTestSerializer(BaseEyeTestSerializer):
     class Meta(BaseEyeTestSerializer.Meta):
         model = RefractionTest
         fields = BaseEyeTestSerializer.Meta.fields + [
-            'test_method', 'right_sphere', 'right_cylinder', 'right_axis', 'right_add',
-            'left_sphere', 'left_cylinder', 'left_axis', 'left_add',
-            'pupillary_distance', 'vertex_distance', 'working_distance'
+            'method', 'right_sphere', 'right_cylinder', 'right_axis', 'right_add', 'right_prism',
+            'left_sphere', 'left_cylinder', 'left_axis', 'left_add', 'left_prism',
+            'pupillary_distance'
         ]
 
 
@@ -65,11 +65,10 @@ class CataractAssessmentSerializer(BaseEyeTestSerializer):
     class Meta(BaseEyeTestSerializer.Meta):
         model = CataractAssessment
         fields = BaseEyeTestSerializer.Meta.fields + [
-            'right_eye_cataract_present', 'right_eye_cataract_type', 'right_eye_cataract_grade',
-            'right_eye_lens_opacity', 'right_eye_visual_impact', 'left_eye_cataract_present',
-            'left_eye_cataract_type', 'left_eye_cataract_grade', 'left_eye_lens_opacity',
-            'left_eye_visual_impact', 'surgical_recommendation', 'priority_level',
-            'biometry_required', 'iol_calculation_required', 'surgical_notes'
+            'right_eye_cataract_type', 'right_eye_severity', 'right_eye_lens_clarity',
+            'left_eye_cataract_type', 'left_eye_severity', 'left_eye_lens_clarity',
+            'glare_disability', 'contrast_sensitivity_reduced', 'visual_function_impact',
+            'surgery_recommended', 'urgency_level', 'iol_power_calculation', 'target_refraction'
         ]
 
 
@@ -80,11 +79,14 @@ class GlaucomaAssessmentSerializer(BaseEyeTestSerializer):
     class Meta(BaseEyeTestSerializer.Meta):
         model = GlaucomaAssessment
         fields = BaseEyeTestSerializer.Meta.fields + [
-            'right_eye_iop', 'left_eye_iop', 'measurement_method', 'right_eye_optic_disc_cdh_ratio',
-            'left_eye_optic_disc_cdh_ratio', 'right_eye_disc_appearance', 'left_eye_disc_appearance',
-            'right_eye_nerve_fiber_layer', 'left_eye_nerve_fiber_layer', 'visual_field_defects',
-            'gonioscopy_findings', 'central_corneal_thickness_right', 'central_corneal_thickness_left',
-            'glaucoma_risk_factors', 'glaucoma_type', 'severity', 'treatment_plan'
+            'right_eye_iop', 'left_eye_iop', 'iop_method',
+            'right_disc_cup_ratio', 'left_disc_cup_ratio',
+            'right_disc_hemorrhage', 'left_disc_hemorrhage',
+            'right_disc_notching', 'left_disc_notching',
+            'right_nfl_defect', 'left_nfl_defect', 'nfl_description',
+            'visual_field_defects', 'family_history_glaucoma', 'diabetes', 'myopia',
+            'central_corneal_thickness_right', 'central_corneal_thickness_left',
+            'glaucoma_type', 'treatment_required', 'target_iop'
         ]
 
 
@@ -95,11 +97,12 @@ class VisualFieldTestSerializer(BaseEyeTestSerializer):
     class Meta(BaseEyeTestSerializer.Meta):
         model = VisualFieldTest
         fields = BaseEyeTestSerializer.Meta.fields + [
-            'test_type', 'strategy', 'stimulus_size', 'right_eye_mean_deviation',
-            'right_eye_pattern_standard_deviation', 'right_eye_visual_field_index',
-            'left_eye_mean_deviation', 'left_eye_pattern_standard_deviation',
-            'left_eye_visual_field_index', 'defect_pattern', 'progression_analysis',
-            'reliability_indices', 'test_quality'
+            'test_type', 'strategy',
+            'right_eye_md', 'right_eye_psd', 'right_eye_vfi', 'right_eye_reliability',
+            'left_eye_md', 'left_eye_psd', 'left_eye_vfi', 'left_eye_reliability',
+            'right_eye_defects', 'left_eye_defects',
+            'fixation_losses_right', 'false_positives_right', 'false_negatives_right',
+            'fixation_losses_left', 'false_positives_left', 'false_negatives_left'
         ]
 
 
@@ -110,9 +113,13 @@ class RetinalAssessmentSerializer(BaseEyeTestSerializer):
     class Meta(BaseEyeTestSerializer.Meta):
         model = RetinalAssessment
         fields = BaseEyeTestSerializer.Meta.fields + [
-            'right_eye_findings', 'left_eye_findings', 'macular_assessment',
-            'peripheral_retina_assessment', 'vascular_assessment', 'oct_findings',
-            'fundus_photography', 'fluorescein_angiography'
+            'right_retina_findings', 'left_retina_findings',
+            'right_macula_normal', 'left_macula_normal',
+            'right_macula_findings', 'left_macula_findings',
+            'arteriovenous_nicking', 'cotton_wool_spots', 'hard_exudates',
+            'hemorrhages', 'microaneurysms',
+            'diabetic_retinopathy_present', 'amd_present', 'retinal_detachment',
+            'primary_diagnosis', 'secondary_diagnosis'
         ]
 
 
@@ -123,12 +130,17 @@ class DiabeticRetinopathyScreeningSerializer(BaseEyeTestSerializer):
     class Meta(BaseEyeTestSerializer.Meta):
         model = DiabeticRetinopathyScreening
         fields = BaseEyeTestSerializer.Meta.fields + [
-            'diabetes_type', 'diabetes_duration_years', 'hba1c_level', 'blood_pressure',
+            'diabetes_type', 'diabetes_duration_years', 'last_hba1c',
             'right_eye_dr_grade', 'left_eye_dr_grade', 'right_eye_maculopathy', 'left_eye_maculopathy',
-            'right_eye_hemorrhages', 'left_eye_hemorrhages', 'right_eye_exudates',
-            'left_eye_exudates', 'right_eye_cotton_wool_spots', 'left_eye_cotton_wool_spots',
-            'right_eye_neovascularization', 'left_eye_neovascularization', 'macular_edema_present',
-            'screening_outcome', 'referral_required', 'next_screening_date'
+            'photo_quality_right', 'photo_quality_left',
+            'microaneurysms_right', 'microaneurysms_left',
+            'hemorrhages_right', 'hemorrhages_left',
+            'exudates_right', 'exudates_left',
+            'cotton_wool_spots_right', 'cotton_wool_spots_left',
+            'venous_beading_right', 'venous_beading_left',
+            'irma_right', 'irma_left',
+            'neovascularization_right', 'neovascularization_left',
+            'referral_required', 'referral_urgency', 'next_screening_months'
         ]
 
 
@@ -139,10 +151,11 @@ class StrabismusAssessmentSerializer(BaseEyeTestSerializer):
     class Meta(BaseEyeTestSerializer.Meta):
         model = StrabismusAssessment
         fields = BaseEyeTestSerializer.Meta.fields + [
-            'strabismus_present', 'strabismus_type', 'deviation_primary_gaze',
-            'deviation_distance', 'deviation_near', 'head_posture', 'binocular_vision_assessment',
-            'stereopsis_test_result', 'diplopia_present', 'eye_movement_assessment',
-            'sensory_adaptations', 'treatment_plan'
+            'cover_test_distance', 'cover_test_near',
+            'distance_deviation_horizontal', 'distance_deviation_vertical',
+            'near_deviation_horizontal', 'near_deviation_vertical',
+            'right_eye_motility', 'left_eye_motility', 'binocular_movements',
+            'stereopsis', 'fusion', 'amblyopia_present', 'amblyopic_eye'
         ]
 
 
@@ -153,10 +166,11 @@ class PediatricEyeExamSerializer(BaseEyeTestSerializer):
     class Meta(BaseEyeTestSerializer.Meta):
         model = PediatricEyeExam
         fields = BaseEyeTestSerializer.Meta.fields + [
-            'child_age_months', 'cooperation_level', 'visual_behavior', 'fixation_pattern',
-            'following_movements', 'strabismus_assessment', 'refractive_error_assessment',
-            'amblyopia_screening', 'color_vision_testing', 'developmental_assessment',
-            'parental_concerns', 'family_history', 'birth_history', 'visual_development'
+            'age_at_exam', 'cooperation_level',
+            'fixation_right', 'fixation_left',
+            'horizontal_tracking', 'vertical_tracking', 'smooth_pursuits',
+            'red_reflex_right', 'red_reflex_left', 'corneal_light_reflex',
+            'developmental_concerns', 'family_history_eye_problems'
         ]
 
 
@@ -167,8 +181,9 @@ class OCTScanSerializer(BaseEyeTestSerializer):
     class Meta(BaseEyeTestSerializer.Meta):
         model = OCTScan
         fields = BaseEyeTestSerializer.Meta.fields + [
-            'scan_type', 'scan_protocol', 'right_eye_central_thickness', 'left_eye_central_thickness',
-            'right_eye_volume', 'left_eye_volume', 'structural_abnormalities',
-            'fluid_present', 'pigment_epithelium_detachment', 'choroidal_neovascularization',
-            'image_quality_right', 'image_quality_left', 'artifacts_present', 'comparison_notes'
+            'scan_type', 'machine_model',
+            'right_central_thickness', 'right_average_thickness', 'right_findings',
+            'left_central_thickness', 'left_average_thickness', 'left_findings',
+            'right_eye_image', 'left_eye_image',
+            'scan_quality'
         ]

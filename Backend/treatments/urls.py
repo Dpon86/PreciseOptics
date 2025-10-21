@@ -19,5 +19,5 @@ router.register(r'follow-ups', TreatmentFollowUpViewSet, basename='treatmentfoll
 router.register(r'complications', TreatmentComplicationViewSet, basename='treatmentcomplication')
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('api/', include(router.urls)),
 ]

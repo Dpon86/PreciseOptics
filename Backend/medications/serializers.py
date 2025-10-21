@@ -54,7 +54,7 @@ class PrescriptionSerializer(serializers.ModelSerializer):
     Serializer for Prescription model
     """
     patient_name = serializers.CharField(source='patient.first_name', read_only=True)
-    prescribed_by_name = serializers.CharField(source='prescribed_by.get_full_name', read_only=True)
+    prescribed_by_name = serializers.CharField(source='prescribing_doctor.get_full_name', read_only=True)
     items = PrescriptionItemSerializer(many=True, read_only=True)
     total_items = serializers.SerializerMethodField()
     
@@ -62,15 +62,14 @@ class PrescriptionSerializer(serializers.ModelSerializer):
         model = Prescription
         fields = [
             'id', 'prescription_number', 'patient', 'patient_name', 'visit',
-            'consultation', 'prescribed_by', 'prescribed_by_name', 'prescription_date',
-            'status', 'diagnosis', 'clinical_notes', 'special_instructions',
-            'follow_up_required', 'follow_up_date', 'pharmacy_instructions',
-            'total_cost', 'insurance_coverage', 'patient_copay',
-            'dispensed_by', 'dispensed_date', 'notes', 'items', 'total_items',
+            'prescribing_doctor', 'prescribed_by_name', 'date_prescribed',
+            'status', 'diagnosis', 'instructions', 'valid_until',
+            'doctor_notes', 'pharmacy_notes',
+            'items', 'total_items',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'prescription_number', 'patient_name', 'prescribed_by_name',
-                           'items', 'total_items', 'created_at', 'updated_at']
+                           'items', 'total_items', 'created_at', 'updated_at', 'date_prescribed']
     
     def get_total_items(self, obj):
         """Count total prescription items"""
@@ -125,9 +124,9 @@ class PrescriptionCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Prescription
         fields = [
-            'patient', 'visit', 'consultation', 'prescribed_by', 
-            'diagnosis', 'clinical_notes', 'special_instructions',
-            'follow_up_required', 'follow_up_date'
+            'patient', 'visit', 'prescribing_doctor', 
+            'diagnosis', 'instructions', 'status', 'valid_until',
+            'doctor_notes', 'pharmacy_notes'
         ]
     
     def create(self, validated_data):

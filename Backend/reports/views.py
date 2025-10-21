@@ -10,7 +10,7 @@ from django.db.models import Count, Avg, Q, F, Sum
 from django.utils import timezone
 from datetime import datetime, timedelta
 from consultations.models import Consultation
-from medications.models import Prescription, DrugAllergy
+from medications.models import Prescription, DrugAllergy, Medication, PrescriptionItem
 from eye_tests.models import (
     VisualAcuityTest, VisualFieldTest, OCTScan, 
     RetinalAssessment, CataractAssessment, GlaucomaAssessment
@@ -37,25 +37,82 @@ def drug_audit_report(request):
         # Get prescriptions within date range
         prescriptions = Prescription.objects.filter(
             date_prescribed__range=[start_date, end_date]
-        ).select_related('medication', 'patient', 'prescribed_by')
+        ).select_related('patient', 'prescribing_doctor').prefetch_related('items__medication')
         
         if medication_filter:
-            prescriptions = prescriptions.filter(medication__name__icontains=medication_filter)
+            prescriptions = prescriptions.filter(items__medication__name__icontains=medication_filter)
         
-        # Medication effectiveness data
+        # Simple check if we have data
+        if not prescriptions.exists():
+            # Return empty data structure
+            return Response({
+                'success': True,
+                'data': {
+                    'medicationEffectiveness': {
+                        'labels': ['No Data'],
+                        'datasets': [{
+                            'label': 'No Data Available',
+                            'data': [0],
+                            'backgroundColor': ['rgba(128, 128, 128, 0.8)']
+                        }]
+                    },
+                    'timelineTrends': {
+                        'labels': ['No Data'],
+                        'datasets': [{
+                            'label': 'No Data Available',
+                            'data': [0],
+                            'borderColor': 'rgba(128, 128, 128, 1)',
+                            'backgroundColor': 'rgba(128, 128, 128, 0.2)'
+                        }]
+                    },
+                    'sideEffectDistribution': {
+                        'labels': ['No Data'],
+                        'datasets': [{
+                            'data': [100],
+                            'backgroundColor': ['rgba(128, 128, 128, 0.8)']
+                        }]
+                    },
+                    'adherenceRates': {
+                        'labels': ['No Data'],
+                        'datasets': [{
+                            'label': 'No Data Available',
+                            'data': [0],
+                            'backgroundColor': ['rgba(128, 128, 128, 0.8)']
+                        }]
+                    },
+                    'summaryStats': {
+                        'totalMedications': 0,
+                        'activeTreatments': 0,
+                        'avgImprovement': 0,
+                        'avgAdherence': 0
+                    }
+                }
+            })
+        
+        # Medication effectiveness data - using PrescriptionItem model
         medication_effectiveness = {}
-        prescriptions_by_med = prescriptions.values('medication__name').annotate(
+        # Get prescription items (which link prescriptions to medications) within date range
+        prescription_items = PrescriptionItem.objects.filter(
+            prescription__date_prescribed__range=[start_date, end_date]
+        ).select_related('medication', 'prescription__patient')
+        
+        if medication_filter:
+            prescription_items = prescription_items.filter(medication__name__icontains=medication_filter)
+        
+        # Group by medication
+        meds_data = prescription_items.values('medication__name').annotate(
             count=Count('id')
         )
         
-        for med_data in prescriptions_by_med:
+        for med_data in meds_data:
             med_name = med_data['medication__name']
             
             # Get IOP improvements for this medication
             iop_improvements = []
-            med_prescriptions = prescriptions.filter(medication__name=med_name)
+            med_prescription_items = prescription_items.filter(medication__name=med_name)
             
-            for prescription in med_prescriptions:
+            for item in med_prescription_items:
+                prescription = item.prescription
                 # Get glaucoma assessments (with IOP data) before and after prescription
                 before_tests = GlaucomaAssessment.objects.filter(
                     patient=prescription.patient,
@@ -95,10 +152,15 @@ def drug_audit_report(request):
                     timeline_data[med_name] = []
                 
                 # Get average IOP for patients on this medication during this week
+                # Find patients who were prescribed this medication before this week
+                patients_on_med = PrescriptionItem.objects.filter(
+                    medication__name=med_name,
+                    prescription__date_prescribed__lte=week_start
+                ).values_list('prescription__patient', flat=True)
+                
                 week_tests = GlaucomaAssessment.objects.filter(
                     test_date__range=[week_start, week_end],
-                    patient__prescription__medication__name=med_name,
-                    patient__prescription__date_prescribed__lte=week_start
+                    patient__in=patients_on_med
                 ).aggregate(
                     avg_right=Avg('right_eye_iop'),
                     avg_left=Avg('left_eye_iop')
@@ -112,7 +174,7 @@ def drug_audit_report(request):
         
         # Side effects distribution
         allergies = DrugAllergy.objects.filter(
-            reported_date__range=[start_date, end_date]
+            first_occurrence_date__range=[start_date.date(), end_date.date()]
         ).values('severity').annotate(count=Count('id'))
         
         side_effects = {
@@ -133,8 +195,8 @@ def drug_audit_report(request):
         }
         
         # Summary statistics
-        total_medications = prescriptions.values('medication').distinct().count()
-        active_treatments = prescriptions.filter(end_date__gt=timezone.now()).count()
+        total_medications = prescription_items.values('medication').distinct().count()
+        active_treatments = prescriptions.filter(valid_until__gt=timezone.now()).count()
         avg_improvement = sum(med['avg_improvement'] for med in medication_effectiveness.values()) / len(medication_effectiveness) if medication_effectiveness else 0
         avg_adherence = sum(med['avg_adherence'] for med in medication_effectiveness.values()) / len(medication_effectiveness) if medication_effectiveness else 0
         

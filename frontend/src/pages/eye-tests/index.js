@@ -1,5 +1,6 @@
 // Eye Tests and Examinations Pages
 export { default as EyeTestsPage } from './EyeTestsPage';
+export { default as EyeTestDetailPage } from './EyeTestDetailPage';
 export { default as AddVisualAcuityTestPage } from './AddVisualAcuityTestPage';
 export { default as AddRefractionTestPage } from './AddRefractionTestPage';
 export { default as AddTonometryTestPage } from './AddTonometryTestPage';

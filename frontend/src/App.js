@@ -10,6 +10,8 @@ import {
   LoginPage,
   // Patient Management
   PatientsPage,
+  PatientDetailPage,
+  PatientRecordsPage,
   AddPatientPage,
   AddDiagnosisPage,
   AddTreatmentPage,
@@ -19,6 +21,7 @@ import {
   ConsultationDetailPage,
   // Eye Tests
   EyeTestsPage,
+  EyeTestDetailPage,
   AddVisualAcuityTestPage,
   AddRefractionTestPage,
   AddTonometryTestPage,
@@ -143,6 +146,22 @@ function AppContent() {
             } 
           />
           <Route 
+            path="/patients/:patientId" 
+            element={
+              <ProtectedRoute>
+                <PatientDetailPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/patients/:patientId/records" 
+            element={
+              <ProtectedRoute>
+                <PatientRecordsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/patients/add" 
             element={
               <ProtectedRoute>
@@ -195,6 +214,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <EyeTestsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/eye-tests/:testId" 
+            element={
+              <ProtectedRoute>
+                <EyeTestDetailPage />
               </ProtectedRoute>
             } 
           />

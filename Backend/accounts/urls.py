@@ -28,4 +28,15 @@ urlpatterns = [
     # Specialization Management
     path('specializations/', views.create_specialization, name='create-specialization'),
     path('specializations/<int:spec_id>/', views.delete_specialization, name='delete-specialization'),
+    
+    # Password Reset
+    path('password-reset/', views.request_password_reset, name='password-reset-request'),
+    path('password-reset/confirm/', views.confirm_password_reset, name='password-reset-confirm'),
+    
+    # Two-Factor Authentication
+    path('2fa/setup/', views.setup_2fa, name='2fa-setup'),
+    path('2fa/verify-setup/', views.verify_2fa_setup, name='2fa-verify-setup'),
+    path('2fa/verify-login/', views.verify_2fa_login, name='2fa-verify-login'),
+    path('2fa/disable/', views.disable_2fa, name='2fa-disable'),
+    path('2fa/status/', views.get_2fa_status, name='2fa-status'),
 ]

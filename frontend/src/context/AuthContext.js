@@ -59,6 +59,17 @@ export const AuthProvider = ({ children }) => {
         password,
       });
       
+      // Check if 2FA is required
+      if (response.data.requires_2fa) {
+        return { 
+          success: false,
+          requires_2fa: true,
+          user_id: response.data.user_id,
+          username: username,
+          password: password
+        };
+      }
+      
       const { token } = response.data;
       localStorage.setItem('authToken', token);
       setToken(token);

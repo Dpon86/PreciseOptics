@@ -2,7 +2,44 @@
 Serializers for PreciseOptics Eye Hospital Management System - Medications
 """
 from rest_framework import serializers
-from .models import Medication, Prescription, PrescriptionItem, MedicationAdministration, DrugAllergy
+from .models import (
+    Medication, Prescription, PrescriptionItem, MedicationAdministration,
+    DrugAllergy, Manufacturer, MedicationCategory
+)
+
+
+class ManufacturerSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Manufacturer model
+    """
+    class Meta:
+        model = Manufacturer
+        fields = [
+            'id', 'name', 'contact_person', 'email', 'phone', 'address',
+            'website', 'country', 'is_certified', 'certification_number',
+            'is_active', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+class MedicationCategorySerializer(serializers.ModelSerializer):
+    """
+    Serializer for MedicationCategory model
+    """
+    parent_category_name = serializers.CharField(source='parent_category.name', read_only=True)
+    full_path = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = MedicationCategory
+        fields = [
+            'id', 'name', 'description', 'parent_category', 'parent_category_name',
+            'full_path', 'is_active', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'parent_category_name', 'full_path', 'created_at', 'updated_at']
+    
+    def get_full_path(self, obj):
+        """Get the full category path"""
+        return str(obj)
 
 
 class MedicationSerializer(serializers.ModelSerializer):
@@ -10,19 +47,25 @@ class MedicationSerializer(serializers.ModelSerializer):
     Serializer for Medication model
     """
     brand_names_list = serializers.SerializerMethodField()
+    manufacturer_name = serializers.CharField(source='manufacturer_fk.name', read_only=True, allow_null=True)
+    category_name = serializers.CharField(source='category.name', read_only=True, allow_null=True)
     
     class Meta:
         model = Medication
         fields = [
             'id', 'name', 'generic_name', 'brand_names', 'brand_names_list',
-            'medication_type', 'therapeutic_class', 'strength', 'active_ingredients',
-            'description', 'indications', 'contraindications', 'side_effects',
-            'standard_dosage', 'maximum_daily_dose', 'storage_temperature',
-            'shelf_life_months', 'special_handling', 'manufacturer', 'batch_number',
-            'expiry_date', 'approval_status', 'current_stock', 'minimum_stock_level',
-            'unit_price', 'created_at', 'updated_at'
+            'medication_type', 'therapeutic_class', 'category', 'category_name',
+            'strength', 'active_ingredients', 'description', 'indications',
+            'contraindications', 'side_effects', 'standard_dosage',
+            'maximum_daily_dose', 'storage_temperature', 'shelf_life_months',
+            'special_handling', 'manufacturer', 'manufacturer_fk', 'manufacturer_name',
+            'batch_number', 'expiry_date', 'approval_status', 'current_stock',
+            'minimum_stock_level', 'unit_price', 'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'brand_names_list', 'created_at', 'updated_at']
+        read_only_fields = [
+            'id', 'brand_names_list', 'manufacturer_name', 'category_name',
+            'created_at', 'updated_at'
+        ]
     
     def get_brand_names_list(self, obj):
         """Convert comma-separated brand names to list"""

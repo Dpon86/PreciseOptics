@@ -33,6 +33,7 @@ class CustomUser(AbstractUser):
     date_of_birth = models.DateField(null=True, blank=True)
     profile_picture = models.ImageField(upload_to='profiles/', null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    two_factor_enabled = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -112,3 +113,26 @@ class UserSession(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.login_time}"
+
+
+class PasswordResetToken(models.Model):
+    """
+    Password reset token for email-based password recovery
+    """
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    token = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+    
+    class Meta:
+        verbose_name = "Password Reset Token"
+        verbose_name_plural = "Password Reset Tokens"
+    
+    def __str__(self):
+        return f"Reset token for {self.user.username}"
+    
+    def is_valid(self):
+        """Check if token is still valid"""
+        from django.utils import timezone
+        return not self.is_used and timezone.now() < self.expires_at

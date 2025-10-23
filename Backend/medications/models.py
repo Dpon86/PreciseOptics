@@ -8,6 +8,74 @@ from accounts.models import CustomUser
 import uuid
 
 
+class Manufacturer(models.Model):
+    """
+    Medication manufacturers
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=200, unique=True)
+    contact_person = models.CharField(max_length=200, blank=True)
+    email = models.EmailField(blank=True)
+    phone = models.CharField(max_length=20, blank=True)
+    address = models.TextField(blank=True)
+    website = models.URLField(blank=True)
+    country = models.CharField(max_length=100)
+    
+    # Certifications and Compliance
+    is_certified = models.BooleanField(default=True, help_text="FDA/WHO certified")
+    certification_number = models.CharField(max_length=100, blank=True)
+    
+    # Status
+    is_active = models.BooleanField(default=True)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
+    
+    class Meta:
+        verbose_name = "Manufacturer"
+        verbose_name_plural = "Manufacturers"
+        ordering = ['name']
+    
+    def __str__(self):
+        return self.name
+
+
+class MedicationCategory(models.Model):
+    """
+    Categories for organizing medications
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True)
+    parent_category = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='subcategories'
+    )
+    
+    # Status
+    is_active = models.BooleanField(default=True)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
+    
+    class Meta:
+        verbose_name = "Medication Category"
+        verbose_name_plural = "Medication Categories"
+        ordering = ['name']
+    
+    def __str__(self):
+        if self.parent_category:
+            return f"{self.parent_category.name} > {self.name}"
+        return self.name
+
+
 class Medication(models.Model):
     """
     Master medication database
@@ -43,6 +111,13 @@ class Medication(models.Model):
     brand_names = models.TextField(help_text="Comma-separated brand names")
     medication_type = models.CharField(max_length=20, choices=MEDICATION_TYPES)
     therapeutic_class = models.CharField(max_length=30, choices=THERAPEUTIC_CLASS)
+    category = models.ForeignKey(
+        MedicationCategory,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='medications'
+    )
     
     # Drug Information
     strength = models.CharField(max_length=100, help_text="e.g., 0.5%, 10mg/ml")
@@ -62,7 +137,19 @@ class Medication(models.Model):
     special_handling = models.TextField(blank=True)
     
     # Regulatory
-    manufacturer = models.CharField(max_length=200)
+    manufacturer = models.CharField(
+        max_length=200, 
+        help_text="Manufacturer name (legacy field)",
+        db_column='manufacturer_legacy'  # Point to actual database column
+    )
+    manufacturer_fk = models.ForeignKey(
+        Manufacturer,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='medications',
+        verbose_name="Manufacturer (New)"
+    )
     batch_number = models.CharField(max_length=100, blank=True)
     expiry_date = models.DateField(null=True, blank=True)
     approval_status = models.BooleanField(default=True)

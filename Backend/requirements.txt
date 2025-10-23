@@ -13,6 +13,11 @@ python-decouple==3.8
 # Image handling
 Pillow==11.3.0
 
+# Two-Factor Authentication
+django-otp==1.6.2
+pyqrcode==1.2.1
+pypng==0.20220715.0  # For QR code PNG generation
+
 # Development and testing (optional)
 # django-debug-toolbar==4.2.0
 # pytest-django==4.8.0

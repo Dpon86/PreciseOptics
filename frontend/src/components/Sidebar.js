@@ -34,23 +34,40 @@ const Sidebar = ({ isOpen, onClose }) => {
       ]
     },
     {
-      category: 'Medications',
+      category: 'Medications & Inventory',
       items: [
-        { path: '/medications', label: 'View Medications', icon: '💊' },
-        { path: '/medications/add', label: 'Add Medication', icon: '➕' },
-        { path: '/prescriptions/add', label: 'Add Prescription', icon: '📝' }
+        { path: '/medications', label: 'View All Medications', icon: '💊' },
+        { path: '/medications/add', label: 'Add New Medication', icon: '➕' },
+        { path: '/prescriptions/add', label: 'Add Prescription', icon: '📝' },
+        { path: '/manufacturers/add', label: 'Add Manufacturer', icon: '🏭' },
+        { path: '/medication-categories/add', label: 'Add Category', icon: '📂' },
+        { path: '/inventory/add', label: 'Manage Inventory', icon: '📦' }
+      ]
+    },
+    {
+      category: 'Reports & Analytics',
+      items: [
+        { path: '/reports/patient-medications', label: 'Patient Medications Report', icon: '📊' },
+        { path: '/reports/drug-audit', label: 'Drug Audit Report', icon: '🔍' },
+        { path: '/reports/patient-visits', label: 'Patient Visits Report', icon: '📈' },
+        { path: '/reports/eye-tests-summary', label: 'Eye Tests Summary', icon: '👁️' },
+        { path: '/reports/medication-effectiveness', label: 'Medication Effectiveness', icon: '💊' },
+        { path: '/reports/revenue-analysis', label: 'Revenue Analysis', icon: '💰' }
       ]
     },
     {
       category: 'Audit & Compliance',
       items: [
-        { path: '/audit-logs', label: 'View Audit Logs', icon: '📊' },
+        { path: '/audit', label: 'Audit Logs', icon: '�' },
         { path: '/audit-logs/add', label: 'Add Audit Entry', icon: '➕' }
       ]
     },
     {
-      category: 'Overview',
+      category: 'System Administration',
       items: [
+        { path: '/staff', label: 'Manage Staff', icon: '👨‍⚕️' },
+        { path: '/staff/add', label: 'Add Staff Member', icon: '➕' },
+        { path: '/specializations/add', label: 'Add Specialization', icon: '🎓' },
         { path: '/forms-overview', label: 'Forms Overview', icon: '📋' }
       ]
     }

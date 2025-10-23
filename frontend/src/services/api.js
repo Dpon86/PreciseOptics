@@ -122,6 +122,38 @@ export const apiService = {
   getMedication: (id) =>
     axios.get(`/api/medications/${id}/`),
 
+  // Manufacturers
+  getManufacturers: (params = {}) =>
+    axios.get('/api/manufacturers/', { params }),
+  
+  createManufacturer: (data) =>
+    axios.post('/api/manufacturers/', data),
+  
+  updateManufacturer: (id, data) =>
+    axios.put(`/api/manufacturers/${id}/`, data),
+  
+  getManufacturer: (id) =>
+    axios.get(`/api/manufacturers/${id}/`),
+  
+  deleteManufacturer: (id) =>
+    axios.delete(`/api/manufacturers/${id}/`),
+
+  // Medication Categories
+  getMedicationCategories: (params = {}) =>
+    axios.get('/api/medication-categories/', { params }),
+  
+  createMedicationCategory: (data) =>
+    axios.post('/api/medication-categories/', data),
+  
+  updateMedicationCategory: (id, data) =>
+    axios.put(`/api/medication-categories/${id}/`, data),
+  
+  getMedicationCategory: (id) =>
+    axios.get(`/api/medication-categories/${id}/`),
+  
+  deleteMedicationCategory: (id) =>
+    axios.delete(`/api/medication-categories/${id}/`),
+
   // Prescriptions
   getPrescriptions: (params = {}) =>
     axios.get('/api/prescriptions/', { params }),
@@ -269,6 +301,29 @@ export const apiService = {
 
   getMedicationEffectivenessReport: (params = {}) =>
     axios.get('/api/reports/medication-effectiveness/', { params }),
+
+  // Password Reset
+  requestPasswordReset: (email) =>
+    axios.post('/password-reset/', { email }),
+  
+  resetPassword: (token, password) =>
+    axios.post('/password-reset/confirm/', { token, password }),
+
+  // Two-Factor Authentication
+  setup2FA: () =>
+    axios.post('/2fa/setup/'),
+  
+  verify2FASetup: (code) =>
+    axios.post('/2fa/verify-setup/', { code }),
+  
+  verify2FALogin: (user_id, username, password, code) =>
+    axios.post('/2fa/verify-login/', { user_id, username, password, code }),
+  
+  disable2FA: (password) =>
+    axios.post('/2fa/disable/', { password }),
+  
+  get2FAStatus: () =>
+    axios.get('/2fa/status/'),
 };
 
 export default apiService;

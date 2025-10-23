@@ -3,7 +3,7 @@ Admin configuration for accounts app
 """
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, StaffProfile, UserSession
+from .models import CustomUser, StaffProfile, UserSession, PasswordResetToken
 
 
 @admin.register(CustomUser)
@@ -40,4 +40,13 @@ class UserSessionAdmin(admin.ModelAdmin):
     list_filter = ('is_active', 'login_time')
     search_fields = ('user__username', 'ip_address')
     readonly_fields = ('session_key', 'login_time', 'logout_time')
+    raw_id_fields = ('user',)
+
+
+@admin.register(PasswordResetToken)
+class PasswordResetTokenAdmin(admin.ModelAdmin):
+    list_display = ('user', 'token', 'created_at', 'expires_at', 'is_used')
+    list_filter = ('is_used', 'created_at')
+    search_fields = ('user__username', 'user__email', 'token')
+    readonly_fields = ('token', 'created_at')
     raw_id_fields = ('user',)

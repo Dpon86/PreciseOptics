@@ -15,6 +15,7 @@ export * from './eye-tests';
 
 // Medication and Prescription Management
 export * from './medications';
+export * from './prescriptions';
 
 // Reports and Analytics
 export * from './reports';

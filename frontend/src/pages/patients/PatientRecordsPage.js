@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../../services/api';
 import './PatientRecordsPage.css';
@@ -15,33 +15,24 @@ const PatientRecordsPage = () => {
   const [prescriptions, setPrescriptions] = useState([]);
   const [treatments, setTreatments] = useState([]);
 
-  useEffect(() => {
-    fetchAllPatientRecords();
-  }, [patientId]);
-
-  const fetchAllPatientRecords = async () => {
+  const fetchAllPatientRecords = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
       // Fetch patient details
-      console.log('Fetching patient details for ID:', patientId);
       const patientResponse = await api.getPatient(patientId);
       setPatient(patientResponse.data);
-      console.log('Patient data loaded:', patientResponse.data);
 
       // Fetch consultations
-      console.log('Fetching consultations...');
       const consultationsResponse = await api.getConsultations();
       const consultationsData = consultationsResponse.data.results || consultationsResponse.data;
       const patientConsultations = consultationsData.filter(
         c => c.patient === patientId || c.patient === parseInt(patientId)
       );
       setConsultations(patientConsultations);
-      console.log('Consultations loaded:', patientConsultations.length);
 
       // Fetch all eye test types
-      console.log('Fetching eye tests...');
       const eyeTestPromises = [
         api.getVisualAcuityTests(),
         api.getGlaucomaAssessments(),
@@ -77,41 +68,29 @@ const PatientRecordsPage = () => {
       });
 
       setEyeTests(allEyeTests);
-      console.log('Eye tests loaded:', allEyeTests.length);
 
       // Fetch prescriptions
-      console.log('Fetching prescriptions...');
       const prescriptionsResponse = await api.getPrescriptions();
       const prescriptionsData = prescriptionsResponse.data.results || prescriptionsResponse.data;
       const patientPrescriptions = prescriptionsData.filter(
         p => p.patient === patientId || p.patient === parseInt(patientId)
       );
       setPrescriptions(patientPrescriptions);
-      console.log('Prescriptions loaded:', patientPrescriptions.length);
 
       // Fetch treatments
-      console.log('Fetching treatments...');
       const treatmentsResponse = await api.getTreatments();
       const treatmentsData = treatmentsResponse.data.results || treatmentsResponse.data;
       const patientTreatments = treatmentsData.filter(
         t => t.patient === patientId || t.patient === parseInt(patientId)
       );
       setTreatments(patientTreatments);
-      console.log('Treatments loaded:', patientTreatments.length);
 
     } catch (err) {
-      console.error('Error fetching patient records:', err);
-      console.error('Error details:', {
-        message: err.message,
-        response: err.response?.data,
-        status: err.response?.status,
-        url: err.config?.url
-      });
       setError(`Failed to load patient records: ${err.message}. Please try again.`);
     } finally {
       setLoading(false);
     }
-  };
+  }, [patientId]);
 
   const getRecentActivity = () => {
     const activities = [];
@@ -119,7 +98,7 @@ const PatientRecordsPage = () => {
     consultations.forEach(c => {
       activities.push({
         type: 'consultation',
-        date: c.date,
+        date: c.scheduled_time || c.actual_start_time,
         title: `Consultation with Dr. ${c.doctor_name}`,
         icon: '📋'
       });
@@ -137,7 +116,7 @@ const PatientRecordsPage = () => {
     prescriptions.forEach(p => {
       activities.push({
         type: 'prescription',
-        date: p.prescribed_date,
+        date: p.date_prescribed,
         title: `Prescription by Dr. ${p.prescribed_by_name}`,
         icon: '💊'
       });
@@ -146,8 +125,8 @@ const PatientRecordsPage = () => {
     treatments.forEach(t => {
       activities.push({
         type: 'treatment',
-        date: t.date,
-        title: `${t.treatment_type} Treatment`,
+        date: t.actual_start_time || t.scheduled_date,
+        title: `${t.treatment_type_name || t.treatment_type} Treatment`,
         icon: '🏥'
       });
     });
@@ -156,6 +135,10 @@ const PatientRecordsPage = () => {
       .sort((a, b) => new Date(b.date) - new Date(a.date))
       .slice(0, 10);
   };
+
+  useEffect(() => {
+    fetchAllPatientRecords();
+  }, [patientId, fetchAllPatientRecords]);
 
   const handlePrint = () => {
     window.print();
@@ -251,7 +234,7 @@ const PatientRecordsPage = () => {
               <div key={consultation.id} className="record-card">
                 <div className="record-header">
                   <span className="record-date">
-                    {new Date(consultation.date).toLocaleDateString()}
+                    {new Date(consultation.scheduled_time || consultation.actual_start_time).toLocaleDateString()}
                   </span>
                   <span className={`status-badge badge-${consultation.status?.toLowerCase() || 'info'}`}>
                     {consultation.status || 'Completed'}
@@ -317,9 +300,9 @@ const PatientRecordsPage = () => {
                 </div>
                 <div className="record-body">
                   <h4>{test.test_type} Test</h4>
-                  {test.performed_by && (
+                  {test.performed_by_name && (
                     <div className="record-detail">
-                      <strong>Performed By:</strong> {test.performed_by}
+                      <strong>Performed By:</strong> {test.performed_by_name}
                     </div>
                   )}
                   {test.results && (
@@ -369,14 +352,14 @@ const PatientRecordsPage = () => {
               <div key={prescription.id} className="record-card">
                 <div className="record-header">
                   <span className="record-date">
-                    {new Date(prescription.prescribed_date).toLocaleDateString()}
+                    {new Date(prescription.date_prescribed).toLocaleDateString()}
                   </span>
                   <span className={`status-badge badge-${prescription.status?.toLowerCase() || 'success'}`}>
                     {prescription.status || 'Active'}
                   </span>
                 </div>
                 <div className="record-body">
-                  <h4>Prescription #{prescription.id}</h4>
+                  <h4>Prescription #{prescription.prescription_number || prescription.id}</h4>
                   {prescription.prescribed_by_name && (
                     <div className="record-detail">
                       <strong>Prescribed By:</strong> Dr. {prescription.prescribed_by_name}
@@ -392,7 +375,7 @@ const PatientRecordsPage = () => {
                       <strong>Medications:</strong>
                       {prescription.items.map((item, idx) => (
                         <div key={idx} className="record-detail">
-                          • {item.medication_name} - {item.dosage} ({item.frequency})
+                          • {item.medication_name} {item.medication_strength && `(${item.medication_strength})`} - {item.dosage} {item.frequency && `- ${item.frequency}`}
                         </div>
                       ))}
                     </div>
@@ -439,22 +422,22 @@ const PatientRecordsPage = () => {
               <div key={treatment.id} className="record-card">
                 <div className="record-header">
                   <span className="record-date">
-                    {new Date(treatment.date).toLocaleDateString()}
+                    {new Date(treatment.actual_start_time || treatment.scheduled_date).toLocaleDateString()}
                   </span>
-                  <span className={`status-badge badge-${treatment.outcome?.toLowerCase() === 'successful' ? 'success' : 'warning'}`}>
-                    {treatment.outcome || 'Completed'}
+                  <span className={`status-badge badge-${treatment.outcome?.toLowerCase() === 'excellent' || treatment.outcome?.toLowerCase() === 'good' ? 'success' : 'warning'}`}>
+                    {treatment.outcome_display || treatment.outcome || treatment.status_display || treatment.status}
                   </span>
                 </div>
                 <div className="record-body">
-                  <h4>{treatment.treatment_type}</h4>
-                  {treatment.performed_by && (
+                  <h4>{treatment.treatment_type_name || treatment.treatment_type}</h4>
+                  {treatment.primary_surgeon_name && (
                     <div className="record-detail">
-                      <strong>Performed By:</strong> {treatment.performed_by}
+                      <strong>Performed By:</strong> Dr. {treatment.primary_surgeon_name}
                     </div>
                   )}
-                  {treatment.eye && (
+                  {treatment.eye_treated && (
                     <div className="record-detail">
-                      <strong>Eye:</strong> {treatment.eye}
+                      <strong>Eye:</strong> {treatment.eye_treated}
                     </div>
                   )}
                   {treatment.notes && (

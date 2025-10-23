@@ -8,11 +8,16 @@ import {
   HomePage,
   // Auth Pages
   LoginPage,
+  ForgotPasswordPage,
+  ResetPasswordPage,
+  Setup2FAPage,
+  Verify2FAPage,
   // Patient Management
   PatientsPage,
   PatientDetailPage,
   PatientRecordsPage,
   AddPatientPage,
+  EditPatientPage,
   AddDiagnosisPage,
   AddTreatmentPage,
   // Consultation Management
@@ -32,9 +37,14 @@ import {
   AddFluoresceinAngiographyPage,
   // Medication Management
   MedicationsPage,
+  MedicationDetailPage,
   AddMedicationPage,
   AddMedicinePage,
+  EditMedicationPage,
   AddPrescriptionPage,
+  PrescriptionDetailPage,
+  AddManufacturerPage,
+  AddMedicationCategoryPage,
   // Reports
   PatientMedicationsReportPage,
   ConsultationReportPage,
@@ -50,6 +60,8 @@ import {
   SystemPage,
   ManageStaffPage,
   AddStaffPage,
+  EditStaffPage,
+  StaffDetailPage,
   AddSpecializationPage,
   FormsOverviewPage
 } from './pages';
@@ -130,6 +142,38 @@ function AppContent() {
             } 
           />
           <Route 
+            path="/forgot-password" 
+            element={
+              <PublicRoute>
+                <ForgotPasswordPage />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/reset-password" 
+            element={
+              <PublicRoute>
+                <ResetPasswordPage />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/setup-2fa" 
+            element={
+              <ProtectedRoute>
+                <Setup2FAPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/verify-2fa" 
+            element={
+              <PublicRoute>
+                <Verify2FAPage />
+              </PublicRoute>
+            } 
+          />
+          <Route 
             path="/" 
             element={
               <ProtectedRoute>
@@ -166,6 +210,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <AddPatientPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/patients/:id/edit" 
+            element={
+              <ProtectedRoute>
+                <EditPatientPage />
               </ProtectedRoute>
             } 
           />
@@ -306,10 +358,50 @@ function AppContent() {
             } 
           />
           <Route 
+            path="/medications/:id" 
+            element={
+              <ProtectedRoute>
+                <MedicationDetailPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/medications/:id/edit" 
+            element={
+              <ProtectedRoute>
+                <EditMedicationPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/manufacturers/add" 
+            element={
+              <ProtectedRoute>
+                <AddManufacturerPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/medication-categories/add" 
+            element={
+              <ProtectedRoute>
+                <AddMedicationCategoryPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/prescriptions/add" 
             element={
               <ProtectedRoute>
                 <AddPrescriptionPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/prescriptions/:prescriptionId" 
+            element={
+              <ProtectedRoute>
+                <PrescriptionDetailPage />
               </ProtectedRoute>
             } 
           />
@@ -359,6 +451,22 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <AddStaffPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/staff/:id" 
+            element={
+              <ProtectedRoute>
+                <StaffDetailPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/staff/:id/edit" 
+            element={
+              <ProtectedRoute>
+                <EditStaffPage />
               </ProtectedRoute>
             } 
           />

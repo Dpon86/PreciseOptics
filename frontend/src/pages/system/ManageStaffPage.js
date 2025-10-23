@@ -225,9 +225,8 @@ const ManageStaffPage = () => {
                 <th>User Type</th>
                 <th>Department</th>
                 <th>Specialization</th>
-                <th>License</th>
-                <th>Status</th>
                 <th>Actions</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -265,48 +264,44 @@ const ManageStaffPage = () => {
                     </td>
                     <td>{getDepartmentLabel(member.department)}</td>
                     <td>{member.specialization ? getSpecializationLabel(member.specialization) : 'N/A'}</td>
-                    <td>{member.license_number || 'N/A'}</td>
+                    <td>
+                      <div className="action-buttons">
+                        <Link 
+                          to={`/staff/${member.id}`} 
+                          className="btn btn-primary btn-sm"
+                          title="View Details"
+                        >
+                          <i className="fas fa-eye"></i>
+                          <span className="btn-label">View</span>
+                        </Link>
+                        <Link 
+                          to={`/staff/${member.id}/edit`} 
+                          className="btn btn-secondary btn-sm"
+                          title="Edit Staff"
+                        >
+                          <i className="fas fa-edit"></i>
+                          <span className="btn-label">Edit</span>
+                        </Link>
+                        <button 
+                          onClick={() => handleDeleteStaff(member.id)}
+                          className="btn btn-danger btn-sm"
+                          title="Delete Staff"
+                        >
+                          <i className="fas fa-trash"></i>
+                          <span className="btn-label">Delete</span>
+                        </button>
+                      </div>
+                    </td>
                     <td>
                       <span className={`status-badge ${member.user_details?.is_active ? 'active' : 'inactive'}`}>
                         {member.user_details?.is_active ? 'Active' : 'Inactive'}
                       </span>
                     </td>
-                    <td>
-                      <div className="action-buttons">
-                        <div className="action-btn-tooltip">
-                          <Link 
-                            to={`/staff/${member.id}`} 
-                            className="btn btn-primary btn-sm"
-                          >
-                            <i className="fas fa-eye"></i>
-                          </Link>
-                          <span className="tooltip-text">View Details</span>
-                        </div>
-                        <div className="action-btn-tooltip">
-                          <Link 
-                            to={`/staff/${member.id}/edit`} 
-                            className="btn btn-secondary btn-sm"
-                          >
-                            <i className="fas fa-edit"></i>
-                          </Link>
-                          <span className="tooltip-text">Edit Staff</span>
-                        </div>
-                        <div className="action-btn-tooltip">
-                          <button 
-                            onClick={() => handleDeleteStaff(member.id)}
-                            className="btn btn-danger btn-sm"
-                          >
-                            <i className="fas fa-trash"></i>
-                          </button>
-                          <span className="tooltip-text">Delete Staff</span>
-                        </div>
-                      </div>
-                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="9" className="no-data">
+                  <td colSpan="8" className="no-data">
                     No staff members found matching the current filters
                   </td>
                 </tr>

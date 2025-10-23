@@ -2,16 +2,37 @@
 Admin configuration for medications app
 """
 from django.contrib import admin
-from .models import Medication, Prescription, PrescriptionItem, MedicationAdministration, DrugAllergy
+from .models import (
+    Medication, Prescription, PrescriptionItem, MedicationAdministration,
+    DrugAllergy, Manufacturer, MedicationCategory
+)
+
+
+@admin.register(Manufacturer)
+class ManufacturerAdmin(admin.ModelAdmin):
+    list_display = ('name', 'country', 'is_certified', 'is_active', 'created_at')
+    list_filter = ('is_certified', 'is_active', 'country')
+    search_fields = ('name', 'contact_person', 'email')
+    readonly_fields = ('created_at', 'updated_at')
+    raw_id_fields = ('created_by',)
+
+
+@admin.register(MedicationCategory)
+class MedicationCategoryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'parent_category', 'is_active', 'created_at')
+    list_filter = ('is_active', 'parent_category')
+    search_fields = ('name', 'description')
+    readonly_fields = ('created_at', 'updated_at')
+    raw_id_fields = ('created_by', 'parent_category')
 
 
 @admin.register(Medication)
 class MedicationAdmin(admin.ModelAdmin):
-    list_display = ('name', 'generic_name', 'medication_type', 'therapeutic_class', 'strength', 'current_stock', 'is_low_stock', 'unit_price')
-    list_filter = ('medication_type', 'therapeutic_class', 'approval_status')
-    search_fields = ('name', 'generic_name', 'brand_names')
+    list_display = ('name', 'generic_name', 'medication_type', 'therapeutic_class', 'category', 'manufacturer_fk', 'strength', 'current_stock', 'is_low_stock', 'unit_price')
+    list_filter = ('medication_type', 'therapeutic_class', 'approval_status', 'category', 'manufacturer_fk')
+    search_fields = ('name', 'generic_name', 'brand_names', 'manufacturer')
     readonly_fields = ('created_at', 'updated_at')
-    raw_id_fields = ('created_by',)
+    raw_id_fields = ('created_by', 'manufacturer_fk', 'category')
     
     def is_low_stock(self, obj):
         return obj.is_low_stock()

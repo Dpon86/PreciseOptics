@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const LoginPage = () => {
@@ -30,6 +30,15 @@ const LoginPage = () => {
       
       if (result.success) {
         navigate('/');
+      } else if (result.requires_2fa) {
+        // Redirect to 2FA verification page
+        navigate('/verify-2fa', {
+          state: {
+            user_id: result.user_id,
+            username: result.username,
+            password: result.password
+          }
+        });
       } else {
         setError(result.error || 'Login failed');
       }
@@ -84,6 +93,20 @@ const LoginPage = () => {
             required
             placeholder="Enter your password"
           />
+        </div>
+
+        <div style={{ textAlign: 'right', marginBottom: '1rem' }}>
+          <Link 
+            to="/forgot-password" 
+            style={{ 
+              color: '#667eea', 
+              textDecoration: 'none', 
+              fontSize: '0.9rem',
+              fontWeight: '500'
+            }}
+          >
+            Forgot Password?
+          </Link>
         </div>
         
         <button 

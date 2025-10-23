@@ -557,7 +557,7 @@
   .report-header {
     background: #667eea !important;
     -webkit-print-color-adjust: exact;
-    color-adjust: exact;
+    print-color-adjust: exact;
   }
   
   .overview-card,

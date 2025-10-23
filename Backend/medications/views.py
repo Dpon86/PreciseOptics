@@ -6,11 +6,68 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db import models
 from precise_optics.permissions import ReadOnlyOrAuthenticatedPermission
-from .models import Medication, Prescription, PrescriptionItem, MedicationAdministration, DrugAllergy
+from .models import (
+    Medication, Prescription, PrescriptionItem, MedicationAdministration,
+    DrugAllergy, Manufacturer, MedicationCategory
+)
 from .serializers import (
     MedicationSerializer, PrescriptionSerializer, PrescriptionCreateSerializer,
-    PrescriptionItemSerializer, MedicationAdministrationSerializer, DrugAllergySerializer
+    PrescriptionItemSerializer, MedicationAdministrationSerializer,
+    DrugAllergySerializer, ManufacturerSerializer, MedicationCategorySerializer
 )
+
+
+class ManufacturerViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing manufacturers
+    """
+    queryset = Manufacturer.objects.all()
+    serializer_class = ManufacturerSerializer
+    permission_classes = [ReadOnlyOrAuthenticatedPermission]
+    
+    def get_queryset(self):
+        """Filter manufacturers"""
+        queryset = Manufacturer.objects.filter(is_active=True)
+        
+        # Search by name
+        search = self.request.query_params.get('search', None)
+        if search:
+            queryset = queryset.filter(name__icontains=search)
+        
+        return queryset.order_by('name')
+    
+    def perform_create(self, serializer):
+        """Set created_by on creation"""
+        serializer.save(created_by=self.request.user)
+
+
+class MedicationCategoryViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing medication categories
+    """
+    queryset = MedicationCategory.objects.all()
+    serializer_class = MedicationCategorySerializer
+    permission_classes = [ReadOnlyOrAuthenticatedPermission]
+    
+    def get_queryset(self):
+        """Filter categories"""
+        queryset = MedicationCategory.objects.filter(is_active=True)
+        
+        # Search by name
+        search = self.request.query_params.get('search', None)
+        if search:
+            queryset = queryset.filter(name__icontains=search)
+        
+        # Get only parent categories (no parent)
+        parent_only = self.request.query_params.get('parent_only', None)
+        if parent_only == 'true':
+            queryset = queryset.filter(parent_category__isnull=True)
+        
+        return queryset.order_by('name')
+    
+    def perform_create(self, serializer):
+        """Set created_by on creation"""
+        serializer.save(created_by=self.request.user)
 
 
 class MedicationViewSet(viewsets.ModelViewSet):

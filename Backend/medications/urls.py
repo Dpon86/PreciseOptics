@@ -6,6 +6,8 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 router = DefaultRouter()
+router.register(r'manufacturers', views.ManufacturerViewSet)
+router.register(r'medication-categories', views.MedicationCategoryViewSet)
 router.register(r'medications', views.MedicationViewSet)
 router.register(r'prescriptions', views.PrescriptionViewSet)
 router.register(r'prescription-items', views.PrescriptionItemViewSet)

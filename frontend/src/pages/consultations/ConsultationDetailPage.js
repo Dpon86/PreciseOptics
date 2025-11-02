@@ -10,6 +10,8 @@ const ConsultationDetailPage = () => {
   const [vitalSigns, setVitalSigns] = useState(null);
   const [documents, setDocuments] = useState([]);
   const [images, setImages] = useState([]);
+  const [eyeTests, setEyeTests] = useState([]);
+  const [treatments, setTreatments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -46,6 +48,59 @@ const ConsultationDetailPage = () => {
         setImages(imagesResponse.data.results || imagesResponse.data || []);
       } catch (imgError) {
         console.log('No images found for this consultation');
+      }
+      
+      // Fetch eye tests linked to this consultation
+      try {
+        const eyeTestPromises = [
+          api.getVisualAcuityTests(),
+          api.getGlaucomaAssessments(),
+          api.getRefractionTests(),
+          api.getCataractAssessments(),
+          api.getVisualFieldTests(),
+          api.getOCTScans(),
+          api.getDiabeticRetinopathyScreenings()
+        ];
+        
+        const eyeTestResponses = await Promise.all(eyeTestPromises);
+        const allEyeTests = [];
+        
+        const testTypes = [
+          'Visual Acuity',
+          'Glaucoma Assessment',
+          'Refraction',
+          'Cataract Assessment',
+          'Visual Field',
+          'OCT Scan',
+          'Diabetic Retinopathy'
+        ];
+        
+        eyeTestResponses.forEach((response, index) => {
+          const testsData = response.data.results || response.data;
+          const tests = testsData.filter(t => t.consultation === id || t.consultation === parseInt(id));
+          tests.forEach(test => {
+            allEyeTests.push({
+              ...test,
+              test_type: testTypes[index]
+            });
+          });
+        });
+        
+        setEyeTests(allEyeTests);
+      } catch (testError) {
+        console.log('Error fetching eye tests:', testError);
+      }
+      
+      // Fetch treatments linked to this consultation
+      try {
+        const treatmentsResponse = await api.getTreatments();
+        const treatmentsData = treatmentsResponse.data.results || treatmentsResponse.data;
+        const consultationTreatments = treatmentsData.filter(
+          t => t.consultation === id || t.consultation === parseInt(id)
+        );
+        setTreatments(consultationTreatments);
+      } catch (treatmentError) {
+        console.log('Error fetching treatments:', treatmentError);
       }
       
     } catch (err) {
@@ -139,7 +194,7 @@ const ConsultationDetailPage = () => {
             </div>
             <div className="detail-item">
               <label>Consultation Date</label>
-              <span>{formatDate(consultation.consultation_date)}</span>
+              <span>{formatDate(consultation.scheduled_time)}</span>
             </div>
             <div className="detail-item">
               <label>Duration</label>
@@ -333,6 +388,70 @@ const ConsultationDetailPage = () => {
                   {medication.frequency && <p><strong>Frequency:</strong> {medication.frequency}</p>}
                   {medication.duration && <p><strong>Duration:</strong> {medication.duration}</p>}
                   {medication.instructions && <p><strong>Instructions:</strong> {medication.instructions}</p>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Eye Tests */}
+        {eyeTests.length > 0 && (
+          <div className="detail-section">
+            <div className="section-header">
+              <h2>Eye Tests ({eyeTests.length})</h2>
+            </div>
+            <div className="tests-list">
+              {eyeTests.map((test) => (
+                <div key={test.id} className="test-item">
+                  <div className="test-header">
+                    <h4>{test.test_type}</h4>
+                    <span className="test-date">{new Date(test.test_date).toLocaleDateString()}</span>
+                  </div>
+                  {test.tested_by_name && (
+                    <p><strong>Tested by:</strong> {test.tested_by_name}</p>
+                  )}
+                  {test.notes && (
+                    <p className="test-notes">{test.notes}</p>
+                  )}
+                  {test.results && (
+                    <p><strong>Results:</strong> {test.results}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Treatments */}
+        {treatments.length > 0 && (
+          <div className="detail-section">
+            <div className="section-header">
+              <h2>Treatments ({treatments.length})</h2>
+            </div>
+            <div className="treatments-list">
+              {treatments.map((treatment) => (
+                <div key={treatment.id} className="treatment-item">
+                  <div className="treatment-header">
+                    <h4>{treatment.treatment_type_name || 'Treatment'}</h4>
+                    <span className="treatment-date">{new Date(treatment.scheduled_date).toLocaleDateString()}</span>
+                  </div>
+                  {treatment.primary_surgeon_name && (
+                    <p><strong>Surgeon:</strong> {treatment.primary_surgeon_name}</p>
+                  )}
+                  {treatment.status && (
+                    <span className={`status-badge status-${treatment.status}`}>
+                      {treatment.status}
+                    </span>
+                  )}
+                  {treatment.eye_treated && (
+                    <p><strong>Eye:</strong> {treatment.eye_treated}</p>
+                  )}
+                  {treatment.indication && (
+                    <p><strong>Indication:</strong> {treatment.indication}</p>
+                  )}
+                  {treatment.technique_notes && (
+                    <p className="treatment-notes">{treatment.technique_notes}</p>
+                  )}
                 </div>
               ))}
             </div>

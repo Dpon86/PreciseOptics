@@ -11,45 +11,32 @@ class VitalSignsSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = VitalSigns
-        fields = [
-            'id', 'consultation', 'systolic_bp', 'diastolic_bp', 'heart_rate',
-            'respiratory_rate', 'temperature', 'oxygen_saturation', 'weight',
-            'height', 'bmi', 'blood_glucose', 'pain_scale', 'recorded_by',
-            'recorded_at', 'notes'
-        ]
-        read_only_fields = ['id', 'bmi', 'recorded_at']
+        fields = '__all__'
+        read_only_fields = ['id']
 
 
 class ConsultationDocumentSerializer(serializers.ModelSerializer):
     """
     Serializer for ConsultationDocument model
     """
-    uploaded_by_name = serializers.CharField(source='uploaded_by.get_full_name', read_only=True)
+    uploaded_by_name = serializers.CharField(source='created_by.get_full_name', read_only=True)
     
     class Meta:
         model = ConsultationDocument
-        fields = [
-            'id', 'consultation', 'document_type', 'title', 'description',
-            'document_file', 'file_size', 'uploaded_by', 'uploaded_by_name',
-            'uploaded_at', 'is_active'
-        ]
-        read_only_fields = ['id', 'uploaded_by_name', 'file_size', 'uploaded_at']
+        fields = '__all__'
+        read_only_fields = ['id', 'uploaded_by_name', 'created_at', 'updated_at']
 
 
 class ConsultationImageSerializer(serializers.ModelSerializer):
     """
     Serializer for ConsultationImage model
     """
-    captured_by_name = serializers.CharField(source='captured_by.get_full_name', read_only=True)
+    captured_by_name = serializers.CharField(source='taken_by.get_full_name', read_only=True)
     
     class Meta:
         model = ConsultationImage
-        fields = [
-            'id', 'consultation', 'image_type', 'eye_side', 'title', 'description',
-            'image_file', 'file_size', 'captured_by', 'captured_by_name',
-            'captured_at', 'image_metadata', 'is_active'
-        ]
-        read_only_fields = ['id', 'captured_by_name', 'file_size', 'captured_at']
+        fields = '__all__'
+        read_only_fields = ['id', 'captured_by_name', 'created_at', 'updated_at']
 
 
 class ConsultationSerializer(serializers.ModelSerializer):

@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'treatments',
     'audit',
     'reports',
+    'conditions',  # Medical conditions tracking (AMD, RVO, Glaucoma, etc.)
+    'protocols',  # Treatment protocols and scheduling
 ]
 
 MIDDLEWARE = [
@@ -216,6 +218,16 @@ LOGGING = {
             'propagate': True,
         },
         'patients': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'conditions': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'protocols': {
             'handlers': ['file'],
             'level': 'DEBUG',
             'propagate': True,

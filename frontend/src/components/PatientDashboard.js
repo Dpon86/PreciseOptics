@@ -16,8 +16,9 @@ const PatientDashboard = () => {
       description: 'View comprehensive patient medical records and history',
       icon: '📊',
       links: [
+        { path: `/patients/${selectedPatient.id}`, label: 'View Patient Details' },
         { path: `/patients/${selectedPatient.id}/records`, label: 'View Complete Records' },
-        { path: `/patients/${selectedPatient.id}`, label: 'Patient Details' }
+        { path: `/patients/${selectedPatient.id}/edit`, label: 'Edit Patient Information' }
       ]
     },
     // Medications
@@ -44,7 +45,6 @@ const PatientDashboard = () => {
         { path: `/patient/${selectedPatient.id}/add-treatment`, label: 'Add Treatment' }
       ]
     },
-    
     // Eye Tests
     {
       title: 'Eye Tests',
@@ -62,6 +62,17 @@ const PatientDashboard = () => {
         { path: `/patient/${selectedPatient.id}/eye-tests/fluorescein/add`, label: 'Fluorescein Angiography' }
       ]
     },
+    // Treatments
+    {
+      title: 'Treatments',
+      description: 'Manage treatments and procedures for this patient',
+      icon: '💉',
+      links: [
+        { path: `/patient/${selectedPatient.id}/treatments`, label: 'View Treatments' },
+        { path: `/patient/${selectedPatient.id}/treatments/add`, label: 'Add Treatment' },
+        { path: `/patient/${selectedPatient.id}/treatments/history`, label: 'Treatment History' }
+      ]
+    }
     
 
   ];

@@ -1,12 +1,11 @@
-Neccisaties 
+Necessities 
 
-Please add a completley seporate disease implemetations and have this filter on the reports or have a seporate report for these conditions 
-Macular degeration , 
+Please add a completely separate disease implementation and have this filter on the reports or have a separate report for these conditions 
+Macular degeneration, 
 Diabetic, 
 RVO retinal vein occlusion 
-glycma
-cateracts - post treatment 
-
+glaucoma
+cataracts - post treatment 
 
 Protocols for AMD - Anything from consent to the drugs
 Drug loading dose or 
@@ -14,17 +13,16 @@ Flow charts for any protocols
 Have a protocol that when selected for a patient it says when and what to use. 
 
 
-
 alert for missed appointments or late appointments alerts 
 
-
 Nice to have 
-Save scans from visits but also from community scans take the scans from them already with referals inputs only report on the images from the communityu- looks at what these will save. 
+Save scans from visits but also from community scans take the scans from them already with referrals inputs only report on the images from the community- looks at what these will save. 
 Link to the patient. 
-High street optitions - referals from these and then talk back
+High street opticians - referrals from these and then talk back
 
 NB
 API for diary
 Inventory is not needed BUT it would be useful to have batch numbers so if it could 
-Only computers not needed for Ract native. 
+Only computers not needed for React native. 
+
 

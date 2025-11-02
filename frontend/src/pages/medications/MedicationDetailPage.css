@@ -252,6 +252,43 @@
   font-size: 0.95rem;
 }
 
+.medication-info-box {
+  margin: 15px 0 20px 0;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+}
+
+.medication-info-box .info-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.medication-info-box .info-row strong {
+  color: #0284c7;
+  min-width: 130px;
+  font-size: 0.95rem;
+}
+
+.medication-info-box .info-row span {
+  color: #334155;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.search-instruction {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-style: italic;
+  margin-bottom: 0;
+}
+
 .nice-links {
   display: flex;
   gap: 15px;

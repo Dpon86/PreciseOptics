@@ -4,6 +4,54 @@
   padding: 20px;
 }
 
+/* Error Container */
+.error-container {
+  max-width: 600px;
+  margin: 100px auto;
+  padding: 40px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 60px;
+  margin-bottom: 20px;
+}
+
+.error-container h2 {
+  margin: 0 0 15px 0;
+  color: #dc3545;
+  font-size: 28px;
+}
+
+.error-container p {
+  color: #6c757d;
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 10px 0;
+}
+
+.error-container code {
+  background: #f8f9fa;
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: #495057;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+}
+
+.error-container ul {
+  color: #6c757d;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.error-container ul li {
+  margin: 8px 0;
+}
+
 /* Page Header */
 .patient-records .page-header {
   display: flex;

@@ -55,7 +55,7 @@ const ConsultationsPage = () => {
               <div className="card-header">
                 <h3>Patient: {consultation.patient_name || consultation.patient}</h3>
                 <span className="consultation-date">
-                  {new Date(consultation.consultation_date).toLocaleDateString()}
+                  {new Date(consultation.scheduled_time).toLocaleDateString()}
                 </span>
               </div>
               <div className="card-content">

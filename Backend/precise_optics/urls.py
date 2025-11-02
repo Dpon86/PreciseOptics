@@ -28,6 +28,8 @@ urlpatterns = [
     path('', include('treatments.urls')),
     path('', include('audit.urls')),
     path('', include('reports.urls')),
+    path('api/conditions/', include('conditions.urls')),  # Conditions module
+    path('api/protocols/', include('protocols.urls')),  # Protocols module
 ]
 
 # Serve media files in development

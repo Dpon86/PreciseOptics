@@ -58,27 +58,43 @@ const MedicationsPage = () => {
         ) : (
           medications.map((medication) => (
             <div key={medication.id} className="medication-card">
-              <div className="card-header">
-                <h3>{medication.name}</h3>
-                <div className="status-container">
-                  <span className={`status-badge ${medication.approval_status ? 'approved' : 'pending'}`}>
-                    {medication.approval_status ? 'Approved' : 'Pending'}
-                  </span>
+              <div className="card-left-section">
+                <div className="medication-icon">
+                  {medication.name.charAt(0)}
                 </div>
               </div>
-              <div className="card-content">
-                <div className="medication-details">
-                  <p><strong>Generic Name:</strong> {medication.generic_name}</p>
-                  <p><strong>Strength:</strong> {medication.strength}</p>
-                  <p><strong>Type:</strong> {medication.medication_type}</p>
-                  <p><strong>Manufacturer:</strong> {medication.manufacturer}</p>
-                  {medication.current_stock !== undefined && (
-                    <p><strong>Stock:</strong> {medication.current_stock}</p>
-                  )}
+              <div className="card-main-section">
+                <div className="card-header">
+                  <div className="header-title-section">
+                    <h3>{medication.name}</h3>
+                    <span className={`status-badge ${medication.approval_status ? 'approved' : 'pending'}`}>
+                      {medication.approval_status ? 'Approved' : 'Pending'}
+                    </span>
+                  </div>
+                </div>
+                <div className="card-content">
+                  <div className="medication-details">
+                    <div className="detail-row">
+                      <span className="detail-label">Generic Name:</span>
+                      <span className="detail-value">{medication.generic_name}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Strength:</span>
+                      <span className="detail-value">{medication.strength}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Type:</span>
+                      <span className="detail-value">{medication.medication_type}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Manufacturer:</span>
+                      <span className="detail-value">{medication.manufacturer}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="card-actions">
-                <Link to={`/medications/${medication.id}`} className="btn btn-secondary">
+              <div className="card-right-section">
+                <Link to={`/medications/${medication.id}`} className="btn btn-view">
                   View Details
                 </Link>
               </div>

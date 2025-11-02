@@ -39,15 +39,7 @@ const MedicationDetailPage = () => {
     return statusMap[status.toLowerCase()] || 'status-pending';
   };
 
-  const getStockStatus = () => {
-    if (!medication) return null;
-    const stock = medication.current_stock || medication.stock_quantity || 0;
-    const minLevel = medication.minimum_stock_level || 0;
-    
-    if (stock === 0) return { label: 'Out of Stock', class: 'stock-out' };
-    if (stock <= minLevel) return { label: 'Low Stock', class: 'stock-low' };
-    return { label: 'In Stock', class: 'stock-good' };
-  };
+
 
   if (loading) {
     return <div className="loading">Loading medication details...</div>;
@@ -64,8 +56,6 @@ const MedicationDetailPage = () => {
     );
   }
 
-  const stockStatus = getStockStatus();
-
   return (
     <div className="medication-detail-container">
       {/* Header */}
@@ -76,13 +66,8 @@ const MedicationDetailPage = () => {
             <span className={`status-badge ${getStatusClass(medication.approval_status)}`}>
               {typeof medication.approval_status === 'string' 
                 ? medication.approval_status.charAt(0).toUpperCase() + medication.approval_status.slice(1)
-                : 'Pending'}
+                : 'Approved'}
             </span>
-            {stockStatus && (
-              <span className={`stock-badge ${stockStatus.class}`}>
-                {stockStatus.label}
-              </span>
-            )}
           </div>
         </div>
         <div className="header-actions">
@@ -130,28 +115,7 @@ const MedicationDetailPage = () => {
             </div>
             <div className="info-item">
               <label>Dosage Form:</label>
-              <span className="capitalize">{medication.dosage_form || medication.type || 'N/A'}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Inventory Information */}
-        <div className="info-card">
-          <h2><i className="fas fa-warehouse"></i> Inventory Information</h2>
-          <div className="info-grid">
-            <div className="info-item">
-              <label>Current Stock:</label>
-              <span className={stockStatus?.class}>
-                {medication.current_stock || medication.stock_quantity || 0} units
-              </span>
-            </div>
-            <div className="info-item">
-              <label>Minimum Stock Level:</label>
-              <span>{medication.minimum_stock_level || 0} units</span>
-            </div>
-            <div className="info-item">
-              <label>Price per Unit:</label>
-              <span>£{parseFloat(medication.price || 0).toFixed(2)}</span>
+              <span className="capitalize">{medication.dosage_form || medication.medication_type || 'N/A'}</span>
             </div>
             <div className="info-item">
               <label>Batch Number:</label>
@@ -177,26 +141,44 @@ const MedicationDetailPage = () => {
             contraindications, and interactions, please refer to the official NICE BNF (British National Formulary).
           </p>
           
+          <div className="medication-info-box">
+            <div className="info-row">
+              <strong>Medicine Name:</strong> <span>{medication.name}</span>
+            </div>
+            <div className="info-row">
+              <strong>Generic Name:</strong> <span>{medication.generic_name}</span>
+            </div>
+          </div>
+          
           <div className="nice-links">
-            <a 
-              href={`https://bnf.nice.org.uk/drugs/${encodeURIComponent((medication.generic_name || medication.name || '').toLowerCase().replace(/\s+/g, '-'))}/`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => {
+                // Direct link to drug page
+                const genericName = (medication.generic_name || medication.name || '')
+                  .toLowerCase()
+                  .replace(/\s+/g, '-')
+                  .replace(/\//g, '-');
+                window.open(`https://bnf.nice.org.uk/drugs/${encodeURIComponent(genericName)}/`, '_blank', 'noopener,noreferrer');
+              }}
               className="nice-link-button primary"
+              title="Open direct link to medication page on BNF"
             >
               <i className="fas fa-external-link-alt"></i>
-              View on NICE BNF
-            </a>
+              View {medication.name} on BNF
+            </button>
             
-            <a 
-              href="https://bnf.nice.org.uk/"
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => {
+                // Search with medication name pre-filled
+                const searchTerm = encodeURIComponent(medication.generic_name || medication.name || '');
+                window.open(`https://bnf.nice.org.uk/search/?q=${searchTerm}`, '_blank', 'noopener,noreferrer');
+              }}
               className="nice-link-button secondary"
+              title="Search BNF with medication name"
             >
               <i className="fas fa-search"></i>
-              Search NICE BNF
-            </a>
+              Search BNF for {medication.name}
+            </button>
           </div>
 
           <div className="nice-disclaimer">

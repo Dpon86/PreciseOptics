@@ -20,9 +20,20 @@ const PatientRecordsPage = () => {
       setLoading(true);
       setError(null);
 
-      // Fetch patient details
-      const patientResponse = await api.getPatient(patientId);
-      setPatient(patientResponse.data);
+      // Fetch patient details first to verify patient exists
+      let patientResponse;
+      try {
+        patientResponse = await api.getPatient(patientId);
+        setPatient(patientResponse.data);
+      } catch (patientErr) {
+        // Handle patient not found specifically
+        if (patientErr.response && patientErr.response.status === 404) {
+          setError('patient_not_found');
+          setLoading(false);
+          return;
+        }
+        throw patientErr; // Re-throw other errors
+      }
 
       // Fetch consultations
       const consultationsResponse = await api.getConsultations();
@@ -86,6 +97,7 @@ const PatientRecordsPage = () => {
       setTreatments(patientTreatments);
 
     } catch (err) {
+      console.error('Error loading patient records:', err);
       setError(`Failed to load patient records: ${err.message}. Please try again.`);
     } finally {
       setLoading(false);
@@ -148,8 +160,43 @@ const PatientRecordsPage = () => {
     return <div className="loading">Loading patient records...</div>;
   }
 
+  if (error === 'patient_not_found') {
+    return (
+      <div className="error-container">
+        <div className="error-icon">⚠️</div>
+        <h2>Patient Not Found</h2>
+        <p>The patient with ID <code>{patientId}</code> does not exist in the system.</p>
+        <p>This could be because:</p>
+        <ul style={{textAlign: 'left', maxWidth: '400px', margin: '20px auto'}}>
+          <li>The patient ID is incorrect or has a typo</li>
+          <li>The patient record has been removed</li>
+          <li>You followed an outdated link or bookmark</li>
+        </ul>
+        <div style={{marginTop: '30px'}}>
+          <button onClick={() => navigate('/patients')} className="btn btn-primary">
+            ← Back to Patients List
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (error) {
-    return <div className="error-message">{error}</div>;
+    return (
+      <div className="error-container">
+        <div className="error-icon">⚠️</div>
+        <h2>Error Loading Records</h2>
+        <p>{error}</p>
+        <div style={{marginTop: '20px'}}>
+          <button onClick={fetchAllPatientRecords} className="btn btn-primary">
+            Try Again
+          </button>
+          <button onClick={() => navigate('/patients')} className="btn btn-secondary" style={{marginLeft: '10px'}}>
+            Back to Patients List
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (!patient) {

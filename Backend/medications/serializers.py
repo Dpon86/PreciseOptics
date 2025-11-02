@@ -59,8 +59,8 @@ class MedicationSerializer(serializers.ModelSerializer):
             'contraindications', 'side_effects', 'standard_dosage',
             'maximum_daily_dose', 'storage_temperature', 'shelf_life_months',
             'special_handling', 'manufacturer', 'manufacturer_fk', 'manufacturer_name',
-            'batch_number', 'expiry_date', 'approval_status', 'current_stock',
-            'minimum_stock_level', 'unit_price', 'created_at', 'updated_at'
+            'batch_number', 'expiry_date', 'approval_status',
+            'created_at', 'updated_at'
         ]
         read_only_fields = [
             'id', 'brand_names_list', 'manufacturer_name', 'category_name',

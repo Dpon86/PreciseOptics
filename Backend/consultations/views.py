@@ -82,17 +82,17 @@ class VitalSignsViewSet(viewsets.ModelViewSet):
     """
     queryset = VitalSigns.objects.all()
     serializer_class = VitalSignsSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [ReadOnlyOrAuthenticatedPermission]
     
     def get_queryset(self):
         """Filter vital signs by consultation"""
-        queryset = VitalSigns.objects.select_related('consultation', 'recorded_by')
+        queryset = VitalSigns.objects.select_related('consultation')
         
         consultation_id = self.request.query_params.get('consultation', None)
         if consultation_id:
             queryset = queryset.filter(consultation_id=consultation_id)
         
-        return queryset.order_by('-recorded_at')
+        return queryset.order_by('-created_at')
 
 
 class ConsultationDocumentViewSet(viewsets.ModelViewSet):
@@ -101,17 +101,17 @@ class ConsultationDocumentViewSet(viewsets.ModelViewSet):
     """
     queryset = ConsultationDocument.objects.all()
     serializer_class = ConsultationDocumentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [ReadOnlyOrAuthenticatedPermission]
     
     def get_queryset(self):
         """Filter documents by consultation"""
-        queryset = ConsultationDocument.objects.select_related('consultation', 'uploaded_by')
+        queryset = ConsultationDocument.objects.select_related('consultation', 'created_by')
         
         consultation_id = self.request.query_params.get('consultation', None)
         if consultation_id:
             queryset = queryset.filter(consultation_id=consultation_id)
         
-        return queryset.filter(is_active=True).order_by('-uploaded_at')
+        return queryset.order_by('-created_at')
 
 
 class ConsultationImageViewSet(viewsets.ModelViewSet):
@@ -120,14 +120,14 @@ class ConsultationImageViewSet(viewsets.ModelViewSet):
     """
     queryset = ConsultationImage.objects.all()
     serializer_class = ConsultationImageSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [ReadOnlyOrAuthenticatedPermission]
     
     def get_queryset(self):
         """Filter images by consultation"""
-        queryset = ConsultationImage.objects.select_related('consultation', 'captured_by')
+        queryset = ConsultationImage.objects.select_related('consultation', 'taken_by')
         
         consultation_id = self.request.query_params.get('consultation', None)
         if consultation_id:
             queryset = queryset.filter(consultation_id=consultation_id)
         
-        return queryset.filter(is_active=True).order_by('-captured_at')
+        return queryset.order_by('-created_at')

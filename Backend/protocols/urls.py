@@ -41,4 +41,15 @@ urlpatterns = [
     path('consent-forms/<uuid:pk>/', views.ConsentFormDetailView.as_view(), name='consent-form-detail'),
     path('consent-forms/<uuid:consent_id>/withdraw/', views.withdraw_consent, name='withdraw-consent'),
     path('patient/<uuid:patient_id>/consent-forms/', views.PatientConsentFormsView.as_view(), name='patient-consent-forms'),
+    
+    # Protocol Step Details endpoints (medications, treatments, tests)
+    path('step-medications/', views.ProtocolStepMedicationListCreateView.as_view(), name='step-medication-list'),
+    path('step-medications/<uuid:pk>/', views.ProtocolStepMedicationDetailView.as_view(), name='step-medication-detail'),
+    path('step-treatments/', views.ProtocolStepTreatmentListCreateView.as_view(), name='step-treatment-list'),
+    path('step-treatments/<uuid:pk>/', views.ProtocolStepTreatmentDetailView.as_view(), name='step-treatment-detail'),
+    path('step-tests/', views.ProtocolStepTestListCreateView.as_view(), name='step-test-list'),
+    path('step-tests/<uuid:pk>/', views.ProtocolStepTestDetailView.as_view(), name='step-test-detail'),
+    
+    # Patient assignment
+    path('assign-to-patient/', views.assign_protocol_to_patient, name='assign-to-patient'),
 ]

@@ -13,7 +13,8 @@ from datetime import date, timedelta
 
 from .models import (
     TreatmentProtocol, ProtocolStep, PatientProtocol,
-    ProtocolStepCompletion, ConsentForm
+    ProtocolStepCompletion, ConsentForm, ProtocolStepMedication,
+    ProtocolStepTreatment, ProtocolStepTest
 )
 from .serializers import (
     TreatmentProtocolSerializer, TreatmentProtocolListSerializer,
@@ -24,6 +25,11 @@ from .serializers import (
     ProtocolStepCompletionCreateSerializer, ConsentFormSerializer,
     ConsentFormListSerializer, ConsentFormCreateSerializer,
     ProtocolStatisticsSerializer
+)
+from .serializers_enhanced import (
+    ProtocolStepMedicationSerializer, ProtocolStepMedicationCreateSerializer,
+    ProtocolStepTreatmentSerializer, ProtocolStepTreatmentCreateSerializer,
+    ProtocolStepTestSerializer, ProtocolStepTestCreateSerializer
 )
 
 
@@ -639,3 +645,181 @@ def bulk_reschedule_steps(request):
         'message': f'Successfully rescheduled {updated_count} steps',
         'updated_count': updated_count
     })
+
+
+# ==================== Protocol Step Details Views ====================
+
+
+class ProtocolStepMedicationListCreateView(generics.ListCreateAPIView):
+    """List or create medications for protocol steps"""
+    queryset = ProtocolStepMedication.objects.all().select_related(
+        'protocol_step', 'medication'
+    ).order_by('protocol_step', 'order')
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['protocol_step', 'medication', 'route', 'eye_side']
+    
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return ProtocolStepMedicationCreateSerializer
+        return ProtocolStepMedicationSerializer
+
+
+class ProtocolStepMedicationDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """Retrieve, update or delete a protocol step medication"""
+    queryset = ProtocolStepMedication.objects.all().select_related(
+        'protocol_step', 'medication'
+    )
+    serializer_class = ProtocolStepMedicationSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class ProtocolStepTreatmentListCreateView(generics.ListCreateAPIView):
+    """List or create treatments for protocol steps"""
+    queryset = ProtocolStepTreatment.objects.all().select_related(
+        'protocol_step'
+    ).order_by('protocol_step', 'order')
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['protocol_step', 'treatment_type', 'eye_side']
+    
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return ProtocolStepTreatmentCreateSerializer
+        return ProtocolStepTreatmentSerializer
+
+
+class ProtocolStepTreatmentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """Retrieve, update or delete a protocol step treatment"""
+    queryset = ProtocolStepTreatment.objects.all().select_related('protocol_step')
+    serializer_class = ProtocolStepTreatmentSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class ProtocolStepTestListCreateView(generics.ListCreateAPIView):
+    """List or create tests for protocol steps"""
+    queryset = ProtocolStepTest.objects.all().select_related(
+        'protocol_step'
+    ).order_by('protocol_step', 'order')
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['protocol_step', 'test_type', 'eye_side', 'is_baseline']
+    
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return ProtocolStepTestCreateSerializer
+        return ProtocolStepTestSerializer
+
+
+class ProtocolStepTestDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """Retrieve, update or delete a protocol step test"""
+    queryset = ProtocolStepTest.objects.all().select_related('protocol_step')
+    serializer_class = ProtocolStepTestSerializer
+    permission_classes = [IsAuthenticated]
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def assign_protocol_to_patient(request):
+    """
+    Assign a protocol to a patient with detailed step scheduling
+    """
+    patient_id = request.data.get('patient')
+    protocol_id = request.data.get('protocol')
+    start_date_str = request.data.get('start_date')
+    assignment_reason = request.data.get('assignment_reason', '')
+    
+    if not all([patient_id, protocol_id, start_date_str]):
+        return Response(
+            {'error': 'patient, protocol, and start_date are required'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    try:
+        start_date = date.fromisoformat(start_date_str)
+    except ValueError:
+        return Response(
+            {'error': 'Invalid start_date format. Use YYYY-MM-DD'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    from patients.models import Patient
+    
+    try:
+        patient = Patient.objects.get(id=patient_id)
+        protocol = TreatmentProtocol.objects.get(id=protocol_id)
+    except (Patient.DoesNotExist, TreatmentProtocol.DoesNotExist):
+        return Response(
+            {'error': 'Patient or Protocol not found'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    
+    # Check for existing active protocol
+    existing = PatientProtocol.objects.filter(
+        patient=patient,
+        protocol=protocol,
+        status__in=['active', 'pending']
+    ).first()
+    
+    if existing:
+        return Response(
+            {'error': f'Patient already has an active {protocol.name} protocol'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # Create patient protocol
+    patient_protocol = PatientProtocol.objects.create(
+        patient=patient,
+        protocol=protocol,
+        start_date=start_date,
+        status='pending',
+        assigned_by=request.user,
+        assignment_reason=assignment_reason
+    )
+    
+    # Generate step completions for all protocol steps
+    steps = protocol.steps.all().order_by('step_number')
+    
+    for step in steps:
+        # Calculate scheduled date based on timing type
+        if step.timing_type == 'fixed':
+            scheduled_date = start_date + timedelta(days=step.timing_days)
+        elif step.timing_type == 'from_previous':
+            # For now, treat same as fixed (will be updated based on actual completion)
+            scheduled_date = start_date + timedelta(days=step.timing_days)
+        elif step.timing_type == 'weekly':
+            # Weekly recurring
+            scheduled_date = start_date + timedelta(weeks=step.timing_days)
+        elif step.timing_type == 'monthly':
+            # Monthly recurring
+            scheduled_date = start_date + timedelta(days=step.timing_days * 30)
+        else:
+            scheduled_date = start_date + timedelta(days=step.timing_days)
+        
+        # Create main step completion
+        step_completion = ProtocolStepCompletion.objects.create(
+            patient_protocol=patient_protocol,
+            protocol_step=step,
+            scheduled_date=scheduled_date,
+            status='scheduled'
+        )
+        
+        # If step is recurring, create additional completions
+        if step.is_recurring and step.recurrence_count:
+            for i in range(1, step.recurrence_count):
+                if step.timing_type == 'weekly':
+                    next_date = scheduled_date + timedelta(weeks=i)
+                elif step.timing_type == 'monthly':
+                    next_date = scheduled_date + timedelta(days=i * 30)
+                else:
+                    next_date = scheduled_date + timedelta(days=step.timing_days * i)
+                
+                ProtocolStepCompletion.objects.create(
+                    patient_protocol=patient_protocol,
+                    protocol_step=step,
+                    scheduled_date=next_date,
+                    status='scheduled'
+                )
+    
+    serializer = PatientProtocolSerializer(patient_protocol)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)

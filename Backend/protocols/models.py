@@ -92,6 +92,7 @@ class TreatmentProtocol(models.Model):
 class ProtocolStep(models.Model):
     """
     Individual steps within a treatment protocol
+    Supports multiple medications, treatments, and tests per step
     """
     STEP_TYPES = (
         ('medication', 'Medication Administration'),
@@ -102,6 +103,14 @@ class ProtocolStep(models.Model):
         ('consultation', 'Consultation'),
         ('follow_up', 'Follow-up Visit'),
         ('imaging', 'Imaging Study'),
+        ('multiple', 'Multiple Actions'),
+    )
+    
+    TIMING_TYPES = (
+        ('fixed', 'Fixed Days from Start'),
+        ('from_previous', 'Days from Previous Step'),
+        ('weekly', 'Weekly Recurring'),
+        ('monthly', 'Monthly Recurring'),
     )
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -116,9 +125,15 @@ class ProtocolStep(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
     
-    # Timing (days from protocol start)
+    # Timing (days from protocol start or previous step)
+    timing_type = models.CharField(
+        max_length=20,
+        choices=TIMING_TYPES,
+        default='fixed',
+        help_text="How timing is calculated"
+    )
     timing_days = models.PositiveIntegerField(
-        help_text="Days from protocol start date"
+        help_text="Days from start/previous step, or interval for recurring"
     )
     timing_window_before = models.PositiveIntegerField(
         default=0,
@@ -129,23 +144,34 @@ class ProtocolStep(models.Model):
         help_text="Days after scheduled date (flexibility window)"
     )
     
-    # Associated resources
+    # Recurring steps
+    is_recurring = models.BooleanField(
+        default=False,
+        help_text="Whether this step repeats"
+    )
+    recurrence_count = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text="Number of times to repeat (null = indefinite)"
+    )
+    
+    # Legacy single medication support (kept for backward compatibility)
     medication = models.ForeignKey(
         Medication,
         on_delete=models.PROTECT,
         null=True,
         blank=True,
         related_name='protocol_steps',
-        help_text="Medication to administer (if applicable)"
+        help_text="Primary medication (legacy - use ProtocolStepMedication for multiple)"
     )
     medication_dosage = models.CharField(max_length=100, blank=True)
     medication_route = models.CharField(max_length=50, blank=True)
     
-    # Required tests/assessments
+    # Required tests/assessments (legacy - use ProtocolStepTest for multiple)
     required_test_type = models.CharField(
         max_length=100,
         blank=True,
-        help_text="Type of test required (e.g., OCT, Visual Acuity)"
+        help_text="Type of test required (legacy)"
     )
     
     # Instructions
@@ -156,6 +182,44 @@ class ProtocolStep(models.Model):
     post_instructions = models.TextField(
         blank=True,
         help_text="Instructions after the step"
+    )
+    
+    # Branching logic
+    has_branches = models.BooleanField(
+        default=False,
+        help_text="Whether this step has conditional branches"
+    )
+    branch_condition_type = models.CharField(
+        max_length=50,
+        blank=True,
+        choices=(
+            ('test_result', 'Based on Test Result'),
+            ('outcome', 'Based on Step Outcome'),
+            ('measurement', 'Based on Measurement'),
+            ('adverse_event', 'Based on Adverse Event'),
+            ('manual', 'Manual Decision'),
+        ),
+        help_text="What determines which branch to follow"
+    )
+    branch_logic = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Branching conditions and next step mappings"
+    )
+    
+    # Parent step for branches
+    parent_step = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='child_branches',
+        help_text="Parent step if this is a branch"
+    )
+    branch_label = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="Label for this branch (e.g., 'If improved', 'If no change')"
     )
     
     # Compliance
@@ -173,6 +237,211 @@ class ProtocolStep(models.Model):
     
     def __str__(self):
         return f"{self.protocol.name} - Step {self.step_number}: {self.title}"
+
+
+class ProtocolStepMedication(models.Model):
+    """
+    Multiple medications per protocol step with individual dosing
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    protocol_step = models.ForeignKey(
+        ProtocolStep,
+        on_delete=models.CASCADE,
+        related_name='medications'
+    )
+    medication = models.ForeignKey(
+        Medication,
+        on_delete=models.PROTECT,
+        related_name='step_medications'
+    )
+    
+    # Dosing information
+    dosage_amount = models.CharField(max_length=50)
+    dosage_unit = models.CharField(max_length=50)
+    route = models.CharField(
+        max_length=50,
+        choices=(
+            ('oral', 'Oral'),
+            ('topical', 'Topical (Eye Drops)'),
+            ('intravitreal', 'Intravitreal Injection'),
+            ('subconjunctival', 'Subconjunctival'),
+            ('iv', 'Intravenous'),
+            ('im', 'Intramuscular'),
+        )
+    )
+    frequency = models.CharField(
+        max_length=100,
+        help_text="e.g., 'Once daily', '3 times daily', 'Every 4 weeks'"
+    )
+    duration_days = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text="How many days to continue this medication"
+    )
+    
+    # Timing
+    administer_at_same_time = models.BooleanField(
+        default=True,
+        help_text="Whether this is given at the same visit/time as other step items"
+    )
+    offset_days = models.IntegerField(
+        default=0,
+        help_text="Days offset from main step timing (can be negative)"
+    )
+    
+    # Special instructions
+    special_instructions = models.TextField(blank=True)
+    eye_side = models.CharField(
+        max_length=20,
+        blank=True,
+        choices=(
+            ('OD', 'Right Eye (OD)'),
+            ('OS', 'Left Eye (OS)'),
+            ('OU', 'Both Eyes (OU)'),
+        )
+    )
+    
+    # Order for display
+    order = models.PositiveIntegerField(default=0)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Protocol Step Medication"
+        verbose_name_plural = "Protocol Step Medications"
+        ordering = ['protocol_step', 'order']
+    
+    def __str__(self):
+        return f"{self.protocol_step.title} - {self.medication.name}"
+
+
+class ProtocolStepTreatment(models.Model):
+    """
+    Multiple treatments per protocol step
+    """
+    TREATMENT_TYPES = (
+        ('injection', 'Intravitreal Injection'),
+        ('laser', 'Laser Treatment'),
+        ('surgery', 'Surgical Procedure'),
+        ('therapy', 'Physical Therapy'),
+        ('other', 'Other Treatment'),
+    )
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    protocol_step = models.ForeignKey(
+        ProtocolStep,
+        on_delete=models.CASCADE,
+        related_name='treatments'
+    )
+    
+    treatment_type = models.CharField(max_length=50, choices=TREATMENT_TYPES)
+    treatment_name = models.CharField(max_length=200)
+    description = models.TextField()
+    
+    # Timing
+    administer_at_same_time = models.BooleanField(default=True)
+    offset_days = models.IntegerField(default=0)
+    
+    # Clinical details
+    eye_side = models.CharField(
+        max_length=20,
+        blank=True,
+        choices=(
+            ('OD', 'Right Eye (OD)'),
+            ('OS', 'Left Eye (OS)'),
+            ('OU', 'Both Eyes (OU)'),
+        )
+    )
+    expected_duration_minutes = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text="Expected duration in minutes"
+    )
+    requires_anesthesia = models.BooleanField(default=False)
+    anesthesia_type = models.CharField(max_length=100, blank=True)
+    
+    special_instructions = models.TextField(blank=True)
+    order = models.PositiveIntegerField(default=0)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Protocol Step Treatment"
+        verbose_name_plural = "Protocol Step Treatments"
+        ordering = ['protocol_step', 'order']
+    
+    def __str__(self):
+        return f"{self.protocol_step.title} - {self.treatment_name}"
+
+
+class ProtocolStepTest(models.Model):
+    """
+    Multiple eye tests per protocol step
+    """
+    TEST_TYPES = (
+        ('visual_acuity', 'Visual Acuity Test'),
+        ('refraction', 'Refraction Test'),
+        ('tonometry', 'Tonometry (IOP)'),
+        ('oct', 'OCT Scan'),
+        ('visual_field', 'Visual Field Test'),
+        ('fluorescein', 'Fluorescein Angiography'),
+        ('fundus_photo', 'Fundus Photography'),
+        ('slit_lamp', 'Slit Lamp Examination'),
+        ('ophthalmoscopy', 'Ophthalmoscopy'),
+        ('other', 'Other Test'),
+    )
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    protocol_step = models.ForeignKey(
+        ProtocolStep,
+        on_delete=models.CASCADE,
+        related_name='tests'
+    )
+    
+    test_type = models.CharField(max_length=50, choices=TEST_TYPES)
+    test_name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    
+    # Timing
+    administer_at_same_time = models.BooleanField(default=True)
+    offset_days = models.IntegerField(default=0)
+    
+    # Test details
+    eye_side = models.CharField(
+        max_length=20,
+        choices=(
+            ('OD', 'Right Eye (OD)'),
+            ('OS', 'Left Eye (OS)'),
+            ('OU', 'Both Eyes (OU)'),
+        )
+    )
+    is_baseline = models.BooleanField(
+        default=False,
+        help_text="Is this a baseline measurement?"
+    )
+    
+    # Expected values or thresholds for branching
+    expected_values = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Expected test results or thresholds"
+    )
+    
+    special_instructions = models.TextField(blank=True)
+    order = models.PositiveIntegerField(default=0)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Protocol Step Test"
+        verbose_name_plural = "Protocol Step Tests"
+        ordering = ['protocol_step', 'order']
+    
+    def __str__(self):
+        return f"{self.protocol_step.title} - {self.test_name}"
 
 
 class PatientProtocol(models.Model):

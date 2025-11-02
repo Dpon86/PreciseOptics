@@ -17,6 +17,12 @@ export * from './eye-tests';
 export * from './medications';
 export * from './prescriptions';
 
+// Protocol Management
+export * from './protocols';
+
+// Treatment Management
+export * from './treatments';
+
 // Reports and Analytics
 export * from './reports';
 

@@ -38,6 +38,18 @@ const HomePage = () => {
       ]
     },
     
+    // Protocols - No patient required
+    {
+      title: 'Treatment Protocols',
+      description: 'Manage clinical protocols and procedures',
+      icon: '📋',
+      links: [
+        { path: '/protocols', label: 'View Protocols' },
+        { path: '/protocols/add', label: 'Add Protocol' },
+        { path: '/protocols/statistics', label: 'Protocol Statistics' }
+      ]
+    },
+    
     // Patient Management - No patient required
     {
       title: 'Patient Management',

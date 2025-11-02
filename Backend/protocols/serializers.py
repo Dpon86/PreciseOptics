@@ -6,12 +6,17 @@ from django.utils import timezone
 from datetime import timedelta
 from .models import (
     TreatmentProtocol, ProtocolStep, PatientProtocol,
-    ProtocolStepCompletion, ConsentForm
+    ProtocolStepCompletion, ConsentForm,
+    ProtocolStepMedication, ProtocolStepTreatment, ProtocolStepTest
 )
 from conditions.serializers import MedicalConditionSerializer
 from medications.serializers import MedicationSerializer
 from patients.serializers import PatientSerializer
 from accounts.serializers import CustomUserSerializer
+from .serializers_enhanced import (
+    ProtocolStepMedicationSerializer, ProtocolStepTreatmentSerializer,
+    ProtocolStepTestSerializer
+)
 
 
 # ==================== Treatment Protocol Serializers ====================
@@ -30,20 +35,36 @@ class ProtocolStepListSerializer(serializers.ModelSerializer):
 
 
 class ProtocolStepSerializer(serializers.ModelSerializer):
-    """Full serializer for protocol step details"""
+    """Full serializer for protocol step details with nested medications, treatments, and tests"""
     step_type_display = serializers.CharField(source='get_step_type_display', read_only=True)
+    timing_type_display = serializers.CharField(source='get_timing_type_display', read_only=True)
     medication_details = MedicationSerializer(source='medication', read_only=True)
     timing_window_days = serializers.SerializerMethodField()
+    
+    # Nested serializers for multiple items
+    medications = ProtocolStepMedicationSerializer(many=True, read_only=True)
+    treatments = ProtocolStepTreatmentSerializer(many=True, read_only=True)
+    tests = ProtocolStepTestSerializer(many=True, read_only=True)
+    
+    # Branching information
+    branch_condition_display = serializers.CharField(source='get_branch_condition_type_display', read_only=True)
+    child_branches = serializers.SerializerMethodField()
+    parent_step_info = serializers.SerializerMethodField()
     
     class Meta:
         model = ProtocolStep
         fields = [
             'id', 'protocol', 'step_number', 'step_type', 'step_type_display',
-            'title', 'description', 'timing_days', 'timing_window_before',
-            'timing_window_after', 'timing_window_days', 'medication',
-            'medication_details', 'medication_dosage', 'medication_route',
-            'required_test_type', 'pre_instructions', 'post_instructions',
-            'is_mandatory', 'can_be_rescheduled', 'created_at', 'updated_at'
+            'title', 'description', 'timing_type', 'timing_type_display',
+            'timing_days', 'timing_window_before', 'timing_window_after',
+            'timing_window_days', 'is_recurring', 'recurrence_count',
+            'medication', 'medication_details', 'medication_dosage',
+            'medication_route', 'required_test_type', 'pre_instructions',
+            'post_instructions', 'has_branches', 'branch_condition_type',
+            'branch_condition_display', 'branch_logic', 'parent_step',
+            'parent_step_info', 'branch_label', 'child_branches',
+            'is_mandatory', 'can_be_rescheduled', 'medications',
+            'treatments', 'tests', 'created_at', 'updated_at'
         ]
         read_only_fields = ['created_at', 'updated_at']
     
@@ -54,6 +75,29 @@ class ProtocolStepSerializer(serializers.ModelSerializer):
             'latest': obj.timing_days + obj.timing_window_after,
             'target': obj.timing_days
         }
+    
+    def get_child_branches(self, obj):
+        """Return information about child branch steps"""
+        if not obj.has_branches:
+            return []
+        
+        branches = obj.child_branches.all()
+        return [{
+            'id': str(branch.id),
+            'step_number': branch.step_number,
+            'title': branch.title,
+            'branch_label': branch.branch_label
+        } for branch in branches]
+    
+    def get_parent_step_info(self, obj):
+        """Return parent step info if this is a branch"""
+        if obj.parent_step:
+            return {
+                'id': str(obj.parent_step.id),
+                'step_number': obj.parent_step.step_number,
+                'title': obj.parent_step.title
+            }
+        return None
 
 
 class TreatmentProtocolListSerializer(serializers.ModelSerializer):

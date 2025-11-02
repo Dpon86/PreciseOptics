@@ -4,7 +4,8 @@ Admin configuration for protocols app
 from django.contrib import admin
 from .models import (
     TreatmentProtocol, ProtocolStep, PatientProtocol,
-    ProtocolStepCompletion, ConsentForm
+    ProtocolStepCompletion, ConsentForm,
+    ProtocolStepMedication, ProtocolStepTreatment, ProtocolStepTest
 )
 
 
@@ -37,26 +38,53 @@ class TreatmentProtocolAdmin(admin.ModelAdmin):
     )
 
 
+# Inline admin classes for step details
+class ProtocolStepMedicationInline(admin.TabularInline):
+    model = ProtocolStepMedication
+    extra = 1
+    fields = ['medication', 'dosage_amount', 'dosage_unit', 'route', 'frequency', 'eye_side', 'order']
+
+
+class ProtocolStepTreatmentInline(admin.TabularInline):
+    model = ProtocolStepTreatment
+    extra = 1
+    fields = ['treatment_type', 'treatment_name', 'eye_side', 'order']
+
+
+class ProtocolStepTestInline(admin.TabularInline):
+    model = ProtocolStepTest
+    extra = 1
+    fields = ['test_type', 'test_name', 'eye_side', 'is_baseline', 'order']
+
+
 @admin.register(ProtocolStep)
 class ProtocolStepAdmin(admin.ModelAdmin):
-    list_display = ['protocol', 'step_number', 'title', 'step_type', 'timing_days', 'is_mandatory']
-    list_filter = ['step_type', 'is_mandatory', 'can_be_rescheduled', 'protocol__condition']
+    list_display = ['protocol', 'step_number', 'title', 'step_type', 'timing_days', 'is_mandatory', 'has_branches']
+    list_filter = ['step_type', 'is_mandatory', 'can_be_rescheduled', 'has_branches', 'is_recurring', 'protocol__condition']
     search_fields = ['title', 'description', 'protocol__name']
     readonly_fields = ['created_at', 'updated_at']
+    inlines = [ProtocolStepMedicationInline, ProtocolStepTreatmentInline, ProtocolStepTestInline]
     
     fieldsets = (
         ('Step Information', {
             'fields': ('protocol', 'step_number', 'step_type', 'title', 'description')
         }),
         ('Timing', {
-            'fields': ('timing_days', 'timing_window_before', 'timing_window_after')
+            'fields': ('timing_type', 'timing_days', 'timing_window_before', 'timing_window_after', 
+                      'is_recurring', 'recurrence_count')
         }),
-        ('Medication Details', {
+        ('Medication Details (Legacy)', {
             'fields': ('medication', 'medication_dosage', 'medication_route'),
-            'classes': ('collapse',)
+            'classes': ('collapse',),
+            'description': 'Use inline medications below for multiple medications'
         }),
-        ('Test Requirements', {
+        ('Test Requirements (Legacy)', {
             'fields': ('required_test_type',),
+            'classes': ('collapse',),
+            'description': 'Use inline tests below for multiple tests'
+        }),
+        ('Branching Logic', {
+            'fields': ('has_branches', 'branch_condition_type', 'branch_logic', 'parent_step', 'branch_label'),
             'classes': ('collapse',)
         }),
         ('Instructions', {
@@ -67,6 +95,30 @@ class ProtocolStepAdmin(admin.ModelAdmin):
             'fields': ('is_mandatory', 'can_be_rescheduled')
         }),
     )
+
+
+@admin.register(ProtocolStepMedication)
+class ProtocolStepMedicationAdmin(admin.ModelAdmin):
+    list_display = ['protocol_step', 'medication', 'dosage_amount', 'dosage_unit', 'route', 'frequency', 'eye_side', 'order']
+    list_filter = ['route', 'eye_side', 'administer_at_same_time']
+    search_fields = ['medication__name', 'protocol_step__title', 'special_instructions']
+    readonly_fields = ['created_at', 'updated_at']
+
+
+@admin.register(ProtocolStepTreatment)
+class ProtocolStepTreatmentAdmin(admin.ModelAdmin):
+    list_display = ['protocol_step', 'treatment_name', 'treatment_type', 'eye_side', 'requires_anesthesia', 'order']
+    list_filter = ['treatment_type', 'eye_side', 'requires_anesthesia', 'administer_at_same_time']
+    search_fields = ['treatment_name', 'protocol_step__title', 'description']
+    readonly_fields = ['created_at', 'updated_at']
+
+
+@admin.register(ProtocolStepTest)
+class ProtocolStepTestAdmin(admin.ModelAdmin):
+    list_display = ['protocol_step', 'test_name', 'test_type', 'eye_side', 'is_baseline', 'order']
+    list_filter = ['test_type', 'eye_side', 'is_baseline', 'administer_at_same_time']
+    search_fields = ['test_name', 'protocol_step__title', 'description']
+    readonly_fields = ['created_at', 'updated_at']
 
 
 @admin.register(PatientProtocol)

@@ -174,7 +174,16 @@ const AddTreatmentPage = () => {
                   <option value="">Select Consultation (Optional)</option>
                   {consultations.map(consultation => (
                     <option key={consultation.id} value={consultation.id}>
-                      {new Date(consultation.consultation_date).toLocaleDateString()} - {consultation.chief_complaint}
+                      {consultation.scheduled_time 
+                        ? new Date(consultation.scheduled_time).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })
+                        : 'Date not available'
+                      } - {consultation.chief_complaint || consultation.reason_for_visit || 'Consultation'}
                     </option>
                   ))}
                 </select>

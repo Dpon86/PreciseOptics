@@ -170,7 +170,20 @@ const PatientDetailPage = () => {
           <div className="stat-content">
             <div className="stat-label">Registered</div>
             <div className="stat-value">
-              {new Date(patient.registration_date).toLocaleDateString()}
+              {patient.registration_date 
+                ? new Date(patient.registration_date).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                  })
+                : patient.created_at
+                ? new Date(patient.created_at).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                  })
+                : 'N/A'
+              }
             </div>
           </div>
         </div>
@@ -490,6 +503,16 @@ const PatientDetailPage = () => {
                 View All Eye Tests
               </Link>
             </div>
+
+            <div className="activity-section mt-4">
+              <h3>Treatment Protocols</h3>
+              <Link 
+                to={`/patient/${patient.id}/protocols`} 
+                className="btn btn-secondary"
+              >
+                View Assigned Protocols
+              </Link>
+            </div>
           </div>
         )}
       </div>
@@ -503,7 +526,7 @@ const PatientDetailPage = () => {
             className="quick-action-card"
           >
             <div className="action-icon">📋</div>
-            <div className="action-label">New Consultation</div>
+            <div className="action-label">Consultation</div>
           </Link>
           <Link 
             to={`/patient/${patient.id}/eye-tests/visual-acuity/add`} 
@@ -517,14 +540,28 @@ const PatientDetailPage = () => {
             className="quick-action-card"
           >
             <div className="action-icon">💊</div>
-            <div className="action-label">New Prescription</div>
+            <div className="action-label">Prescription</div>
+          </Link>
+          <Link 
+            to={`/patient/${patient.id}/treatments`} 
+            className="quick-action-card"
+          >
+            <div className="action-icon">💉</div>
+            <div className="action-label">Treatments</div>
           </Link>
           <Link 
             to={`/patients/${patient.id}/records`} 
             className="quick-action-card"
           >
             <div className="action-icon">📊</div>
-            <div className="action-label">View Records</div>
+            <div className="action-label">Records</div>
+          </Link>
+          <Link 
+            to={`/protocols/assign/${patient.id}`} 
+            className="quick-action-card"
+          >
+            <div className="action-icon">📋</div>
+            <div className="action-label">Assign Protocol</div>
           </Link>
         </div>
       </div>

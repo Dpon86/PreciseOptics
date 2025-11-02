@@ -20,6 +20,9 @@ import {
   EditPatientPage,
   AddDiagnosisPage,
   AddTreatmentPage,
+  // Treatment Management
+  TreatmentsPage,
+  TreatmentHistoryPage,
   // Consultation Management
   ConsultationsPage,
   AddConsultationPage,
@@ -45,6 +48,13 @@ import {
   PrescriptionDetailPage,
   AddManufacturerPage,
   AddMedicationCategoryPage,
+  // Protocols Management
+  ProtocolsPage,
+  AddProtocolPage,
+  EditProtocolPage,
+  ProtocolDetailPage,
+  AssignProtocolPage,
+  PatientProtocolsPage,
   // Reports
   PatientMedicationsReportPage,
   ConsultationReportPage,
@@ -53,6 +63,7 @@ import {
   EyeTestsSummaryReportPage,
   MedicationEffectivenessReportPage,
   PatientProgressDashboard,
+  TreatmentEffectivenessReport,
   // Audit
   AuditLogsPage,
   AddAuditLogPage,
@@ -234,6 +245,22 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <AddTreatmentPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/patient/:patientId/treatments" 
+            element={
+              <ProtectedRoute>
+                <TreatmentsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/patient/:patientId/treatments/history" 
+            element={
+              <ProtectedRoute>
+                <TreatmentHistoryPage />
               </ProtectedRoute>
             } 
           />
@@ -543,10 +570,76 @@ function AppContent() {
             } 
           />
           <Route 
+            path="/reports/treatment-effectiveness" 
+            element={
+              <ProtectedRoute>
+                <TreatmentEffectivenessReport />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/medicines/add" 
             element={
               <ProtectedRoute>
                 <AddMedicinePage />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Protocol Routes */}
+          <Route 
+            path="/protocols" 
+            element={
+              <ProtectedRoute>
+                <ProtocolsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/protocols/add" 
+            element={
+              <ProtectedRoute>
+                <AddProtocolPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/protocols/:id" 
+            element={
+              <ProtectedRoute>
+                <ProtocolDetailPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/protocols/:id/edit" 
+            element={
+              <ProtectedRoute>
+                <EditProtocolPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/protocols/assign/:patientId" 
+            element={
+              <ProtectedRoute>
+                <AssignProtocolPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/protocols/assign" 
+            element={
+              <ProtectedRoute>
+                <AssignProtocolPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/patient/:patientId/protocols" 
+            element={
+              <ProtectedRoute>
+                <PatientProtocolsPage />
               </ProtectedRoute>
             } 
           />

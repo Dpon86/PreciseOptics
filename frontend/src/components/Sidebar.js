@@ -34,6 +34,13 @@ const Sidebar = ({ isOpen, onClose }) => {
       ]
     },
     {
+      category: 'Treatments',
+      items: [
+        { path: '/treatments', label: 'View Treatments', icon: '💉' },
+        { path: '/treatments/add', label: 'Add Treatment', icon: '➕' }
+      ]
+    },
+    {
       category: 'Medications & Inventory',
       items: [
         { path: '/medications', label: 'View All Medications', icon: '💊' },
@@ -47,6 +54,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     {
       category: 'Reports & Analytics',
       items: [
+        { path: '/reports/treatment-effectiveness', label: 'Treatment & Medication Effectiveness', icon: '📈' },
         { path: '/reports/patient-medications', label: 'Patient Medications Report', icon: '📊' },
         { path: '/reports/drug-audit', label: 'Drug Audit Report', icon: '🔍' },
         { path: '/reports/patient-visits', label: 'Patient Visits Report', icon: '📈' },

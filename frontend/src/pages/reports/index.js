@@ -5,3 +5,4 @@ export { default as DrugAuditReportPage } from './DrugAuditReportPage';
 export { default as PatientVisitsReportPage } from './PatientVisitsReportPage';
 export { default as EyeTestsSummaryReportPage } from './EyeTestsSummaryReportPage';
 export { default as MedicationEffectivenessReportPage } from './MedicationEffectivenessReportPage';
+export { default as TreatmentEffectivenessReport } from './TreatmentEffectivenessReport';

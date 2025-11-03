@@ -45,7 +45,7 @@ const HomePage = () => {
       icon: '📋',
       links: [
         { path: '/protocols', label: 'View Protocols' },
-        { path: '/protocols/add', label: 'Add Protocol' },
+        { path: '/protocols/builder', label: '🏗️ Create Protocol' },
         { path: '/protocols/statistics', label: 'Protocol Statistics' }
       ]
     },

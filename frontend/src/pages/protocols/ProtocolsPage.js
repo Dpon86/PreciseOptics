@@ -90,10 +90,10 @@ const ProtocolsPage = () => {
         </div>
         <div className="header-right">
           <button 
-            onClick={() => navigate('/protocols/add')}
+            onClick={() => navigate('/protocols/builder')}
             className="btn btn-primary"
           >
-            + Add Protocol
+            🏗️ Create Protocol
           </button>
         </div>
       </div>
@@ -182,10 +182,10 @@ const ProtocolsPage = () => {
             </p>
             {protocols.length === 0 && (
               <button 
-                onClick={() => navigate('/protocols/add')}
+                onClick={() => navigate('/protocols/builder')}
                 className="btn btn-primary"
               >
-                Create First Protocol
+                🏗️ Create First Protocol
               </button>
             )}
           </div>

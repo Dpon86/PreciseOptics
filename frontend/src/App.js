@@ -55,6 +55,7 @@ import {
   ProtocolDetailPage,
   AssignProtocolPage,
   PatientProtocolsPage,
+  ProtocolBuilderPage,
   // Reports
   PatientMedicationsReportPage,
   ConsultationReportPage,
@@ -600,6 +601,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <AddProtocolPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/protocols/builder" 
+            element={
+              <ProtectedRoute>
+                <ProtocolBuilderPage />
               </ProtectedRoute>
             } 
           />

@@ -50,6 +50,13 @@ urlpatterns = [
     path('step-tests/', views.ProtocolStepTestListCreateView.as_view(), name='step-test-list'),
     path('step-tests/<uuid:pk>/', views.ProtocolStepTestDetailView.as_view(), name='step-test-detail'),
     
+    # Protocol Step Results endpoints (NEW)
+    path('step-results/', views.ProtocolStepResultListCreateView.as_view(), name='step-result-list'),
+    path('step-results/<uuid:pk>/', views.ProtocolStepResultDetailView.as_view(), name='step-result-detail'),
+    path('completions/<uuid:completion_id>/results/', views.get_step_results, name='get-step-results'),
+    path('completions/<uuid:completion_id>/record-results/', views.record_step_results, name='record-step-results'),
+    path('completions/<uuid:completion_id>/evaluate-branching/', views.evaluate_branching, name='evaluate-branching'),
+    
     # Patient assignment
     path('assign-to-patient/', views.assign_protocol_to_patient, name='assign-to-patient'),
 ]

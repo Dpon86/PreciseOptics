@@ -184,7 +184,7 @@ class ProtocolStep(models.Model):
         help_text="Instructions after the step"
     )
     
-    # Branching logic
+    # Branching logic - ENHANCED
     has_branches = models.BooleanField(
         default=False,
         help_text="Whether this step has conditional branches"
@@ -197,6 +197,9 @@ class ProtocolStep(models.Model):
             ('outcome', 'Based on Step Outcome'),
             ('measurement', 'Based on Measurement'),
             ('adverse_event', 'Based on Adverse Event'),
+            ('yes_no', 'Yes/No Decision'),
+            ('met_not_met', 'Met/Not Met Criteria'),
+            ('free_text', 'Free Text Evaluation'),
             ('manual', 'Manual Decision'),
         ),
         help_text="What determines which branch to follow"
@@ -204,7 +207,15 @@ class ProtocolStep(models.Model):
     branch_logic = models.JSONField(
         default=dict,
         blank=True,
-        help_text="Branching conditions and next step mappings"
+        help_text="""Branching conditions and next step mappings.
+        Format: {
+            'conditions': [
+                {'result': 'yes', 'next_step': 2, 'label': 'If improved'},
+                {'result': 'no', 'next_step': 3, 'label': 'If no improvement'}
+            ],
+            'evaluation_field': 'result_value',
+            'default_next_step': 4
+        }"""
     )
     
     # Parent step for branches
@@ -220,6 +231,16 @@ class ProtocolStep(models.Model):
         max_length=100,
         blank=True,
         help_text="Label for this branch (e.g., 'If improved', 'If no change')"
+    )
+    
+    # Next step routing
+    default_next_step = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='preceding_steps',
+        help_text="Default next step if no branching or branch conditions not met"
     )
     
     # Compliance
@@ -656,6 +677,179 @@ class ProtocolStepCompletion(models.Model):
             )
             self.completed_within_window = within_window
             return within_window
+        return False
+
+
+class ProtocolStepResult(models.Model):
+    """
+    Results and evaluations for completed protocol steps
+    Supports branching logic with flexible evaluation methods
+    """
+    RESULT_TYPE_CHOICES = (
+        ('yes_no', 'Yes/No'),
+        ('met_not_met', 'Met/Not Met'),
+        ('numeric', 'Numeric Value'),
+        ('free_text', 'Free Text'),
+        ('scale', 'Scale (1-10)'),
+        ('multiple_choice', 'Multiple Choice'),
+    )
+    
+    EVALUATION_CHOICES = (
+        ('yes', 'Yes'),
+        ('no', 'No'),
+        ('met', 'Met'),
+        ('not_met', 'Not Met'),
+        ('improved', 'Improved'),
+        ('stable', 'Stable'),
+        ('worsened', 'Worsened'),
+        ('n/a', 'Not Applicable'),
+    )
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    step_completion = models.ForeignKey(
+        ProtocolStepCompletion,
+        on_delete=models.CASCADE,
+        related_name='results'
+    )
+    
+    # Result information
+    result_type = models.CharField(
+        max_length=20,
+        choices=RESULT_TYPE_CHOICES,
+        default='free_text'
+    )
+    result_label = models.CharField(
+        max_length=200,
+        help_text="Label for this result (e.g., 'IOP improved?', 'Vision assessment')"
+    )
+    
+    # Flexible result capture
+    result_value_text = models.TextField(
+        blank=True,
+        help_text="Free text result"
+    )
+    result_value_numeric = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Numeric result value"
+    )
+    result_value_choice = models.CharField(
+        max_length=50,
+        choices=EVALUATION_CHOICES,
+        blank=True,
+        help_text="Predefined choice result"
+    )
+    result_value_json = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Complex result data (multiple values, measurements)"
+    )
+    
+    # Evaluation
+    evaluation_notes = models.TextField(
+        blank=True,
+        help_text="Clinical interpretation of result"
+    )
+    meets_criteria = models.BooleanField(
+        null=True,
+        blank=True,
+        help_text="Does result meet expected criteria?"
+    )
+    
+    # For branching logic
+    triggers_branch = models.BooleanField(
+        default=False,
+        help_text="Does this result trigger a branch in the protocol?"
+    )
+    branch_taken = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="Which branch was taken based on this result"
+    )
+    next_step_override = models.ForeignKey(
+        ProtocolStep,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='result_triggered_steps',
+        help_text="Next step if branching logic applies"
+    )
+    
+    # Tracking
+    evaluated_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.PROTECT,
+        related_name='protocol_step_evaluations'
+    )
+    evaluated_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = "Protocol Step Result"
+        verbose_name_plural = "Protocol Step Results"
+        ordering = ['step_completion', 'evaluated_at']
+    
+    def __str__(self):
+        return f"{self.result_label} - {self.get_result_display()}"
+    
+    def get_result_display(self):
+        """Get human-readable result"""
+        if self.result_value_choice:
+            return self.get_result_value_choice_display()
+        elif self.result_value_numeric is not None:
+            return str(self.result_value_numeric)
+        elif self.result_value_text:
+            return self.result_value_text[:50]
+        return "No result"
+    
+    def evaluate_branching(self):
+        """
+        Evaluate if this result should trigger branching
+        Returns next step number if branching applies
+        """
+        if not self.step_completion.protocol_step.has_branches:
+            return None
+        
+        branch_logic = self.step_completion.protocol_step.branch_logic
+        if not branch_logic or 'conditions' not in branch_logic:
+            return None
+        
+        # Get the result value to compare
+        if self.result_value_choice:
+            compare_value = self.result_value_choice
+        elif self.result_value_numeric is not None:
+            compare_value = float(self.result_value_numeric)
+        elif self.meets_criteria is not None:
+            compare_value = 'met' if self.meets_criteria else 'not_met'
+        else:
+            return branch_logic.get('default_next_step')
+        
+        # Evaluate conditions
+        for condition in branch_logic['conditions']:
+            if self._matches_condition(compare_value, condition):
+                self.triggers_branch = True
+                self.branch_taken = condition.get('label', '')
+                return condition.get('next_step')
+        
+        # No match, use default
+        return branch_logic.get('default_next_step')
+    
+    def _matches_condition(self, value, condition):
+        """Check if value matches condition"""
+        condition_value = condition.get('result')
+        operator = condition.get('operator', 'equals')
+        
+        if operator == 'equals':
+            return str(value).lower() == str(condition_value).lower()
+        elif operator == 'greater_than':
+            return float(value) > float(condition_value)
+        elif operator == 'less_than':
+            return float(value) < float(condition_value)
+        elif operator == 'between':
+            min_val, max_val = condition_value
+            return min_val <= float(value) <= max_val
+        
         return False
 
 

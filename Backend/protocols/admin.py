@@ -5,7 +5,8 @@ from django.contrib import admin
 from .models import (
     TreatmentProtocol, ProtocolStep, PatientProtocol,
     ProtocolStepCompletion, ConsentForm,
-    ProtocolStepMedication, ProtocolStepTreatment, ProtocolStepTest
+    ProtocolStepMedication, ProtocolStepTreatment, ProtocolStepTest,
+    ProtocolStepResult
 )
 
 
@@ -268,3 +269,51 @@ class ConsentFormAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+
+
+@admin.register(ProtocolStepResult)
+class ProtocolStepResultAdmin(admin.ModelAdmin):
+    list_display = [
+        'step_completion', 'result_label', 'result_type',
+        'result_display', 'meets_criteria', 'triggers_branch',
+        'evaluated_by', 'evaluated_at'
+    ]
+    list_filter = [
+        'result_type', 'result_value_choice', 'meets_criteria',
+        'triggers_branch', 'evaluated_at'
+    ]
+    search_fields = [
+        'result_label', 'result_value_text', 'evaluation_notes',
+        'step_completion__protocol_step__title',
+        'step_completion__patient_protocol__patient__first_name',
+        'step_completion__patient_protocol__patient__last_name'
+    ]
+    readonly_fields = ['evaluated_at', 'triggers_branch', 'branch_taken']
+    date_hierarchy = 'evaluated_at'
+    
+    fieldsets = (
+        ('Step Information', {
+            'fields': ('step_completion', 'result_label', 'result_type')
+        }),
+        ('Result Values', {
+            'fields': (
+                'result_value_text', 'result_value_numeric',
+                'result_value_choice', 'result_value_json'
+            )
+        }),
+        ('Evaluation', {
+            'fields': ('evaluation_notes', 'meets_criteria')
+        }),
+        ('Branching Logic', {
+            'fields': (
+                'triggers_branch', 'branch_taken', 'next_step_override'
+            )
+        }),
+        ('Evaluation Details', {
+            'fields': ('evaluated_by', 'evaluated_at')
+        }),
+    )
+    
+    def result_display(self, obj):
+        return obj.get_result_display()
+    result_display.short_description = 'Result'

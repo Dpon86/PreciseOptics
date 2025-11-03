@@ -243,8 +243,8 @@ Backend/
 
 ---
 
-### 6. **PROTOCOLS APP** (`protocols/`) ⭐ **NEW - ENHANCED SYSTEM**
-**Purpose:** Advanced treatment protocol management with multi-step workflows, medication scheduling, and patient assignment
+### 6. **PROTOCOLS APP** (`protocols/`) ⭐ **NEW - ENHANCED SYSTEM WITH BRANCHING LOGIC**
+**Purpose:** Advanced treatment protocol management with multi-step workflows, medication scheduling, patient assignment, and intelligent branching based on clinical outcomes
 
 #### **Models:**
 - **`TreatmentProtocol`** - Master protocol definitions
@@ -289,6 +289,14 @@ Backend/
   - Instructions: special_instructions
   - Test Types: visual_acuity, refraction, iop, visual_field, oct, fundus_photo, angiography, other
 
+- **`ProtocolStepResult`** ⭐ **NEW** - Results and evaluations for completed steps
+  - Fields: step_completion, result_type, result_label
+  - Result Capture: result_value_text, result_value_numeric, result_value_choice, result_value_json
+  - Evaluation: evaluation_notes, meets_criteria, evaluated_by
+  - Branching: triggers_branch, branch_taken, next_step_override
+  - Result Types: yes_no, met_not_met, numeric, free_text, scale, multiple_choice
+  - Evaluation Choices: yes, no, met, not_met, improved, stable, worsened, n/a
+
 - **`PatientProtocol`** - Protocol assignments to patients
   - Fields: patient, protocol, start_date, end_date, status
   - Assignment: assigned_by, assignment_reason, clinical_notes
@@ -319,6 +327,12 @@ Backend/
   - `ProtocolStepMedicationListCreateView`, `ProtocolStepMedicationDetailView`
   - `ProtocolStepTreatmentListCreateView`, `ProtocolStepTreatmentDetailView`
   - `ProtocolStepTestListCreateView`, `ProtocolStepTestDetailView`
+  
+- **Step Results & Branching:** ⭐ **NEWEST** 
+  - `ProtocolStepResultListCreateView`, `ProtocolStepResultDetailView`
+  - `record_step_results` - Bulk result entry with branching evaluation
+  - `get_step_results` - Retrieve all results for a step
+  - `evaluate_branching` - Manual branching logic evaluation
   
 - **Patient Assignment:** ⭐ **NEW**
   - `assign_protocol_to_patient` - Auto-generates schedule with recurring steps
@@ -361,6 +375,13 @@ Backend/
 /api/protocols/step-tests/               # Tests per step
 /api/protocols/step-tests/<id>/          # Test detail
 
+# Step Results & Branching ⭐ NEWEST
+/api/protocols/step-results/             # Result list/create
+/api/protocols/step-results/<id>/        # Result detail
+/api/protocols/completions/<id>/results/ # Get all results for step
+/api/protocols/completions/<id>/record-results/  # Bulk result entry
+/api/protocols/completions/<id>/evaluate-branching/  # Evaluate branching logic
+
 # Patient Assignment ⭐ NEW
 /api/protocols/assign-to-patient/        # Assign protocol with auto-scheduling
 /api/protocols/patient-protocols/        # Patient protocol list
@@ -393,15 +414,18 @@ Backend/
 ```
 
 #### **Key Features:**
+- ✅ **Form-Based Protocol Builder** - Visual interface to create protocols with up to 10 steps ⭐ **NEWEST**
+- ✅ **Flexible Result Tracking** - Free text, yes/no, met/not met, numeric, scale inputs ⭐ **NEWEST**
+- ✅ **Intelligent Branching Logic** - Conditional pathways based on clinical outcomes ⭐ **NEWEST**
 - ✅ **Multiple Items Per Step** - Add multiple medications, treatments, and tests to each protocol step
 - ✅ **Flexible Timing** - Fixed dates, relative offsets, weekly/monthly recurring steps
 - ✅ **Auto-Scheduling** - Automatically generates all scheduled steps when protocol assigned
 - ✅ **Recurring Steps** - Support for repeating steps (e.g., weekly monitoring)
-- ✅ **Branching Logic** - Conditional pathways based on test results or patient response
 - ✅ **Individual Dosing** - Each medication has its own dosage, frequency, duration, and eye side
 - ✅ **Comprehensive Tracking** - Track adherence, completion, and outcomes
 - ✅ **Consent Management** - Digital consent forms with witness verification
 - ✅ **Safety Monitoring** - Adverse event tracking and reporting
+- ✅ **Visual Flowchart Display** - Real-time protocol flow visualization ⭐ **NEWEST**
 
 ---
 
@@ -510,6 +534,15 @@ pages/
 - **`PatientSelector.js`** - Patient search and selection
 
 ### **Protocol Components:** ⭐ **NEW**
+- **`ProtocolBuilderPage.js`** ⭐ **NEWEST** - Form-based protocol builder with flowchart
+  - Features: Visual protocol creation, up to 10 steps, drag-and-drop interface
+  - Step Configuration: Type, timing, recurring options
+  - Multi-Item Support: Add multiple medications, treatments, tests per step
+  - Branching Logic: Configure conditional pathways with visual branching
+  - Result Configuration: Define expected results and branch conditions
+  - Flowchart Display: Real-time visual protocol flow with arrows
+  - Validation: Comprehensive form validation before save
+  
 - **`AssignProtocolPage.js`** - Patient protocol assignment with visual timeline
   - Features: Patient selection, protocol selection, start date picker
   - Visual Preview: Timeline with calculated dates for each step
@@ -534,7 +567,8 @@ pages/
 ```
 # Protocol Routes
 /protocols                      # Protocol list page
-/protocols/add                  # Create new protocol
+/protocols/add                  # Create new protocol (traditional)
+/protocols/builder              # Form-based protocol builder ⭐ NEWEST
 /protocols/:id                  # Protocol detail view
 /protocols/:id/edit            # Edit protocol
 /protocols/assign              # Assign protocol (select patient)

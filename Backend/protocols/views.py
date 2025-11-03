@@ -122,7 +122,8 @@ class PatientProtocolListCreateView(generics.ListCreateAPIView):
     )
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['patient', 'protocol', 'status', 'assigned_by']
+    filterset_fields = ['patient', 'protocol', 'status', 'assigned_by'
+    ]
     search_fields = [
         'patient__first_name', 'patient__last_name', 
         'patient__patient_id', 'protocol__name'
@@ -823,3 +824,148 @@ def assign_protocol_to_patient(request):
     
     serializer = PatientProtocolSerializer(patient_protocol)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+# ==================== Protocol Step Result Views ====================
+
+class ProtocolStepResultListCreateView(generics.ListCreateAPIView):
+    """
+    List all step results or create new result
+    """
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['step_completion', 'result_type', 'meets_criteria', 'triggers_branch']
+    ordering_fields = ['evaluated_at', 'result_label']
+    ordering = ['-evaluated_at']
+    
+    def get_queryset(self):
+        from .models import ProtocolStepResult
+        return ProtocolStepResult.objects.all().select_related(
+            'step_completion__protocol_step',
+            'step_completion__patient_protocol__patient',
+            'evaluated_by'
+        )
+    
+    def get_serializer_class(self):
+        from .serializers_enhanced import ProtocolStepResultSerializer, ProtocolStepResultCreateSerializer
+        if self.request.method == 'POST':
+            return ProtocolStepResultCreateSerializer
+        return ProtocolStepResultSerializer
+    
+    def perform_create(self, serializer):
+        serializer.save(evaluated_by=self.request.user)
+
+
+class ProtocolStepResultDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve, update or delete a protocol step result
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        from .models import ProtocolStepResult
+        return ProtocolStepResult.objects.all().select_related(
+            'step_completion__protocol_step',
+            'evaluated_by'
+        )
+    
+    def get_serializer_class(self):
+        from .serializers_enhanced import ProtocolStepResultSerializer
+        return ProtocolStepResultSerializer
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def record_step_results(request, completion_id):
+    """
+    Record multiple results for a step completion
+    Evaluates branching logic and determines next step
+    """
+    from .models import ProtocolStepCompletion, ProtocolStepResult
+    from .serializers_enhanced import ProtocolStepResultBulkSerializer
+    
+    step_completion = get_object_or_404(ProtocolStepCompletion, id=completion_id)
+    
+    # Validate bulk results
+    serializer = ProtocolStepResultBulkSerializer(data={
+        'step_completion_id': completion_id,
+        'results': request.data.get('results', []),
+        'evaluated_by': request.user.id
+    })
+    
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Create results
+    results = serializer.save()
+    
+    # Evaluate branching logic from first result that has branching
+    next_step_number = None
+    for result in results:
+        if result.triggers_branch and result.next_step_override:
+            next_step_number = result.next_step_override.step_number
+            break
+    
+    # Prepare response
+    from .serializers_enhanced import ProtocolStepResultSerializer
+    response_data = {
+        'results': ProtocolStepResultSerializer(results, many=True).data,
+        'next_step': next_step_number,
+        'branching_triggered': any(r.triggers_branch for r in results)
+    }
+    
+    return Response(response_data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_step_results(request, completion_id):
+    """
+    Get all results for a specific step completion
+    """
+    from .models import ProtocolStepResult
+    from .serializers_enhanced import ProtocolStepResultSerializer
+    
+    results = ProtocolStepResult.objects.filter(
+        step_completion_id=completion_id
+    ).select_related('evaluated_by').order_by('evaluated_at')
+    
+    serializer = ProtocolStepResultSerializer(results, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def evaluate_branching(request, completion_id):
+    """
+    Manually trigger branching logic evaluation
+    Returns suggested next step based on results
+    """
+    from .models import ProtocolStepCompletion, ProtocolStepResult
+    
+    step_completion = get_object_or_404(ProtocolStepCompletion, id=completion_id)
+    results = step_completion.results.all()
+    
+    if not results.exists():
+        return Response({
+            'error': 'No results recorded for this step'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Evaluate each result
+    next_steps = []
+    for result in results:
+        next_step = result.evaluate_branching()
+        if next_step:
+            next_steps.append({
+                'result_label': result.result_label,
+                'result_value': result.get_result_display(),
+                'next_step': next_step,
+                'branch_taken': result.branch_taken
+            })
+    
+    return Response({
+        'step_completion_id': completion_id,
+        'current_step': step_completion.protocol_step.step_number,
+        'branching_evaluations': next_steps,
+        'recommended_next_step': next_steps[0]['next_step'] if next_steps else None
+    })

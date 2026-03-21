@@ -4,6 +4,43 @@
   margin: 0 auto;
 }
 
+/* Tab Navigation */
+.protocol-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 0;
+}
+.protocol-tab {
+  padding: 10px 20px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #7f8c8d;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.protocol-tab:hover { color: #2c3e50; }
+.protocol-tab.active {
+  color: #3498db;
+  border-bottom-color: #3498db;
+}
+.tab-count {
+  background: #3498db;
+  color: white;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 .page-header {
   display: flex;
   justify-content: space-between;

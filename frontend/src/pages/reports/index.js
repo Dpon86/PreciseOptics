@@ -6,3 +6,6 @@ export { default as PatientVisitsReportPage } from './PatientVisitsReportPage';
 export { default as EyeTestsSummaryReportPage } from './EyeTestsSummaryReportPage';
 export { default as MedicationEffectivenessReportPage } from './MedicationEffectivenessReportPage';
 export { default as TreatmentEffectivenessReport } from './TreatmentEffectivenessReport';
+export { default as DiseaseSpecificReport } from './DiseaseSpecificReport';
+export { default as RevenueAnalysisReport } from './RevenueAnalysisReport';
+export { default as BatchTrackingReport } from './BatchTrackingReport';

@@ -23,6 +23,7 @@ import {
   // Treatment Management
   TreatmentsPage,
   TreatmentHistoryPage,
+  TreatmentDetailPage,
   // Consultation Management
   ConsultationsPage,
   AddConsultationPage,
@@ -48,6 +49,7 @@ import {
   PrescriptionDetailPage,
   AddManufacturerPage,
   AddMedicationCategoryPage,
+  RecallCenter,
   // Protocols Management
   ProtocolsPage,
   AddProtocolPage,
@@ -74,6 +76,8 @@ import {
   // Alerts
   AlertCenter,
   AlertDetailPage,
+  FollowUpAlertsPage,
+  ReturnDuePage,
   // Reports
   PatientMedicationsReportPage,
   ConsultationReportPage,
@@ -83,6 +87,9 @@ import {
   MedicationEffectivenessReportPage,
   PatientProgressDashboard,
   TreatmentEffectivenessReport,
+  DiseaseSpecificReport,
+  RevenueAnalysisReport,
+  BatchTrackingReport,
   // Audit
   AuditLogsPage,
   AddAuditLogPage,
@@ -292,6 +299,14 @@ function AppContent() {
             } 
           />
           <Route 
+            path="/treatments/:id" 
+            element={
+              <ProtectedRoute>
+                <TreatmentDetailPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/consultations" 
             element={
               <ProtectedRoute>
@@ -442,6 +457,14 @@ function AppContent() {
                 <AddMedicationCategoryPage />
               </ProtectedRoute>
             } 
+          />
+          <Route
+            path="/medications/recalls"
+            element={
+              <ProtectedRoute>
+                <RecallCenter />
+              </ProtectedRoute>
+            }
           />
           <Route 
             path="/prescriptions/add" 
@@ -621,10 +644,26 @@ function AppContent() {
             } 
           />
           <Route
+            path="/reports/diseases"
+            element={
+              <ProtectedRoute>
+                <DiseaseSpecificReport />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/reports/revenue-analysis"
             element={
               <ProtectedRoute>
-                <Navigate to="/reports/treatment-effectiveness" replace />
+                <RevenueAnalysisReport />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports/batch-tracking"
+            element={
+              <ProtectedRoute>
+                <BatchTrackingReport />
               </ProtectedRoute>
             }
           />
@@ -857,6 +896,22 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <AlertDetailPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/alerts/followup" 
+            element={
+              <ProtectedRoute>
+                <FollowUpAlertsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/alerts/return-due" 
+            element={
+              <ProtectedRoute>
+                <ReturnDuePage />
               </ProtectedRoute>
             } 
           />

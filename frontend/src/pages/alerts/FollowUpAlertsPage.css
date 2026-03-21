@@ -1,0 +1,334 @@
+/* =============================================================
+   FollowUpAlertsPage.css
+   ============================================================= */
+
+.fua-page {
+  padding: 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Header */
+.fua-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.fua-header__left {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.fua-header__left h1 {
+  margin: 0 0 4px 0;
+  font-size: 1.6rem;
+  color: #2c3e50;
+}
+
+.fua-header__left p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Cards */
+.fua-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.fua-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 18px 20px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  border-left: 5px solid transparent;
+  transition: transform 0.1s;
+}
+
+.fua-card:hover { transform: translateY(-2px); }
+
+.fua-card--red    { border-left-color: #e74c3c; }
+.fua-card--orange { border-left-color: #e67e22; }
+.fua-card--green  { border-left-color: #27ae60; }
+.fua-card--critical { border-left-color: #c0392b; background: #fff5f5; }
+
+.fua-card__label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.fua-card__value {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #2c3e50;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.fua-card__sub {
+  font-size: 0.75rem;
+  color: #aaa;
+}
+
+/* Filters */
+.fua-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.fua-search {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.fua-select {
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.92rem;
+  min-width: 160px;
+}
+
+/* Error / loading / empty */
+.fua-error {
+  background: #ffeaea;
+  border: 1px solid #e74c3c;
+  border-radius: 6px;
+  padding: 12px 16px;
+  color: #c0392b;
+  margin-bottom: 16px;
+}
+
+.fua-loading {
+  padding: 30px;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+.fua-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+}
+
+.fua-empty span { font-size: 3rem; display: block; margin-bottom: 12px; }
+.fua-empty p { font-size: 1rem; }
+
+/* Group header */
+.fua-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border-left: 4px solid;
+  margin-bottom: 10px;
+  margin-top: 16px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.fua-group-header:first-child { margin-top: 0; }
+
+.fua-group-count { font-weight: 400; color: #666; font-size: 0.82rem; text-transform: none; }
+
+/* Alert List */
+.fua-list { }
+
+/* Individual alert item */
+.fua-item {
+  display: flex;
+  align-items: stretch;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.07);
+  margin-bottom: 10px;
+  border-left: 5px solid #ccc;
+  transition: box-shadow 0.15s;
+  overflow: hidden;
+}
+
+.fua-item:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.12); }
+
+.fua-item__left {
+  display: flex;
+  align-items: center;
+  padding: 16px 14px;
+  background: #f8f9fa;
+}
+
+.fua-item__icon { font-size: 1.4rem; }
+
+.fua-item__body {
+  flex: 1;
+  padding: 14px 16px;
+  min-width: 0;
+}
+
+.fua-item__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.fua-item__title {
+  font-weight: 700;
+  color: #2c3e50;
+  font-size: 0.97rem;
+  margin-bottom: 4px;
+}
+
+.fua-item__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: #666;
+}
+
+.fua-item__patient { font-weight: 500; color: #2980b9; }
+.fua-item__source { color: #888; font-style: italic; }
+
+.fua-item__badges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.fua-severity-badge {
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  text-transform: capitalize;
+}
+
+.fua-overdue-badge {
+  background: #fdecea;
+  color: #c0392b;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.fua-soon-badge {
+  background: #fff3e0;
+  color: #e67e22;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Date display */
+.fua-item__dates {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.fua-date-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.fua-date-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  color: #aaa;
+  letter-spacing: 0.5px;
+}
+
+.fua-date-value {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.fua-date-block--due .fua-date-value { font-weight: 700; }
+
+.fua-date-arrow {
+  color: #ccc;
+  font-size: 1.1rem;
+  margin-top: 10px;
+}
+
+.fua-item__detail {
+  font-size: 0.83rem;
+  color: #777;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.fua-item__arrow {
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  color: #bbb;
+  font-size: 1.4rem;
+}
+
+/* Footer */
+.fua-footer {
+  text-align: center;
+  color: #aaa;
+  font-size: 0.82rem;
+  padding: 16px 0 0;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: opacity 0.15s;
+  text-decoration: none;
+}
+
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn:hover:not(:disabled) { opacity: 0.85; }
+.btn-secondary { background: #ecf0f1; color: #2c3e50; }
+.btn-ghost { background: transparent; color: #3498db; padding: 4px 8px; }
+
+@media (max-width: 700px) {
+  .fua-item__top { flex-direction: column; }
+  .fua-item__badges { flex-direction: row; }
+  .fua-item__dates { gap: 8px; }
+}

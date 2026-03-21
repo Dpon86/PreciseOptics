@@ -371,6 +371,68 @@ export const apiService = {
   
   activateAlertConfig: (id) =>
     axios.post(`/api/alert-config/${id}/activate/`),
+
+  // Disease-Specific Reports
+  getDiseaseReport: (params = {}) =>
+    axios.get('/api/reports/disease-specific/', { params }),
+
+  // Revenue Analysis
+  getRevenueReport: (params = {}) =>
+    axios.get('/api/reports/revenue-analysis/', { params }),
+
+  // Batch Tracking
+  getBatchTrackingReport: (params = {}) =>
+    axios.get('/api/reports/batch-tracking/', { params }),
+
+  // Medication Recalls
+  getMedicationRecalls: (params = {}) =>
+    axios.get('/api/medication-recalls/', { params }),
+  getMedicationRecall: (id) =>
+    axios.get(`/api/medication-recalls/${id}/`),
+  createMedicationRecall: (data) =>
+    axios.post('/api/medication-recalls/', data),
+  acknowledgeRecall: (id) =>
+    axios.post(`/api/medication-recalls/${id}/acknowledge/`),
+  resolveRecall: (id, resolution_notes = '') =>
+    axios.post(`/api/medication-recalls/${id}/resolve/`, { resolution_notes }),
+  closeRecall: (id, resolution_notes = '') =>
+    axios.post(`/api/medication-recalls/${id}/close/`, { resolution_notes }),
+  getRecallAffectedPatients: (id) =>
+    axios.get(`/api/medication-recalls/${id}/affected_patients/`),
+
+  // Follow-up Alerts
+  getFollowUpAlerts: (params = {}) =>
+    axios.get('/api/reports/followup-alerts/', { params }),
+
+  // Medication Patients Report (who received a medication / batch lookup)
+  getMedicationPatientsReport: (params = {}) =>
+    axios.get('/api/reports/medication-patients/', { params }),
+
+  // Referrals
+  getReferrals: (params = {}) =>
+    axios.get('/api/referrals/', { params }),
+
+  // Conditions
+  getMedicalConditions: (params = {}) =>
+    axios.get('/api/conditions/', { params }),
+  getPatientConditions: (params = {}) =>
+    axios.get('/api/conditions/patient-conditions/', { params }),
+  getConditionStatistics: () =>
+    axios.get('/api/conditions/statistics/'),
+  getConditionPrevalence: () =>
+    axios.get('/api/conditions/prevalence/'),
+
+  // Protocols
+  getProtocols: (params = {}) =>
+    axios.get('/api/protocols/protocols/', { params }),
+  getProtocol: (id) =>
+    axios.get(`/api/protocols/protocols/${id}/`),
+  getProtocolSteps: (protocolId) =>
+    axios.get(`/api/protocols/steps/?protocol=${protocolId}`),
+  getPatientProtocol: (id) =>
+    axios.get(`/api/protocols/patient-protocols/${id}/`),
+  getPatientProtocolSchedule: (id) =>
+    axios.get(`/api/protocols/patient-protocols/${id}/schedule/`),
 };
 
 export default apiService;

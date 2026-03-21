@@ -15,6 +15,7 @@ const TreatmentEffectivenessReport = () => {
   // Filter states
   const [treatmentType, setTreatmentType] = useState('');
   const [medicationName, setMedicationName] = useState('');
+  const [condition, setCondition] = useState('');
   const [testType, setTestType] = useState('visual_acuity');
   const [months, setMonths] = useState(12);
   const [includeBatch, setIncludeBatch] = useState(true);
@@ -36,6 +37,15 @@ const TreatmentEffectivenessReport = () => {
     { value: 'diabetic_retinopathy', label: 'Diabetic Retinopathy' },
     { value: 'visual_field', label: 'Visual Field' },
     { value: 'refraction', label: 'Refraction' }
+  ];
+
+  const conditionOptions = [
+    { value: '', label: 'All Conditions' },
+    { value: 'amd', label: 'AMD (Macular Degeneration)' },
+    { value: 'diabetic_retinopathy', label: 'Diabetic Retinopathy' },
+    { value: 'rvo', label: 'Retinal Vein Occlusion (RVO)' },
+    { value: 'glaucoma', label: 'Glaucoma' },
+    { value: 'cataract', label: 'Cataracts (Post Treatment)' },
   ];
 
   useEffect(() => {
@@ -73,12 +83,12 @@ const TreatmentEffectivenessReport = () => {
       if (viewMode === 'treatment') {
         response = await fetch(
           `http://127.0.0.1:8000/api/reports/treatment-effectiveness-timeline/?` +
-          `treatment_type=${treatmentType}&test_type=${testType}&months=${months}`
+          `treatment_type=${treatmentType}&test_type=${testType}&months=${months}&condition=${condition}`
         );
       } else {
         response = await fetch(
           `http://127.0.0.1:8000/api/reports/medication-effectiveness-timeline/?` +
-          `medication=${medicationName}&test_type=${testType}&months=${months}&include_batch=${includeBatch}`
+          `medication=${medicationName}&test_type=${testType}&months=${months}&include_batch=${includeBatch}&condition=${condition}`
         );
       }
       
@@ -109,13 +119,13 @@ const TreatmentEffectivenessReport = () => {
         // Compare all available treatment types
         response = await fetch(
           `http://127.0.0.1:8000/api/reports/compare-treatments/?` +
-          `treatment_types=${treatmentTypes.join(',')}&test_type=${testType}&months=${months}`
+          `treatment_types=${treatmentTypes.join(',')}&test_type=${testType}&months=${months}&condition=${condition}`
         );
       } else {
         // Compare all available medications
         response = await fetch(
           `http://127.0.0.1:8000/api/reports/compare-medications/?` +
-          `medications=${medications.join(',')}&test_type=${testType}&months=${months}`
+          `medications=${medications.join(',')}&test_type=${testType}&months=${months}&condition=${condition}`
         );
       }
       
@@ -249,6 +259,15 @@ const TreatmentEffectivenessReport = () => {
               <option value="12">12 Months</option>
               <option value="24">24 Months</option>
               <option value="36">36 Months</option>
+            </select>
+          </div>
+
+          <div className="filter-item">
+            <label>Condition / Disease</label>
+            <select value={condition} onChange={(e) => setCondition(e.target.value)}>
+              {conditionOptions.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
             </select>
           </div>
         </div>

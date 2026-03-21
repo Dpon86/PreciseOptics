@@ -13,6 +13,7 @@ router.register(r'prescriptions', views.PrescriptionViewSet)
 router.register(r'prescription-items', views.PrescriptionItemViewSet)
 router.register(r'medication-administration', views.MedicationAdministrationViewSet)
 router.register(r'drug-allergies', views.DrugAllergyViewSet)
+router.register(r'medication-recalls', views.MedicationRecallViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),

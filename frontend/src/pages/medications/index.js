@@ -7,3 +7,4 @@ export { default as EditMedicationPage } from './EditMedicationPage';
 export { default as AddPrescriptionPage } from './AddPrescriptionPage';
 export { default as AddManufacturerPage } from './AddManufacturerPage';
 export { default as AddMedicationCategoryPage } from './AddMedicationCategoryPage';
+export { default as RecallCenter } from './RecallCenter';

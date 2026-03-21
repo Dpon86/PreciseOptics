@@ -1,0 +1,481 @@
+/* =========================================================
+   RecallCenter.css — Medication Recall Centre styles
+   ========================================================= */
+
+.recall-page {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header */
+.recall-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.recall-header__left {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.recall-header__left h1 {
+  margin: 0 0 4px 0;
+  font-size: 1.6rem;
+  color: #2c3e50;
+}
+
+.recall-header__left p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Summary Cards */
+.recall-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.recall-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-left: 4px solid transparent;
+}
+
+.recall-card--red   { border-left-color: #e74c3c; }
+.recall-card--orange{ border-left-color: #e67e22; }
+.recall-card--green { border-left-color: #27ae60; }
+.recall-card--critical { border-left-color: #c0392b; background: #fff5f5; }
+
+.recall-card__label {
+  font-size: 0.82rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.recall-card__value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+/* Filters */
+.recall-filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.recall-search {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.recall-select {
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  min-width: 150px;
+}
+
+/* Error / Loading */
+.recall-error {
+  background: #ffeaea;
+  border: 1px solid #e74c3c;
+  border-radius: 6px;
+  padding: 12px 16px;
+  color: #c0392b;
+  margin-bottom: 16px;
+}
+
+.recall-loading {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+/* Content layout: list + detail side-by-side */
+.recall-content {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .recall-content { grid-template-columns: 1fr; }
+}
+
+/* Recall List */
+.recall-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recall-empty {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.recall-empty span { font-size: 2rem; display: block; margin-bottom: 8px; }
+
+.recall-item {
+  background: #fff;
+  border-radius: 8px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.recall-item:hover { border-color: #3498db; }
+.recall-item--selected { border-color: #2980b9; box-shadow: 0 2px 12px rgba(41,128,185,0.2); }
+.recall-item--critical { background: #fff5f5; }
+
+.recall-item__header {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.recall-pill {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #fff;
+  text-transform: capitalize;
+}
+
+.recall-item__title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #2c3e50;
+  margin-bottom: 6px;
+}
+
+.recall-item__meta {
+  display: flex;
+  gap: 12px;
+  font-size: 0.82rem;
+  color: #555;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.recall-item__footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: #888;
+}
+
+/* Detail Panel */
+.recall-detail {
+  background: #fff;
+  border-radius: 10px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.recall-detail__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 8px;
+}
+
+.recall-detail__title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 16px 0;
+}
+
+.recall-detail__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.recall-detail__grid > div strong {
+  display: block;
+  font-size: 0.78rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.recall-detail__grid > div p {
+  margin: 0;
+  font-size: 0.92rem;
+  color: #2c3e50;
+}
+
+.recall-detail__section {
+  margin-bottom: 20px;
+}
+
+.recall-detail__section h3 {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  color: #888;
+  margin: 0 0 8px 0;
+  letter-spacing: 0.5px;
+}
+
+.recall-detail__section p {
+  margin: 0;
+  color: #333;
+  line-height: 1.55;
+}
+
+.recall-detail__action {
+  background: #fff8e1;
+  border-left: 4px solid #f39c12;
+  padding: 12px 16px;
+  border-radius: 4px;
+}
+
+.recall-detail__timeline {
+  margin-bottom: 20px;
+}
+
+.recall-detail__timeline h3 {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  color: #888;
+  margin: 0 0 10px 0;
+  letter-spacing: 0.5px;
+}
+
+.recall-timeline-step {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  font-size: 0.88rem;
+}
+
+.recall-timeline-step--ack { background: #fff3e0; }
+.recall-timeline-step--res { background: #e8f5e9; }
+
+.recall-detail__actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+/* Affected patients table */
+.recall-patients-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.recall-patients-table th,
+.recall-patients-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.recall-patients-table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #555;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+}
+
+.recall-no-patients {
+  color: #888;
+  font-style: italic;
+}
+
+/* Placeholder */
+.recall-placeholder {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 60px 24px;
+  text-align: center;
+  color: #666;
+}
+
+.recall-placeholder span { font-size: 3rem; display: block; margin-bottom: 12px; }
+.recall-placeholder p { font-size: 1rem; margin: 0; }
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: opacity 0.15s;
+  text-decoration: none;
+}
+
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn:hover:not(:disabled) { opacity: 0.88; }
+
+.btn-secondary { background: #ecf0f1; color: #2c3e50; }
+.btn-danger    { background: #e74c3c; color: #fff; }
+.btn-warning   { background: #e67e22; color: #fff; }
+.btn-success   { background: #27ae60; color: #fff; }
+.btn-ghost     { background: transparent; color: #666; padding: 4px 8px; }
+
+/* Modal */
+.recall-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.recall-modal {
+  background: #fff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+
+.recall-modal--small { max-width: 480px; }
+
+.recall-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px 0;
+  margin-bottom: 16px;
+}
+
+.recall-modal__header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #2c3e50;
+}
+
+.recall-form {
+  padding: 0 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.recall-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.recall-form input,
+.recall-form select,
+.recall-form textarea {
+  padding: 9px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.92rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.recall-form textarea { resize: vertical; }
+
+.recall-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 500px) {
+  .recall-form__row { grid-template-columns: 1fr; }
+}
+
+.recall-form__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.recall-form-error {
+  background: #ffeaea;
+  border: 1px solid #e74c3c;
+  border-radius: 6px;
+  padding: 10px 14px;
+  color: #c0392b;
+  font-size: 0.88rem;
+  margin: 0 24px 8px;
+}
+
+/* Resolve modal textarea/label */
+.recall-modal--small label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #555;
+  padding: 0 24px;
+  margin-bottom: 16px;
+}
+
+.recall-modal--small textarea {
+  padding: 9px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.92rem;
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.recall-modal--small p {
+  padding: 0 24px;
+  color: #555;
+  font-size: 0.9rem;
+}

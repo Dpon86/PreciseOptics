@@ -1,31 +1,194 @@
-.alert-detail-page {
+.adp-page {
   padding: 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
-.detail-header {
+.adp-loading { padding: 40px; text-align: center; color: #7f8c8d; }
+
+/* Header */
+.adp-header { margin-bottom: 1.5rem; }
+.adp-back-btn {
+  background: none;
+  border: none;
+  color: #3498db;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0 0 0.5rem;
+  text-decoration: underline;
+}
+.adp-title-row {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+.adp-type-icon { font-size: 1.8rem; }
+.adp-title-row h1 { margin: 0; font-size: 1.4rem; color: #2c3e50; flex: 1; }
+
+/* Severity badges */
+.adp-severity {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.sev-critical { background: #fce4ec; color: #c0392b; }
+.sev-high     { background: #fff3e0; color: #e67e22; }
+.sev-medium   { background: #fff8e1; color: #f39c12; }
+.sev-low      { background: #e8f5e9; color: #27ae60; }
+
+/* Status badges */
+.adp-status {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.adp-status-active       { background: #ffebee; color: #e74c3c; }
+.adp-status-acknowledged { background: #fff3e0; color: #f39c12; }
+.adp-status-resolved     { background: #e8f5e9; color: #27ae60; }
+.adp-status-dismissed    { background: #f5f5f5; color: #95a5a6; }
+
+.adp-error-banner {
+  background: #ffebee;
+  color: #c0392b;
+  padding: 10px 14px;
+  border-radius: 6px;
   margin-bottom: 1rem;
+  border-left: 3px solid #c0392b;
+}
+.adp-error { color: #c0392b; }
+
+/* Grid */
+.adp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
 }
 
-.detail-header h1 {
-  margin: 0;
-  color: #2c3e50;
-}
-
-.detail-card {
+/* Cards */
+.adp-card {
   background: white;
   border-radius: 10px;
   padding: 1.25rem;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.adp-card h3 {
+  margin: 0 0 1rem;
+  color: #2c3e50;
+  font-size: 1rem;
+  border-bottom: 1px solid #ecf0f1;
+  padding-bottom: 0.5rem;
 }
 
-.detail-card p {
-  margin: 0.4rem 0;
-  color: #34495e;
+/* Detail rows */
+.adp-rows { display: flex; flex-direction: column; gap: 0.5rem; }
+.adp-row {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 0.5rem;
+  align-items: flex-start;
 }
+.adp-row.full { grid-template-columns: 1fr; }
+.adp-label { font-size: 0.82rem; font-weight: 600; color: #7f8c8d; text-transform: uppercase; }
+.adp-value { color: #2c3e50; font-size: 0.92rem; }
+.adp-message {
+  background: #f8f9fa;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.adp-muted { color: #7f8c8d; font-size: 0.85rem; }
 
-.error-text {
-  color: #c0392b;
+/* Patient link */
+.adp-patient-link {
+  background: none;
+  border: none;
+  color: #3498db;
+  cursor: pointer;
+  font-size: 0.92rem;
+  padding: 0;
+  font-weight: 600;
+  text-decoration: underline;
+}
+.adp-pid { color: #7f8c8d; font-weight: normal; }
+
+/* Timeline */
+.adp-timeline { display: flex; flex-direction: column; gap: 1rem; }
+.adp-tl-item { display: flex; align-items: flex-start; gap: 12px; }
+.adp-tl-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.adp-tl-dot.created      { background: #3498db; }
+.adp-tl-dot.acknowledged { background: #f39c12; }
+.adp-tl-dot.resolved     { background: #27ae60; }
+.adp-tl-dot.dismissed    { background: #95a5a6; }
+.adp-tl-content { display: flex; flex-direction: column; gap: 2px; }
+.adp-tl-content strong { font-size: 0.9rem; color: #2c3e50; }
+.adp-tl-content .adp-muted { display: block; }
+
+.adp-note-box {
+  margin-top: 0.75rem;
+  background: #f8f9fa;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  color: #2c3e50;
+}
+.adp-note-muted { color: #7f8c8d; }
+
+/* Actions card */
+.adp-actions-card {
+  background: white;
+  border-radius: 10px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.adp-actions-card h3 {
+  margin: 0 0 1rem;
+  color: #2c3e50;
+  font-size: 1rem;
+  border-bottom: 1px solid #ecf0f1;
+  padding-bottom: 0.5rem;
+}
+.adp-action-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.adp-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.adp-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.adp-btn-acknowledge { background: #3498db; color: white; }
+.adp-btn-resolve     { background: #27ae60; color: white; }
+.adp-btn-dismiss     { background: #7f8c8d; color: white; }
+.adp-btn-cancel      { background: #ecf0f1; color: #2c3e50; }
+
+/* Inline form */
+.adp-form { display: flex; flex-direction: column; gap: 8px; }
+.adp-form label { font-size: 0.87rem; color: #2c3e50; font-weight: 600; }
+.adp-form textarea {
+  border: 1px solid #dce1e8;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  resize: vertical;
+  font-family: inherit;
+}
+.adp-form-btns { display: flex; gap: 8px; }
+
+@media (max-width: 700px) {
+  .adp-grid { grid-template-columns: 1fr; }
 }

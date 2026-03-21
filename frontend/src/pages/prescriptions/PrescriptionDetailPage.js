@@ -139,6 +139,7 @@ const PrescriptionDetailPage = () => {
                   <tr>
                     <th>Medication</th>
                     <th>Strength</th>
+                    <th>Batch No.</th>
                     <th>Dosage</th>
                     <th>Frequency</th>
                     <th>Duration</th>
@@ -151,6 +152,7 @@ const PrescriptionDetailPage = () => {
                     <tr key={index}>
                       <td className="medication-name">{item.medication_name || 'N/A'}</td>
                       <td>{item.medication_strength || '-'}</td>
+                      <td>{item.medication_batch_number || <span style={{color:'#aaa'}}>—</span>}</td>
                       <td>{item.dosage || '-'}</td>
                       <td>{item.frequency || item.custom_frequency || '-'}</td>
                       <td>{item.duration_days ? `${item.duration_days} days` : '-'}</td>

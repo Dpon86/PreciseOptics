@@ -237,9 +237,193 @@ class AlertService:
                         trigger_time=now
                     )
                     created_alerts.append(alert)
-        
+
+        # Also check clinical follow-up obligations
+        clinical_alerts = AlertService.check_clinical_followups()
+        created_alerts.extend(clinical_alerts)
+
         return created_alerts
-    
+
+    @staticmethod
+    def check_clinical_followups():
+        """
+        Create AppointmentAlert records for overdue clinical follow-ups:
+        eye tests, treatments, missed TreatmentFollowUp appointments,
+        and consultations that requested a return visit.
+        Uses notes field as a dedup key (ref_id:TYPE:UUID) to avoid duplicates.
+        """
+        from eye_tests.models import (
+            VisualAcuityTest, RefractionTest, CataractAssessment,
+            GlaucomaAssessment, VisualFieldTest, RetinalAssessment,
+            DiabeticRetinopathyScreening, VitreoretinalAssessment,
+            StrabismusAssessment, PediatricEyeExam, EyeCasualtyAssessment,
+            CornealAssessment, OCTScan,
+        )
+        from treatments.models import Treatment, TreatmentFollowUp
+        from consultations.models import Consultation
+
+        now = timezone.now()
+        today = now.date()
+        created_alerts = []
+
+        EYE_TEST_MODELS = [
+            (VisualAcuityTest, 'Visual Acuity Test'),
+            (RefractionTest, 'Refraction Test'),
+            (CataractAssessment, 'Cataract Assessment'),
+            (GlaucomaAssessment, 'Glaucoma Assessment'),
+            (VisualFieldTest, 'Visual Field Test'),
+            (RetinalAssessment, 'Retinal Assessment'),
+            (DiabeticRetinopathyScreening, 'Diabetic Retinopathy Screening'),
+            (VitreoretinalAssessment, 'Vitreoretinal Assessment'),
+            (StrabismusAssessment, 'Strabismus Assessment'),
+            (PediatricEyeExam, 'Pediatric Eye Exam'),
+            (EyeCasualtyAssessment, 'Eye Casualty Assessment'),
+            (CornealAssessment, 'Corneal Assessment'),
+            (OCTScan, 'OCT Scan'),
+        ]
+
+        # Build set of existing ref_ids to avoid N+1 existence checks
+        existing_refs = set(
+            AppointmentAlert.objects.filter(
+                alert_type='overdue_followup',
+                status__in=['active', 'acknowledged'],
+                notes__startswith='ref_id:',
+            ).values_list('notes', flat=True)
+        )
+
+        # ── 1. Eye test follow-ups ─────────────────────────────────────────
+        for Model, model_label in EYE_TEST_MODELS:
+            for test in Model.objects.filter(
+                follow_up_required=True,
+                follow_up_date__isnull=False,
+                follow_up_date__lte=today,
+            ).select_related('patient', 'performed_by'):
+                ref_key = f'ref_id:eye_test:{test.id}'
+                if ref_key in existing_refs:
+                    continue
+                days_overdue = (today - test.follow_up_date).days
+                severity = 'critical' if days_overdue > 60 else 'high' if days_overdue > 14 else 'medium'
+                performed_by_name = test.performed_by.get_full_name() if test.performed_by else 'Unknown'
+                alert = AppointmentAlert.objects.create(
+                    patient=test.patient,
+                    visit=None,
+                    alert_type='overdue_followup',
+                    severity=severity,
+                    status='active',
+                    title=f"Overdue Follow-up: {model_label} — {test.patient.get_full_name()}",
+                    message=(
+                        f"Patient {test.patient.get_full_name()} was asked to return for a {model_label} follow-up. "
+                        f"Return was due {test.follow_up_date.strftime('%d %b %Y')} ({days_overdue} days ago). "
+                        f"Test performed by {performed_by_name}."
+                    ),
+                    trigger_time=now,
+                    notes=ref_key,
+                )
+                created_alerts.append(alert)
+                existing_refs.add(ref_key)
+
+        # ── 2. Treatment follow-ups ────────────────────────────────────────
+        for tr in Treatment.objects.filter(
+            requires_follow_up=True,
+            status='completed',
+            actual_end_time__isnull=False,
+            follow_up_weeks__isnull=False,
+        ).select_related('patient', 'treatment_type', 'primary_surgeon'):
+            due_date = (tr.actual_end_time + timedelta(weeks=tr.follow_up_weeks)).date()
+            if due_date > today:
+                continue
+            if tr.follow_ups.filter(status='completed').exists():
+                continue
+            ref_key = f'ref_id:treatment:{tr.id}'
+            if ref_key in existing_refs:
+                continue
+            days_overdue = (today - due_date).days
+            severity = 'critical' if days_overdue > 60 else 'high' if days_overdue > 14 else 'medium'
+            type_name = tr.treatment_type.name if tr.treatment_type else 'Treatment'
+            surgeon_name = tr.primary_surgeon.get_full_name() if tr.primary_surgeon else 'Unknown'
+            alert = AppointmentAlert.objects.create(
+                patient=tr.patient,
+                visit=None,
+                alert_type='overdue_followup',
+                severity=severity,
+                status='active',
+                title=f"Overdue Follow-up: {type_name} — {tr.patient.get_full_name()}",
+                message=(
+                    f"Patient {tr.patient.get_full_name()} requires a follow-up after {type_name}. "
+                    f"Return was due {due_date.strftime('%d %b %Y')} ({days_overdue} days ago). "
+                    f"Surgeon: {surgeon_name}."
+                ),
+                trigger_time=now,
+                notes=ref_key,
+            )
+            created_alerts.append(alert)
+            existing_refs.add(ref_key)
+
+        # ── 3. Missed scheduled TreatmentFollowUp appointments ────────────
+        for fu in TreatmentFollowUp.objects.filter(
+            status='scheduled',
+            scheduled_date__lt=now,
+        ).select_related('treatment__patient', 'treatment__treatment_type'):
+            ref_key = f'ref_id:followup_appt:{fu.id}'
+            if ref_key in existing_refs:
+                continue
+            due_date = fu.scheduled_date.date() if hasattr(fu.scheduled_date, 'date') else fu.scheduled_date
+            days_overdue = (today - due_date).days
+            severity = 'critical' if days_overdue > 60 else 'high' if days_overdue > 14 else 'medium'
+            tr = fu.treatment
+            type_name = tr.treatment_type.name if tr.treatment_type else 'Treatment'
+            alert = AppointmentAlert.objects.create(
+                patient=tr.patient,
+                visit=None,
+                alert_type='overdue_followup',
+                severity=severity,
+                status='active',
+                title=f"Missed Follow-up Appointment: {type_name} — {tr.patient.get_full_name()}",
+                message=(
+                    f"Patient {tr.patient.get_full_name()} missed a scheduled {type_name} follow-up "
+                    f"on {due_date.strftime('%d %b %Y')} ({days_overdue} days ago)."
+                ),
+                trigger_time=now,
+                notes=ref_key,
+            )
+            created_alerts.append(alert)
+            existing_refs.add(ref_key)
+
+        # ── 4. Consultation follow-ups (no exact date — flag if >30 days) ─
+        overdue_cutoff = now - timedelta(days=30)
+        for c in Consultation.objects.filter(
+            follow_up_required=True,
+            status='completed',
+            actual_end_time__isnull=False,
+            actual_end_time__lt=overdue_cutoff,
+        ).select_related('patient', 'consulting_doctor'):
+            ref_key = f'ref_id:consultation:{c.id}'
+            if ref_key in existing_refs:
+                continue
+            days_since = (now - c.actual_end_time).days
+            severity = 'critical' if days_since > 90 else 'high' if days_since > 60 else 'medium'
+            type_label = c.consultation_type.replace('_', ' ').title()
+            doctor_name = c.consulting_doctor.get_full_name() if c.consulting_doctor else 'Unknown'
+            alert = AppointmentAlert.objects.create(
+                patient=c.patient,
+                visit=None,
+                alert_type='overdue_followup',
+                severity=severity,
+                status='active',
+                title=f"Overdue Follow-up: {type_label} Consultation — {c.patient.get_full_name()}",
+                message=(
+                    f"Patient {c.patient.get_full_name()} was asked to return following a {type_label} "
+                    f"consultation on {c.actual_end_time.strftime('%d %b %Y')} ({days_since} days ago). "
+                    f"Consulting doctor: {doctor_name}."
+                ),
+                trigger_time=now,
+                notes=ref_key,
+            )
+            created_alerts.append(alert)
+            existing_refs.add(ref_key)
+
+        return created_alerts
+
     @staticmethod
     def auto_resolve_visit_alerts(visit):
         """

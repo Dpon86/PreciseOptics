@@ -8,12 +8,13 @@ from django.db import models
 from precise_optics.permissions import ReadOnlyOrAuthenticatedPermission
 from .models import (
     Medication, Prescription, PrescriptionItem, MedicationAdministration,
-    DrugAllergy, Manufacturer, MedicationCategory
+    DrugAllergy, Manufacturer, MedicationCategory, MedicationRecall
 )
 from .serializers import (
     MedicationSerializer, PrescriptionSerializer, PrescriptionCreateSerializer,
     PrescriptionItemSerializer, MedicationAdministrationSerializer,
-    DrugAllergySerializer, ManufacturerSerializer, MedicationCategorySerializer
+    DrugAllergySerializer, ManufacturerSerializer, MedicationCategorySerializer,
+    MedicationRecallSerializer
 )
 
 
@@ -215,3 +216,106 @@ class DrugAllergyViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(patient_id=patient_id)
         
         return queryset.filter(is_active=True).order_by('-first_occurrence_date')
+
+
+class MedicationRecallViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing medication recalls
+    """
+    queryset = MedicationRecall.objects.all()
+    serializer_class = MedicationRecallSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = MedicationRecall.objects.select_related(
+            'medication', 'issued_by', 'acknowledged_by', 'resolved_by'
+        )
+
+        status_filter = self.request.query_params.get('status', None)
+        if status_filter:
+            queryset = queryset.filter(status=status_filter)
+
+        severity_filter = self.request.query_params.get('severity', None)
+        if severity_filter:
+            queryset = queryset.filter(severity=severity_filter)
+
+        medication_id = self.request.query_params.get('medication', None)
+        if medication_id:
+            queryset = queryset.filter(medication_id=medication_id)
+
+        search = self.request.query_params.get('search', None)
+        if search:
+            queryset = queryset.filter(
+                models.Q(title__icontains=search) |
+                models.Q(batch_number__icontains=search) |
+                models.Q(medication__name__icontains=search)
+            )
+
+        return queryset.order_by('-issued_date')
+
+    def perform_create(self, serializer):
+        serializer.save(issued_by=self.request.user)
+
+    @action(detail=True, methods=['post'])
+    def acknowledge(self, request, pk=None):
+        """Mark a recall as acknowledged"""
+        from django.utils import timezone
+        recall = self.get_object()
+        if recall.status != 'active':
+            return Response(
+                {'error': 'Only active recalls can be acknowledged'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        recall.status = 'acknowledged'
+        recall.acknowledged_by = request.user
+        recall.acknowledged_at = timezone.now()
+        recall.save()
+        return Response(self.get_serializer(recall).data)
+
+    @action(detail=True, methods=['post'])
+    def resolve(self, request, pk=None):
+        """Mark a recall as resolved"""
+        from django.utils import timezone
+        recall = self.get_object()
+        if recall.status not in ('active', 'acknowledged'):
+            return Response(
+                {'error': 'Only active or acknowledged recalls can be resolved'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        resolution_notes = request.data.get('resolution_notes', '')
+        recall.status = 'resolved'
+        recall.resolved_by = request.user
+        recall.resolved_at = timezone.now()
+        recall.resolution_notes = resolution_notes
+        recall.save()
+        return Response(self.get_serializer(recall).data)
+
+    @action(detail=True, methods=['post'])
+    def close(self, request, pk=None):
+        """Close a recall (final state)"""
+        from django.utils import timezone
+        recall = self.get_object()
+        recall.status = 'closed'
+        if not recall.resolved_at:
+            recall.resolved_at = timezone.now()
+            recall.resolved_by = request.user
+            recall.resolution_notes = request.data.get('resolution_notes', 'Closed without formal resolution')
+        recall.save()
+        return Response(self.get_serializer(recall).data)
+
+    @action(detail=True, methods=['get'])
+    def affected_patients(self, request, pk=None):
+        """List patients who received the recalled medication/batch"""
+        from patients.models import Patient
+        recall = self.get_object()
+        qs = PrescriptionItem.objects.filter(medication=recall.medication).select_related(
+            'prescription__patient'
+        )
+        if recall.batch_number:
+            qs = qs.filter(medication__batch_number=recall.batch_number)
+
+        patient_ids = qs.values_list('prescription__patient', flat=True).distinct()
+        patients = Patient.objects.filter(id__in=patient_ids).values(
+            'id', 'first_name', 'last_name', 'date_of_birth', 'phone_number'
+        )
+        return Response(list(patients))

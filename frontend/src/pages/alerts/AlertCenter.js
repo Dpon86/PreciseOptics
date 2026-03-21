@@ -103,7 +103,11 @@ const AlertCenter = () => {
     try {
       setLoading(true);
       const response = await api.scanAppointments();
-      alert(`Scan complete: ${response.data.stats.late} late, ${response.data.stats.missed} missed alerts generated`);
+      const s = response.data.stats;
+      alert(
+        `Scan complete: ${s.late || 0} late, ${s.missed || 0} missed, ` +
+        `${s.followups_created || 0} follow-up alert(s) created.`
+      );
       fetchAlerts();
       fetchStatistics();
     } catch (err) {
@@ -130,7 +134,7 @@ const AlertCenter = () => {
           onClick={handleScanAppointments}
           disabled={loading}
         >
-          🔍 Scan Appointments
+          🔍 Scan Appointments & Follow-ups
         </button>
       </div>
       

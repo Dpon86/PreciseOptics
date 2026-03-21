@@ -1,0 +1,194 @@
+.rdp-page {
+  padding: 24px;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+/* Header */
+.rdp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.rdp-header__left {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.rdp-header h1 {
+  margin: 0 0 4px;
+  font-size: 1.6rem;
+  color: #1a2233;
+}
+.rdp-header p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Summary pills */
+.rdp-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.rdp-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 24px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: #f5f5f5;
+  color: #444;
+  transition: all 0.15s;
+}
+.rdp-pill:hover { filter: brightness(0.96); }
+.rdp-pill__count {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.rdp-pill--overdue  { background: #ffeaea; color: #c0392b; }
+.rdp-pill--soon     { background: #fff3e0; color: #e67e22; }
+.rdp-pill--upcoming { background: #e8f5e9; color: #27ae60; }
+.rdp-pill--active   { border-color: currentColor; box-shadow: 0 0 0 3px rgba(0,0,0,0.08); }
+.rdp-total {
+  margin-left: auto;
+  color: #888;
+  font-size: 0.88rem;
+}
+
+/* Filters */
+.rdp-filters {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.rdp-search {
+  flex: 1;
+  min-width: 220px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+.rdp-search:focus { outline: none; border-color: #4a90d9; }
+.rdp-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: #fff;
+}
+
+.rdp-error {
+  background: #fdecea;
+  color: #c0392b;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+.rdp-loading {
+  text-align: center;
+  padding: 40px;
+  color: #888;
+}
+.rdp-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+}
+.rdp-empty__icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+/* Table */
+.rdp-table-wrap {
+  overflow-x: auto;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.09);
+}
+.rdp-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  font-size: 0.9rem;
+}
+.rdp-table thead th {
+  background: #f8f9fc;
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #555;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid #e8e8e8;
+  white-space: nowrap;
+}
+.rdp-row {
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.1s;
+}
+.rdp-row:last-child { border-bottom: none; }
+.rdp-row:hover { background: #f9fbff; }
+.rdp-row--overdue  { border-left: 4px solid #e74c3c; }
+.rdp-row--due_soon { border-left: 4px solid #e67e22; }
+.rdp-row--upcoming { border-left: 4px solid #27ae60; }
+
+.rdp-cell {
+  padding: 12px 16px;
+  vertical-align: middle;
+  color: #333;
+}
+.rdp-cell--patient strong { font-size: 0.95rem; color: #1a2233; }
+.rdp-cell--what {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.rdp-source-icon { font-size: 1.2rem; flex-shrink: 0; }
+.rdp-what-label  { font-weight: 500; color: #333; }
+.rdp-who         { font-size: 0.8rem; color: #888; margin-top: 2px; }
+.rdp-cell--date  { white-space: nowrap; color: #666; }
+.rdp-cell--due strong { color: #1a2233; }
+.rdp-cell--action { text-align: right; white-space: nowrap; }
+
+/* Badges */
+.rdp-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.rdp-badge--overdue  { background: #fdecea; color: #c0392b; }
+.rdp-badge--soon     { background: #fff3e0; color: #e67e22; }
+.rdp-badge--upcoming { background: #e8f5e9; color: #27ae60; }
+
+/* Days column */
+.rdp-days {
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.rdp-days--overdue  { color: #e74c3c; }
+.rdp-days--today    { color: #e67e22; }
+.rdp-days--upcoming { color: #27ae60; }
+
+/* Button overrides */
+.btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.9rem; font-weight: 500; }
+.btn-secondary { background: #f0f0f0; color: #333; }
+.btn-secondary:hover { background: #e0e0e0; }
+.btn-ghost { background: transparent; color: #4a90d9; border: 1px solid #4a90d9; }
+.btn-ghost:hover { background: #eaf3fd; }
+.btn-sm { padding: 5px 12px; font-size: 0.82rem; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }

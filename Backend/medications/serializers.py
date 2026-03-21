@@ -4,7 +4,7 @@ Serializers for PreciseOptics Eye Hospital Management System - Medications
 from rest_framework import serializers
 from .models import (
     Medication, Prescription, PrescriptionItem, MedicationAdministration,
-    DrugAllergy, Manufacturer, MedicationCategory
+    DrugAllergy, Manufacturer, MedicationCategory, MedicationRecall
 )
 
 
@@ -80,16 +80,18 @@ class PrescriptionItemSerializer(serializers.ModelSerializer):
     """
     medication_name = serializers.CharField(source='medication.name', read_only=True)
     medication_strength = serializers.CharField(source='medication.strength', read_only=True)
+    medication_batch_number = serializers.CharField(source='medication.batch_number', read_only=True)
     
     class Meta:
         model = PrescriptionItem
         fields = [
             'id', 'prescription', 'medication', 'medication_name', 'medication_strength',
+            'medication_batch_number',
             'dosage', 'frequency', 'custom_frequency', 'duration_days',
             'eye_side', 'special_instructions', 'quantity_prescribed',
             'quantity_dispensed', 'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'medication_name', 'medication_strength']
+        read_only_fields = ['id', 'medication_name', 'medication_strength', 'medication_batch_number']
 
 
 class PrescriptionSerializer(serializers.ModelSerializer):
@@ -185,3 +187,40 @@ class PrescriptionCreateSerializer(serializers.ModelSerializer):
                 return Prescription.objects.create(**validated_data)
             except IntegrityError:
                 continue
+
+
+class MedicationRecallSerializer(serializers.ModelSerializer):
+    """
+    Serializer for MedicationRecall model
+    """
+    medication_name = serializers.CharField(source='medication.name', read_only=True)
+    medication_batch = serializers.CharField(source='medication.batch_number', read_only=True)
+    issued_by_name = serializers.CharField(source='issued_by.get_full_name', read_only=True)
+    acknowledged_by_name = serializers.CharField(source='acknowledged_by.get_full_name', read_only=True, allow_null=True)
+    resolved_by_name = serializers.CharField(source='resolved_by.get_full_name', read_only=True, allow_null=True)
+    affected_patient_count = serializers.SerializerMethodField()
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    severity_display = serializers.CharField(source='get_severity_display', read_only=True)
+    recall_type_display = serializers.CharField(source='get_recall_type_display', read_only=True)
+
+    class Meta:
+        model = MedicationRecall
+        fields = [
+            'id', 'medication', 'medication_name', 'medication_batch',
+            'batch_number', 'recall_type', 'recall_type_display',
+            'severity', 'severity_display', 'status', 'status_display',
+            'title', 'description', 'action_required',
+            'issued_by', 'issued_by_name', 'issued_date',
+            'acknowledged_at', 'acknowledged_by', 'acknowledged_by_name',
+            'resolved_at', 'resolved_by', 'resolved_by_name', 'resolution_notes',
+            'affected_patient_count', 'created_at', 'updated_at',
+        ]
+        read_only_fields = [
+            'id', 'medication_name', 'medication_batch', 'issued_by_name',
+            'acknowledged_by_name', 'resolved_by_name', 'affected_patient_count',
+            'status_display', 'severity_display', 'recall_type_display',
+            'issued_date', 'created_at', 'updated_at',
+        ]
+
+    def get_affected_patient_count(self, obj):
+        return obj.affected_prescription_count

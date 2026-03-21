@@ -261,10 +261,12 @@ class AppointmentAlertViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['post'])
     def scan_appointments(self, request):
-        """Manually trigger appointment scan for alerts"""
+        """Manually trigger full alert scan: appointments + clinical follow-ups"""
         stats = AlertService.scan_all_appointments()
+        followup_alerts = AlertService.check_overdue_followups()
+        stats['followups_created'] = len(followup_alerts)
         return Response({
-            'message': 'Appointment scan completed',
+            'message': 'Full scan completed',
             'stats': stats
         })
     

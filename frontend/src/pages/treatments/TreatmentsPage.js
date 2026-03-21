@@ -106,8 +106,7 @@ const TreatmentsPage = () => {
   };
 
   const handleViewTreatment = (treatmentId) => {
-    // TODO: Create treatment detail page
-    console.log('View treatment:', treatmentId);
+    navigate(`/treatments/${treatmentId}`);
   };
 
   const filteredTreatments = getFilteredAndSortedTreatments();

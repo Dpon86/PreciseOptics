@@ -34,6 +34,7 @@ def treatment_effectiveness_timeline(request):
     try:
         treatment_type_filter = request.GET.get('treatment_type', '')
         patient_id = request.GET.get('patient_id', '')
+        condition_filter = request.GET.get('condition', '')
         test_type_filter = request.GET.get('test_type', 'all')
         months = int(request.GET.get('months', 12))
         
@@ -51,6 +52,19 @@ def treatment_effectiveness_timeline(request):
         
         if patient_id:
             treatments_query = treatments_query.filter(patient_id=patient_id)
+        
+        if condition_filter:
+            from conditions.models import PatientCondition
+            condition_category_map = {
+                'amd': 'retinal', 'rvo': 'vascular',
+                'diabetic_retinopathy': 'diabetic',
+                'glaucoma': 'glaucoma', 'cataract': 'cataract',
+            }
+            db_category = condition_category_map.get(condition_filter.lower(), condition_filter)
+            condition_patient_ids = list(PatientCondition.objects.filter(
+                condition__category=db_category, is_active=True
+            ).values_list('patient_id', flat=True))
+            treatments_query = treatments_query.filter(patient_id__in=condition_patient_ids)
         
         # Group treatments by patient and treatment type
         patient_treatments = defaultdict(lambda: defaultdict(list))
@@ -199,6 +213,7 @@ def medication_effectiveness_timeline(request):
     try:
         medication_filter = request.GET.get('medication', '')
         patient_id = request.GET.get('patient_id', '')
+        condition_filter = request.GET.get('condition', '')
         test_type_filter = request.GET.get('test_type', 'all')
         months = int(request.GET.get('months', 12))
         include_batch = request.GET.get('include_batch', 'true').lower() == 'true'
@@ -217,6 +232,19 @@ def medication_effectiveness_timeline(request):
         
         if patient_id:
             prescriptions_query = prescriptions_query.filter(patient_id=patient_id)
+        
+        if condition_filter:
+            from conditions.models import PatientCondition
+            condition_category_map = {
+                'amd': 'retinal', 'rvo': 'vascular',
+                'diabetic_retinopathy': 'diabetic',
+                'glaucoma': 'glaucoma', 'cataract': 'cataract',
+            }
+            db_category = condition_category_map.get(condition_filter.lower(), condition_filter)
+            condition_patient_ids = list(PatientCondition.objects.filter(
+                condition__category=db_category, is_active=True
+            ).values_list('patient_id', flat=True))
+            prescriptions_query = prescriptions_query.filter(patient_id__in=condition_patient_ids)
         
         # Group prescriptions by patient and medication
         patient_medications = defaultdict(lambda: defaultdict(list))
@@ -360,6 +388,7 @@ def compare_treatments(request):
         treatment_types_param = request.GET.get('treatment_types', '')
         test_type = request.GET.get('test_type', 'visual_acuity')
         months = int(request.GET.get('months', 12))
+        condition_filter = request.GET.get('condition', '')
         
         if not treatment_types_param:
             return Response({
@@ -378,7 +407,8 @@ def compare_treatments(request):
                 'GET': {
                     'treatment_type': treatment_type_name,
                     'test_type': test_type,
-                    'months': months
+                    'months': months,
+                    'condition': condition_filter
                 }
             })()
             
@@ -458,6 +488,7 @@ def compare_medications(request):
         medications_param = request.GET.get('medications', '')
         test_type = request.GET.get('test_type', 'visual_acuity')
         months = int(request.GET.get('months', 12))
+        condition_filter = request.GET.get('condition', '')
         
         if not medications_param:
             return Response({
@@ -476,7 +507,8 @@ def compare_medications(request):
                 'GET': {
                     'medication': medication_name,
                     'test_type': test_type,
-                    'months': months
+                    'months': months,
+                    'condition': condition_filter
                 }
             })()
             

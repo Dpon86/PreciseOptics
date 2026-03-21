@@ -389,3 +389,85 @@ class DrugAllergy(models.Model):
     
     def __str__(self):
         return f"{self.patient.get_full_name()} - {self.medication.name} ({self.get_severity_display()})"
+
+
+class MedicationRecall(models.Model):
+    """
+    Medication recall notices — track batch/product recalls and affected patients
+    """
+    RECALL_STATUS = (
+        ('active', 'Active'),
+        ('acknowledged', 'Acknowledged'),
+        ('resolved', 'Resolved'),
+        ('closed', 'Closed'),
+    )
+
+    SEVERITY_CHOICES = (
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+        ('critical', 'Critical'),
+    )
+
+    RECALL_TYPE = (
+        ('safety', 'Safety Issue'),
+        ('contamination', 'Contamination'),
+        ('labelling', 'Labelling Error'),
+        ('quality', 'Quality Defect'),
+        ('expiry', 'Expired Batch'),
+        ('other', 'Other'),
+    )
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    medication = models.ForeignKey(Medication, on_delete=models.PROTECT, related_name='recalls')
+    batch_number = models.CharField(max_length=100, blank=True, help_text="Specific batch number being recalled; leave blank to recall all batches")
+
+    # Classification
+    recall_type = models.CharField(max_length=20, choices=RECALL_TYPE)
+    severity = models.CharField(max_length=20, choices=SEVERITY_CHOICES)
+    status = models.CharField(max_length=20, choices=RECALL_STATUS, default='active')
+
+    # Details
+    title = models.CharField(max_length=300)
+    description = models.TextField()
+    action_required = models.TextField(help_text="Steps that must be taken for this recall")
+
+    # Lifecycle tracking
+    issued_by = models.ForeignKey(
+        CustomUser, on_delete=models.PROTECT, related_name='issued_recalls'
+    )
+    issued_date = models.DateTimeField(auto_now_add=True)
+
+    acknowledged_at = models.DateTimeField(null=True, blank=True)
+    acknowledged_by = models.ForeignKey(
+        CustomUser, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='acknowledged_recalls'
+    )
+
+    resolved_at = models.DateTimeField(null=True, blank=True)
+    resolved_by = models.ForeignKey(
+        CustomUser, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='resolved_recalls'
+    )
+    resolution_notes = models.TextField(blank=True)
+
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Medication Recall"
+        verbose_name_plural = "Medication Recalls"
+        ordering = ['-issued_date']
+
+    def __str__(self):
+        batch = f" (Batch: {self.batch_number})" if self.batch_number else ""
+        return f"[{self.get_severity_display()}] {self.medication.name}{batch} — {self.title}"
+
+    @property
+    def affected_prescription_count(self):
+        """Number of prescriptions that included this medication/batch"""
+        qs = PrescriptionItem.objects.filter(medication=self.medication)
+        if self.batch_number:
+            qs = qs.filter(medication__batch_number=self.batch_number)
+        return qs.values('prescription__patient').distinct().count()

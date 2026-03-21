@@ -20,6 +20,155 @@ from audit.models import MedicationAudit, PatientAccessLog
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
+def disease_specific_report(request):
+    """
+    Disease-specific outcomes report: patient counts, severity/status breakdown,
+    monthly outcome trends, top medications, and patient list by condition category.
+    """
+    try:
+        from conditions.models import PatientCondition, MedicalCondition, ConditionProgress
+
+        category = request.GET.get('category', 'glaucoma')
+        months = int(request.GET.get('months', 12))
+        cutoff_date = timezone.now().date() - timedelta(days=months * 30)
+
+        # Map frontend aliases → DB category values
+        category_map = {
+            'amd': 'retinal',
+            'rvo': 'vascular',
+            'diabetic_retinopathy': 'diabetic',
+            'glaucoma': 'glaucoma',
+            'cataract': 'cataract',
+        }
+        db_category = category_map.get(category.lower(), category)
+
+        patient_conditions = PatientCondition.objects.filter(
+            condition__category=db_category,
+            is_active=True
+        ).select_related('patient', 'condition', 'diagnosed_by')
+
+        total_patients = patient_conditions.count()
+
+        severity_dist = list(
+            patient_conditions.values('severity').annotate(count=Count('id'))
+        )
+        status_dist = list(
+            patient_conditions.values('current_status').annotate(count=Count('id'))
+        )
+        eye_dist = list(
+            patient_conditions.values('eye_affected').annotate(count=Count('id'))
+        )
+
+        # Monthly outcome trends from ConditionProgress
+        progress_qs = ConditionProgress.objects.filter(
+            patient_condition__in=patient_conditions,
+            assessment_date__gte=cutoff_date
+        ).values('assessment_date', 'status_change').order_by('assessment_date')
+
+        monthly_outcomes = {}
+        for record in progress_qs:
+            month_key = record['assessment_date'].strftime('%Y-%m')
+            if month_key not in monthly_outcomes:
+                monthly_outcomes[month_key] = {
+                    'month': month_key, 'improved': 0, 'stable': 0, 'worsened': 0
+                }
+            change = record['status_change']
+            if change in ('improved', 'resolved'):
+                monthly_outcomes[month_key]['improved'] += 1
+            elif change == 'stable':
+                monthly_outcomes[month_key]['stable'] += 1
+            elif change in ('worsened', 'new_symptoms'):
+                monthly_outcomes[month_key]['worsened'] += 1
+
+        outcome_trends = sorted(monthly_outcomes.values(), key=lambda x: x['month'])
+
+        total_progress = ConditionProgress.objects.filter(
+            patient_condition__in=patient_conditions
+        ).count()
+        improved_count = ConditionProgress.objects.filter(
+            patient_condition__in=patient_conditions,
+            status_change__in=['improved', 'resolved']
+        ).count()
+        improvement_rate = round(
+            (improved_count / total_progress * 100) if total_progress > 0 else 0, 1
+        )
+
+        # Top medications prescribed to patients with this condition
+        patient_ids = patient_conditions.values_list('patient_id', flat=True)
+        top_meds = list(
+            PrescriptionItem.objects.filter(
+                prescription__patient_id__in=patient_ids,
+                prescription__date_prescribed__gte=cutoff_date
+            ).values('medication__name', 'medication__generic_name')
+            .annotate(count=Count('id'))
+            .order_by('-count')[:10]
+        )
+
+        # Patient list (most recent 50 diagnoses)
+        patient_list = []
+        for pc in patient_conditions.order_by('-diagnosis_date')[:50]:
+            latest = ConditionProgress.objects.filter(
+                patient_condition=pc
+            ).order_by('-assessment_date').first()
+            patient_list.append({
+                'id': str(pc.patient.id),
+                'patient_name': pc.patient.get_full_name(),
+                'patient_id': pc.patient.patient_id,
+                'diagnosis_date': pc.diagnosis_date.isoformat() if pc.diagnosis_date else None,
+                'severity': pc.severity,
+                'current_status': pc.current_status,
+                'eye_affected': pc.eye_affected,
+                'last_assessment': pc.last_assessment_date.isoformat() if pc.last_assessment_date else None,
+                'next_assessment': pc.next_assessment_date.isoformat() if pc.next_assessment_date else None,
+                'latest_change': latest.status_change if latest else None,
+                'progress_count': ConditionProgress.objects.filter(patient_condition=pc).count(),
+                'days_since_diagnosis': (
+                    (timezone.now().date() - pc.diagnosis_date).days
+                    if pc.diagnosis_date else None
+                ),
+            })
+
+        condition_obj = MedicalCondition.objects.filter(
+            category=db_category, is_active=True
+        ).first()
+        new_diagnoses = patient_conditions.filter(diagnosis_date__gte=cutoff_date).count()
+
+        return Response({
+            'summary': {
+                'total_patients': total_patients,
+                'active_cases': patient_conditions.filter(
+                    current_status__in=['active', 'newly_diagnosed', 'progressing']
+                ).count(),
+                'stable_cases': patient_conditions.filter(
+                    current_status__in=['stable', 'managed']
+                ).count(),
+                'improving_cases': patient_conditions.filter(
+                    current_status='improving'
+                ).count(),
+                'improvement_rate': improvement_rate,
+                'new_diagnoses': new_diagnoses,
+                'category': db_category,
+                'display_name': (
+                    condition_obj.name if condition_obj
+                    else category.replace('_', ' ').title()
+                ),
+            },
+            'severity_distribution': severity_dist,
+            'status_distribution': status_dist,
+            'eye_affected_distribution': eye_dist,
+            'outcome_trends': outcome_trends,
+            'top_medications': top_meds,
+            'patient_list': patient_list,
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return Response({'error': str(e)}, status=500)
+
+
+@api_view(['GET'])
 @permission_classes([AllowAny])  # Temporarily disabled authentication for testing
 def drug_audit_report(request):
     """
@@ -955,3 +1104,586 @@ def medication_effectiveness_report(request):
                 'visualFieldData': {}
             }
         }, status=500)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def revenue_analysis_report(request):
+    """
+    Revenue analysis report using PatientVisit billing data.
+
+    Query params:
+    - months: number of months to include (default 12)
+    """
+    try:
+        from decimal import Decimal
+        months = int(request.GET.get('months', 12))
+        cutoff_date = timezone.now() - timedelta(days=months * 30)
+
+        visits = PatientVisit.objects.filter(
+            scheduled_date__gte=cutoff_date,
+            status='completed'
+        )
+
+        # --- Summary totals ---
+        totals = visits.aggregate(
+            total_billed=Sum('total_cost'),
+            paid_amount=Sum('total_cost', filter=Q(payment_status='paid')),
+            partial_amount=Sum('total_cost', filter=Q(payment_status='partial')),
+            pending_amount=Sum('total_cost', filter=Q(payment_status='pending')),
+            insurance_amount=Sum('total_cost', filter=Q(payment_status='insurance_claim')),
+            total_visits=Count('id'),
+            paid_visits=Count('id', filter=Q(payment_status='paid')),
+            pending_visits=Count('id', filter=Q(payment_status='pending')),
+            insurance_visits=Count('id', filter=Q(payment_status='insurance_claim')),
+        )
+
+        def to_float(val):
+            return float(val) if val is not None else 0.0
+
+        summary = {
+            'total_billed': to_float(totals['total_billed']),
+            'paid_amount': to_float(totals['paid_amount']),
+            'partial_amount': to_float(totals['partial_amount']),
+            'pending_amount': to_float(totals['pending_amount']),
+            'insurance_amount': to_float(totals['insurance_amount']),
+            'total_visits': totals['total_visits'] or 0,
+            'paid_visits': totals['paid_visits'] or 0,
+            'pending_visits': totals['pending_visits'] or 0,
+            'insurance_visits': totals['insurance_visits'] or 0,
+            'collection_rate': round(
+                (to_float(totals['paid_amount']) / to_float(totals['total_billed']) * 100)
+                if totals['total_billed'] else 0,
+                1
+            ),
+        }
+
+        # --- Monthly revenue trend ---
+        from django.db.models.functions import TruncMonth
+        monthly_qs = (
+            visits
+            .annotate(month=TruncMonth('scheduled_date'))
+            .values('month')
+            .annotate(
+                billed=Sum('total_cost'),
+                collected=Sum('total_cost', filter=Q(payment_status='paid')),
+                pending=Sum('total_cost', filter=Q(payment_status='pending')),
+                insurance=Sum('total_cost', filter=Q(payment_status='insurance_claim')),
+                visit_count=Count('id'),
+            )
+            .order_by('month')
+        )
+
+        monthly_trend = [
+            {
+                'month': item['month'].strftime('%Y-%m'),
+                'billed': to_float(item['billed']),
+                'collected': to_float(item['collected']),
+                'pending': to_float(item['pending']),
+                'insurance': to_float(item['insurance']),
+                'visit_count': item['visit_count'],
+            }
+            for item in monthly_qs
+        ]
+
+        # --- Payment status breakdown ---
+        status_breakdown = list(
+            visits.values('payment_status')
+            .annotate(count=Count('id'), amount=Sum('total_cost'))
+            .order_by('payment_status')
+        )
+        for row in status_breakdown:
+            row['amount'] = to_float(row['amount'])
+
+        # --- Revenue by visit type ---
+        by_visit_type = list(
+            visits.values('visit_type')
+            .annotate(count=Count('id'), amount=Sum('total_cost'))
+            .order_by('-amount')
+        )
+        for row in by_visit_type:
+            row['amount'] = to_float(row['amount'])
+
+        # --- Top treatment types by estimated cost (reference data) ---
+        from treatments.models import TreatmentType, Treatment
+        top_treatments = list(
+            TreatmentType.objects.filter(
+                estimated_cost_gbp__isnull=False,
+                is_active=True
+            ).annotate(
+                completed_count=Count(
+                    'treatments',
+                    filter=Q(treatments__status='completed',
+                             treatments__scheduled_date__gte=cutoff_date)
+                )
+            ).values('name', 'estimated_cost_gbp', 'completed_count')
+            .order_by('-estimated_cost_gbp')[:10]
+        )
+        for row in top_treatments:
+            row['estimated_cost_gbp'] = to_float(row['estimated_cost_gbp'])
+
+        return Response({
+            'success': True,
+            'data': {
+                'summary': summary,
+                'monthly_trend': monthly_trend,
+                'payment_status_breakdown': status_breakdown,
+                'revenue_by_visit_type': by_visit_type,
+                'top_treatments': top_treatments,
+                'months_analysed': months,
+            }
+        })
+
+    except Exception as e:
+        return Response({'success': False, 'error': str(e)}, status=500)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def batch_tracking_report(request):
+    """
+    Batch number tracking report.
+
+    Returns medications that have a batch number, with expiry status,
+    prescription usage counts, and per-batch patient counts.
+
+    Query params:
+    - search: filter by partial batch number or medication name
+    - status: 'expired' | 'expiring_soon' | 'active' | '' (all)
+    """
+    try:
+        search = request.GET.get('search', '').strip()
+        status_filter = request.GET.get('status', '').strip()
+        today = timezone.now().date()
+        warning_days = 90  # flag as expiring within 90 days
+
+        meds_qs = Medication.objects.exclude(batch_number='').filter(approval_status=True)
+
+        if search:
+            meds_qs = meds_qs.filter(
+                Q(batch_number__icontains=search) | Q(name__icontains=search)
+            )
+
+        # Annotate with prescription usage
+        meds_qs = meds_qs.annotate(
+            prescription_count=Count('prescriptionitem__prescription', distinct=True),
+            patient_count=Count('prescriptionitem__prescription__patient', distinct=True),
+        ).values(
+            'id', 'name', 'strength', 'batch_number', 'expiry_date',
+            'current_stock', 'unit_price', 'prescription_count', 'patient_count'
+        )
+
+        batches = []
+        total_expired = 0
+        total_expiring = 0
+        total_active = 0
+
+        for med in meds_qs:
+            expiry = med['expiry_date']
+            if expiry is None:
+                batch_status = 'no_expiry'
+            elif expiry < today:
+                batch_status = 'expired'
+                total_expired += 1
+            elif expiry <= today + timedelta(days=warning_days):
+                batch_status = 'expiring_soon'
+                total_expiring += 1
+            else:
+                batch_status = 'active'
+                total_active += 1
+
+            if status_filter and status_filter != batch_status:
+                continue
+
+            batches.append({
+                'id': str(med['id']),
+                'medication_name': med['name'],
+                'strength': med['strength'],
+                'batch_number': med['batch_number'],
+                'expiry_date': expiry.isoformat() if expiry else None,
+                'days_until_expiry': (expiry - today).days if expiry else None,
+                'status': batch_status,
+                'current_stock': med['current_stock'],
+                'unit_price': float(med['unit_price']) if med['unit_price'] else 0.0,
+                'prescription_count': med['prescription_count'],
+                'patient_count': med['patient_count'],
+            })
+
+        # Sort: expired first, then expiring soon, then active
+        status_order = {'expired': 0, 'expiring_soon': 1, 'active': 2, 'no_expiry': 3}
+        batches.sort(key=lambda x: (status_order.get(x['status'], 9), x['medication_name']))
+
+        return Response({
+            'success': True,
+            'data': {
+                'batches': batches,
+                'summary': {
+                    'total_batches': len(batches),
+                    'expired': total_expired,
+                    'expiring_soon': total_expiring,
+                    'active': total_active,
+                }
+            }
+        })
+
+    except Exception as e:
+        return Response({'success': False, 'error': str(e)}, status=500)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def followup_alerts(request):
+    """
+    Aggregated follow-up alert feed across:
+      - Eye tests (follow_up_required=True, follow_up_date set)
+      - Treatments (requires_follow_up=True, status=completed)
+      - Missed/overdue treatment follow-up appointments
+      - Consultations (follow_up_required=True, completed, >30 days ago)
+    Returns items sorted: overdue (oldest) → due_soon → upcoming.
+    """
+    try:
+        from eye_tests.models import (
+            VisualAcuityTest, RefractionTest, CataractAssessment,
+            GlaucomaAssessment, VisualFieldTest, RetinalAssessment,
+            DiabeticRetinopathyScreening, VitreoretinalAssessment,
+            StrabismusAssessment, PediatricEyeExam, EyeCasualtyAssessment,
+            CornealAssessment, OCTScan,
+        )
+        from treatments.models import Treatment, TreatmentFollowUp
+
+        today = timezone.now().date()
+        now_dt = timezone.now()
+        soon_threshold = today + timedelta(days=14)
+
+        alert_type = request.GET.get('type', '')
+        urgency_filter = request.GET.get('urgency', '')
+        patient_id = request.GET.get('patient', '')
+
+        alerts = []
+
+        # ── 1. Eye Test Follow-ups ─────────────────────────────────────────
+        EYE_TEST_MODELS = [
+            (VisualAcuityTest, 'Visual Acuity Test'),
+            (RefractionTest, 'Refraction Test'),
+            (CataractAssessment, 'Cataract Assessment'),
+            (GlaucomaAssessment, 'Glaucoma Assessment'),
+            (VisualFieldTest, 'Visual Field Test'),
+            (RetinalAssessment, 'Retinal Assessment'),
+            (DiabeticRetinopathyScreening, 'Diabetic Retinopathy Screening'),
+            (VitreoretinalAssessment, 'Vitreoretinal Assessment'),
+            (StrabismusAssessment, 'Strabismus Assessment'),
+            (PediatricEyeExam, 'Pediatric Eye Exam'),
+            (EyeCasualtyAssessment, 'Eye Casualty Assessment'),
+            (CornealAssessment, 'Corneal Assessment'),
+            (OCTScan, 'OCT Scan'),
+        ]
+
+        if not alert_type or alert_type == 'eye_test':
+            for Model, model_label in EYE_TEST_MODELS:
+                qs = Model.objects.filter(
+                    follow_up_required=True,
+                    follow_up_date__isnull=False
+                ).select_related('patient', 'performed_by')
+                if patient_id:
+                    qs = qs.filter(patient_id=patient_id)
+
+                for test in qs:
+                    due = test.follow_up_date
+                    if due <= today:
+                        days_overdue = (today - due).days
+                        item_urgency = 'overdue'
+                        severity = 'critical' if days_overdue > 60 else 'high' if days_overdue > 14 else 'medium'
+                    elif due <= soon_threshold:
+                        item_urgency = 'due_soon'
+                        severity = 'medium'
+                    else:
+                        item_urgency = 'upcoming'
+                        severity = 'low'
+
+                    if urgency_filter and urgency_filter != item_urgency:
+                        continue
+
+                    alerts.append({
+                        'id': str(test.id),
+                        'source_type': 'eye_test',
+                        'source_label': model_label,
+                        'patient_id': str(test.patient_id),
+                        'patient_name': f"{test.patient.first_name} {test.patient.last_name}",
+                        'title': f"{model_label} Follow-up",
+                        'detail': test.recommendations or test.findings or '',
+                        'due_date': due.isoformat(),
+                        'urgency': item_urgency,
+                        'severity': severity,
+                        'days_overdue': (today - due).days if due < today else None,
+                        'days_until_due': (due - today).days if due >= today else None,
+                        'performed_by': test.performed_by.get_full_name() if test.performed_by else '',
+                        'test_date': test.test_date.isoformat() if test.test_date else None,
+                        'navigate_url': f'/eye-tests/{test.id}',
+                    })
+
+        # ── 2. Treatment Follow-ups due ────────────────────────────────────
+        if not alert_type or alert_type == 'treatment':
+            treatment_qs = Treatment.objects.filter(
+                requires_follow_up=True,
+                status='completed',
+                actual_end_time__isnull=False,
+                follow_up_weeks__isnull=False,
+            ).select_related('patient', 'treatment_type', 'primary_surgeon')
+            if patient_id:
+                treatment_qs = treatment_qs.filter(patient_id=patient_id)
+
+            for tr in treatment_qs:
+                due_dt = tr.actual_end_time + timedelta(weeks=tr.follow_up_weeks)
+                due = due_dt.date()
+
+                # Skip if a completed follow-up visit already recorded
+                if tr.follow_ups.filter(status='completed').exists():
+                    continue
+
+                if due <= today:
+                    days_overdue = (today - due).days
+                    item_urgency = 'overdue'
+                    severity = 'critical' if days_overdue > 60 else 'high' if days_overdue > 14 else 'medium'
+                elif due <= soon_threshold:
+                    item_urgency = 'due_soon'
+                    severity = 'medium'
+                else:
+                    item_urgency = 'upcoming'
+                    severity = 'low'
+
+                if urgency_filter and urgency_filter != item_urgency:
+                    continue
+
+                type_name = tr.treatment_type.name if tr.treatment_type else 'Treatment'
+                alerts.append({
+                    'id': str(tr.id),
+                    'source_type': 'treatment',
+                    'source_label': type_name,
+                    'patient_id': str(tr.patient_id),
+                    'patient_name': f"{tr.patient.first_name} {tr.patient.last_name}",
+                    'title': f"{type_name} Follow-up",
+                    'detail': tr.follow_up_instructions or '',
+                    'due_date': due.isoformat(),
+                    'urgency': item_urgency,
+                    'severity': severity,
+                    'days_overdue': (today - due).days if due < today else None,
+                    'days_until_due': (due - today).days if due >= today else None,
+                    'performed_by': tr.primary_surgeon.get_full_name() if tr.primary_surgeon else '',
+                    'test_date': tr.actual_end_time.isoformat() if tr.actual_end_time else None,
+                    'navigate_url': f'/treatments/{tr.id}',
+                })
+
+        # ── 3. Missed scheduled follow-up appointments ────────────────────
+        if not alert_type or alert_type == 'missed_followup':
+            missed_qs = TreatmentFollowUp.objects.filter(
+                status='scheduled',
+                scheduled_date__lt=now_dt,
+            ).select_related('treatment__patient', 'treatment__treatment_type', 'assessed_by')
+            if patient_id:
+                missed_qs = missed_qs.filter(treatment__patient_id=patient_id)
+
+            for fu in missed_qs:
+                due = fu.scheduled_date.date() if hasattr(fu.scheduled_date, 'date') else fu.scheduled_date
+                days_overdue = (today - due).days
+                severity = 'critical' if days_overdue > 60 else 'high' if days_overdue > 14 else 'medium'
+
+                if urgency_filter and urgency_filter != 'overdue':
+                    continue
+
+                tr = fu.treatment
+                type_name = tr.treatment_type.name if tr.treatment_type else 'Treatment'
+                alerts.append({
+                    'id': str(fu.id),
+                    'source_type': 'missed_followup',
+                    'source_label': 'Missed Follow-up Appointment',
+                    'patient_id': str(tr.patient_id),
+                    'patient_name': f"{tr.patient.first_name} {tr.patient.last_name}",
+                    'title': f"Missed: {type_name} Follow-up",
+                    'detail': fu.additional_notes or '',
+                    'due_date': due.isoformat(),
+                    'urgency': 'overdue',
+                    'severity': severity,
+                    'days_overdue': days_overdue,
+                    'days_until_due': None,
+                    'performed_by': fu.assessed_by.get_full_name() if fu.assessed_by else '',
+                    'test_date': None,
+                    'navigate_url': f'/treatments/{tr.id}',
+                })
+
+        # ── 4. Consultation Follow-ups (no exact date — flag if >30 days old)
+        if not alert_type or alert_type == 'consultation':
+            overdue_cutoff = now_dt - timedelta(days=30)
+            consult_qs = Consultation.objects.filter(
+                follow_up_required=True,
+                status='completed',
+                actual_end_time__isnull=False,
+                actual_end_time__lt=overdue_cutoff,
+            ).select_related('patient', 'consulting_doctor')
+            if patient_id:
+                consult_qs = consult_qs.filter(patient_id=patient_id)
+
+            for c in consult_qs:
+                days_since = (now_dt - c.actual_end_time).days
+                severity = 'critical' if days_since > 90 else 'high' if days_since > 60 else 'medium'
+
+                if urgency_filter and urgency_filter not in ('overdue', ''):
+                    continue
+
+                type_label = c.consultation_type.replace('_', ' ').title()
+                alerts.append({
+                    'id': str(c.id),
+                    'source_type': 'consultation',
+                    'source_label': type_label,
+                    'patient_id': str(c.patient_id),
+                    'patient_name': f"{c.patient.first_name} {c.patient.last_name}",
+                    'title': f"Consultation Follow-up — {type_label}",
+                    'detail': c.follow_up_instructions or c.diagnosis_primary or '',
+                    'due_date': None,
+                    'urgency': 'overdue',
+                    'severity': severity,
+                    'days_overdue': days_since,
+                    'days_until_due': None,
+                    'performed_by': c.consulting_doctor.get_full_name() if c.consulting_doctor else '',
+                    'test_date': c.actual_end_time.isoformat() if c.actual_end_time else None,
+                    'navigate_url': f'/consultations/{c.id}',
+                    'follow_up_duration': c.follow_up_duration or '',
+                })
+
+        # ── Sort: overdue (oldest first) → due_soon (nearest) → upcoming ─
+        urgency_order = {'overdue': 0, 'due_soon': 1, 'upcoming': 2}
+
+        def _sort_key(item):
+            u = urgency_order.get(item['urgency'], 9)
+            d = item['due_date'] or (item['test_date'][:10] if item.get('test_date') else '1900-01-01')
+            return (u, d)
+
+        alerts.sort(key=_sort_key)
+
+        summary = {
+            'total': len(alerts),
+            'overdue': sum(1 for a in alerts if a['urgency'] == 'overdue'),
+            'due_soon': sum(1 for a in alerts if a['urgency'] == 'due_soon'),
+            'upcoming': sum(1 for a in alerts if a['urgency'] == 'upcoming'),
+            'critical': sum(1 for a in alerts if a['severity'] == 'critical'),
+        }
+
+        return Response({'success': True, 'data': {'alerts': alerts, 'summary': summary}})
+
+    except Exception as e:
+        import traceback
+        return Response({'success': False, 'error': str(e), 'trace': traceback.format_exc()}, status=500)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def medication_patients_report(request):
+    """
+    Who received a specific medication or batch?
+    Params:
+      medication_id  — filter by exact medication UUID (optional)
+      batch_number   — search all medications whose batch_number contains this string (optional)
+    Returns: matching medications (batch checker) + full prescription rows with patient contact details.
+    At least one of the two params must be supplied.
+    """
+    try:
+        from medications.models import Medication, PrescriptionItem
+
+        medication_id = request.GET.get('medication_id', '').strip()
+        batch_number  = request.GET.get('batch_number', '').strip()
+
+        if not medication_id and not batch_number:
+            return Response({
+                'success': True,
+                'data': {'medications': [], 'prescriptions': [], 'summary': {
+                    'total_medications': 0, 'total_prescriptions': 0, 'total_patients': 0,
+                }}
+            })
+
+        # Find matching medications
+        med_qs = Medication.objects.filter(approval_status=True)
+        if medication_id:
+            med_qs = med_qs.filter(id=medication_id)
+        if batch_number:
+            med_qs = med_qs.filter(batch_number__icontains=batch_number)
+
+        medication_list = []
+        for m in med_qs:
+            medication_list.append({
+                'id': str(m.id),
+                'name': m.name,
+                'generic_name': m.generic_name or '',
+                'strength': m.strength or '',
+                'batch_number': m.batch_number or '',
+                'expiry_date': m.expiry_date.isoformat() if m.expiry_date else None,
+                'current_stock': m.current_stock,
+                'manufacturer': str(m.manufacturer_fk) if m.manufacturer_fk else m.manufacturer or '',
+            })
+
+        if not medication_list:
+            return Response({
+                'success': True,
+                'data': {'medications': [], 'prescriptions': [], 'summary': {
+                    'total_medications': 0, 'total_prescriptions': 0, 'total_patients': 0,
+                }}
+            })
+
+        # Get prescription items for all matched medications
+        items_qs = PrescriptionItem.objects.filter(
+            medication__in=med_qs
+        ).select_related(
+            'medication',
+            'prescription__patient',
+            'prescription__prescribing_doctor',
+        ).order_by('-prescription__date_prescribed')
+
+        prescriptions = []
+        seen_patients = {}
+
+        for item in items_qs:
+            p      = item.prescription.patient
+            rx     = item.prescription
+            doc    = rx.prescribing_doctor
+            freq   = item.get_frequency_display() if hasattr(item, 'get_frequency_display') else item.frequency
+
+            prescriptions.append({
+                'patient_id':      str(p.id),
+                'patient_ref':     p.patient_id,
+                'patient_name':    f"{p.first_name} {p.last_name}",
+                'date_of_birth':   p.date_of_birth.isoformat() if p.date_of_birth else None,
+                'phone':           p.phone_number or '',
+                'alternate_phone': p.alternate_phone or '',
+                'email':           p.email or '',
+                'address':         ' '.join(filter(None, [p.address_line_1, p.address_line_2])),
+                'medication_name': item.medication.name,
+                'medication_id':   str(item.medication.id),
+                'batch_number':    item.medication.batch_number or '',
+                'strength':        item.medication.strength or '',
+                'dosage':          item.dosage or '',
+                'frequency':       freq,
+                'eye_side':        item.eye_side or '',
+                'duration_days':   item.duration_days,
+                'quantity_prescribed': item.quantity_prescribed,
+                'special_instructions': item.special_instructions or '',
+                'prescription_date': rx.date_prescribed.isoformat() if rx.date_prescribed else None,
+                'prescribed_by':   doc.get_full_name() if doc else '',
+                'prescription_id': str(rx.id),
+            })
+
+            seen_patients[str(p.id)] = True
+
+        return Response({
+            'success': True,
+            'data': {
+                'medications': medication_list,
+                'prescriptions': prescriptions,
+                'summary': {
+                    'total_medications':  len(medication_list),
+                    'total_prescriptions': len(prescriptions),
+                    'total_patients':      len(seen_patients),
+                },
+            }
+        })
+
+    except Exception as e:
+        import traceback
+        return Response({'success': False, 'error': str(e), 'trace': traceback.format_exc()}, status=500)

@@ -63,7 +63,8 @@ const Sidebar = ({ isOpen, onClose }) => {
         { path: '/prescriptions/add', label: 'Add Prescription', icon: '📝' },
         { path: '/manufacturers/add', label: 'Add Manufacturer', icon: '🏭' },
         { path: '/medication-categories/add', label: 'Add Category', icon: '📂' },
-        { path: '/medications', label: 'Medication Stock (No Inventory Module)', icon: '📦' }
+        { path: '/medications', label: 'Medication Stock', icon: '📦' },
+        { path: '/medications/recalls', label: 'Medication Recall Centre', icon: '⚠️' }
       ]
     },
     {
@@ -74,13 +75,18 @@ const Sidebar = ({ isOpen, onClose }) => {
         { path: '/reports/drug-audit', label: 'Drug Audit Report', icon: '🔍' },
         { path: '/reports/patient-visits', label: 'Patient Visits Report', icon: '📈' },
         { path: '/reports/eye-tests-summary', label: 'Eye Tests Summary', icon: '👁️' },
-        { path: '/reports/medication-effectiveness', label: 'Medication Effectiveness', icon: '💊' }
+        { path: '/reports/medication-effectiveness', label: 'Medication Effectiveness', icon: '💊' },
+        { path: '/reports/diseases', label: 'Disease-Specific Reports', icon: '🦠' },
+        { path: '/reports/revenue-analysis', label: 'Revenue Analysis', icon: '💷' },
+        { path: '/reports/batch-tracking', label: 'Batch Number Tracking', icon: '📆' }
       ]
     },
     {
       category: 'Alerts',
       items: [
-        { path: '/alerts', label: 'Alert Center', icon: '🔔' }
+        { path: '/alerts', label: 'Alert Center', icon: '🔔' },
+        { path: '/alerts/return-due', label: 'Return Due', icon: '🔁' },
+        { path: '/alerts/followup', label: 'Follow-up Alerts', icon: '📅' }
       ]
     },
     {

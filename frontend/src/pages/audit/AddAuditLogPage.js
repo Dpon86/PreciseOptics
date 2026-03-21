@@ -61,7 +61,7 @@ const AddAuditLogPage = () => {
 
   const fetchUsers = async () => {
     try {
-      await api.get('/api/users/');
+      await api.get('users');
       // setUsers(response.data.results || response.data); // Commented out - users state not currently used
     } catch (err) {
       console.error('Error fetching users:', err);

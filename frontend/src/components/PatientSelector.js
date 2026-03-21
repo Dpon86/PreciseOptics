@@ -112,30 +112,36 @@ const PatientSelector = () => {
       <div className="recent-patients">
         <h3>Recent Patients</h3>
         {Array.isArray(patients) && patients.length > 0 ? (
-          <div className="patients-grid">
-            {patients.slice(0, 8).map((patient) => (
-            <div
-              key={patient.id}
-              className="patient-card"
-              onClick={() => handlePatientSelect(patient)}
-            >
-              <div className="patient-card-header">
-                <div className="patient-avatar">
-                  {(patient.first_name?.[0] || '?')}{(patient.last_name?.[0] || '?')}
-                </div>
-                <div className="patient-card-info">
-                  <div className="patient-card-name">
-                    {patient.first_name || 'Unknown'} {patient.last_name || 'Patient'}
-                  </div>
-                  <div className="patient-card-id">ID: {patient.patient_id || 'N/A'}</div>
-                </div>
-              </div>
-              <div className="patient-card-details">
-                <div>Age: {patient.age || 'N/A'}</div>
-                <div>Phone: {patient.phone || 'N/A'}</div>
-              </div>
+          <div className="patients-list">
+            <div className="patients-list-header">
+              <div className="list-col list-col-name">Patient Name</div>
+              <div className="list-col list-col-id">Patient ID</div>
+              <div className="list-col list-col-age">Age</div>
+              <div className="list-col list-col-phone">Phone</div>
+              <div className="list-col list-col-dob">Date of Birth</div>
             </div>
-          ))}
+            <div className="patients-list-body">
+              {patients.slice(0, 12).map((patient) => (
+                <div
+                  key={patient.id}
+                  className="patient-list-row"
+                  onClick={() => handlePatientSelect(patient)}
+                >
+                  <div className="list-col list-col-name">
+                    <span className="patient-list-initials">
+                      {(patient.first_name?.[0] || '?')}{(patient.last_name?.[0] || '?')}
+                    </span>
+                    <span className="patient-list-name">
+                      {patient.first_name || 'Unknown'} {patient.last_name || 'Patient'}
+                    </span>
+                  </div>
+                  <div className="list-col list-col-id">{patient.patient_id || 'N/A'}</div>
+                  <div className="list-col list-col-age">{patient.age || 'N/A'}</div>
+                  <div className="list-col list-col-phone">{patient.phone || 'N/A'}</div>
+                  <div className="list-col list-col-dob">{patient.date_of_birth || 'N/A'}</div>
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
           <div className="no-patients-message">

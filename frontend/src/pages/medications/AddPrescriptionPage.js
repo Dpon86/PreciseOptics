@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { usePatient } from '../../context/PatientContext';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 
 const AddPrescriptionPage = () => {
+  const { patientId } = useParams();
+  const { selectedPatient } = usePatient();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  
   const [formData, setFormData] = useState({
-    patient: '',
+    patient: patientId || selectedPatient?.id || '',
     prescribing_doctor: '',
     consultation: '',
     prescription_date: '',
@@ -34,7 +41,6 @@ const AddPrescriptionPage = () => {
   const [medications, setMedications] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   const statusOptions = [
     { value: 'active', label: 'Active' },
@@ -61,6 +67,36 @@ const AddPrescriptionPage = () => {
   useEffect(() => {
     fetchInitialData();
   }, []);
+  
+  // Auto-populate patient and prescribing doctor when data is loaded
+  useEffect(() => {
+    if (doctors.length > 0 && user && !formData.prescribing_doctor) {
+      // Find the current logged-in user in the doctors list
+      const currentDoctor = doctors.find(doc => 
+        doc.id === user.id || 
+        doc.user === user.id ||
+        (doc.user_details && doc.user_details.id === user.id)
+      );
+      
+      if (currentDoctor) {
+        setFormData(prev => ({
+          ...prev,
+          prescribing_doctor: currentDoctor.id
+        }));
+      }
+    }
+  }, [doctors, user]);
+  
+  // Update patient if selectedPatient or patientId changes
+  useEffect(() => {
+    const newPatientId = patientId || selectedPatient?.id;
+    if (newPatientId && newPatientId !== formData.patient) {
+      setFormData(prev => ({
+        ...prev,
+        patient: newPatientId
+      }));
+    }
+  }, [patientId, selectedPatient]);
 
   const fetchInitialData = async () => {
     try {
@@ -157,6 +193,26 @@ const AddPrescriptionPage = () => {
         <div className="form-section">
           <h3>Prescription Information</h3>
           
+          {/* Selected Patient Display */}
+          {(selectedPatient || patientId) && (
+            <div className="selected-patient-display">
+              <h4>Patient Information</h4>
+              <div className="patient-info-card">
+                <div className="patient-avatar">
+                  {selectedPatient?.first_name?.[0] || 'P'}{selectedPatient?.last_name?.[0] || 'T'}
+                </div>
+                <div className="patient-details">
+                  <div className="patient-name">
+                    {selectedPatient?.first_name} {selectedPatient?.last_name}
+                  </div>
+                  <div className="patient-meta">
+                    ID: {selectedPatient?.patient_id} | DOB: {selectedPatient?.date_of_birth} | Phone: {selectedPatient?.phone}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="patient" className="form-label">
@@ -168,6 +224,7 @@ const AddPrescriptionPage = () => {
                 value={formData.patient}
                 onChange={handleChange}
                 className="form-input"
+                disabled={!!(patientId || selectedPatient)}
                 required
               >
                 <option value="">Select Patient</option>
@@ -177,6 +234,11 @@ const AddPrescriptionPage = () => {
                   </option>
                 ))}
               </select>
+              {(patientId || selectedPatient) && (
+                <small style={{ color: '#666', fontStyle: 'italic', marginTop: '4px', display: 'block' }}>
+                  Patient automatically selected from patient record
+                </small>
+              )}
             </div>
             
             <div className="form-group">
@@ -194,10 +256,18 @@ const AddPrescriptionPage = () => {
                 <option value="">Select Doctor</option>
                 {doctors.map(doctor => (
                   <option key={doctor.id} value={doctor.id}>
-                    Dr. {doctor.first_name} {doctor.last_name}
+                    {doctor.user_details ? 
+                      `Dr. ${doctor.user_details.first_name} ${doctor.user_details.last_name}` :
+                      `Dr. ${doctor.first_name} ${doctor.last_name}`
+                    }
                   </option>
                 ))}
               </select>
+              {formData.prescribing_doctor && user && (
+                <small style={{ color: '#666', fontStyle: 'italic', marginTop: '4px', display: 'block' }}>
+                  ✓ Automatically set to current user
+                </small>
+              )}
             </div>
           </div>
           

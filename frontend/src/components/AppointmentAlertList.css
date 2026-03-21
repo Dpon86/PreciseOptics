@@ -1,0 +1,212 @@
+.appointment-alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.alert-list-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #7f8c8d;
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.alert-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  border-left: 4px solid;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.alert-list-item:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+/* Severity border colors */
+.alert-item-critical {
+  border-left-color: #c0392b;
+  background: linear-gradient(to right, rgba(192, 57, 43, 0.05), white);
+}
+
+.alert-item-high {
+  border-left-color: #e74c3c;
+  background: linear-gradient(to right, rgba(231, 76, 60, 0.05), white);
+}
+
+.alert-item-medium {
+  border-left-color: #f39c12;
+  background: linear-gradient(to right, rgba(243, 156, 18, 0.05), white);
+}
+
+.alert-item-low {
+  border-left-color: #3498db;
+  background: linear-gradient(to right, rgba(52, 152, 219, 0.05), white);
+}
+
+.alert-item-icon {
+  font-size: 32px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.alert-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.alert-item-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.alert-item-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+  flex: 1;
+  min-width: 200px;
+}
+
+.status-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-active {
+  background: #e74c3c;
+  color: white;
+}
+
+.status-acknowledged {
+  background: #f39c12;
+  color: white;
+}
+
+.status-resolved {
+  background: #27ae60;
+  color: white;
+}
+
+.status-dismissed {
+  background: #95a5a6;
+  color: white;
+}
+
+.alert-item-patient {
+  margin-bottom: 6px;
+}
+
+.patient-link {
+  background: none;
+  border: none;
+  color: #3498db;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0;
+  text-decoration: none;
+}
+
+.patient-link:hover {
+  text-decoration: underline;
+}
+
+.patient-id {
+  color: #7f8c8d;
+  font-weight: 400;
+}
+
+.alert-item-time {
+  font-size: 12px;
+  color: #95a5a6;
+  font-style: italic;
+}
+
+.alert-item-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.alert-action-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.alert-action-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.acknowledge-btn {
+  background: #f39c12;
+  color: white;
+}
+
+.acknowledge-btn:hover {
+  background: #e67e22;
+}
+
+.resolve-btn {
+  background: #27ae60;
+  color: white;
+}
+
+.resolve-btn:hover {
+  background: #229954;
+}
+
+.dismiss-btn {
+  background: #95a5a6;
+  color: white;
+}
+
+.dismiss-btn:hover {
+  background: #7f8c8d;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .alert-list-item {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .alert-item-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .alert-item-title {
+    min-width: 100%;
+  }
+}

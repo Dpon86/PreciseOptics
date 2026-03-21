@@ -1,0 +1,87 @@
+.alert-badge {
+  position: relative;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.alert-badge:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
+}
+
+.alert-badge-icon {
+  font-size: 20px;
+  animation: ring 2s infinite;
+}
+
+@keyframes ring {
+  0%, 90%, 100% {
+    transform: rotate(0deg);
+  }
+  92%, 96% {
+    transform: rotate(15deg);
+  }
+  94%, 98% {
+    transform: rotate(-15deg);
+  }
+}
+
+.alert-badge-count {
+  min-width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 0 6px;
+}
+
+/* Severity Colors */
+.alert-badge-critical .alert-badge-count {
+  background: #c0392b;
+  color: white;
+  box-shadow: 0 0 10px rgba(192, 57, 43, 0.5);
+}
+
+.alert-badge-high .alert-badge-count {
+  background: #e74c3c;
+  color: white;
+  box-shadow: 0 0 8px rgba(231, 76, 60, 0.4);
+}
+
+.alert-badge-medium .alert-badge-count {
+  background: #f39c12;
+  color: white;
+  box-shadow: 0 0 6px rgba(243, 156, 18, 0.3);
+}
+
+.alert-badge-low .alert-badge-count {
+  background: #3498db;
+  color: white;
+  box-shadow: 0 0 4px rgba(52, 152, 219, 0.2);
+}
+
+/* Pulse animation for critical alerts */
+.alert-badge-critical .alert-badge-icon {
+  animation: ring 1s infinite, pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}

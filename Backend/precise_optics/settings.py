@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'reports',
     'conditions',  # Medical conditions tracking (AMD, RVO, Glaucoma, etc.)
     'protocols',  # Treatment protocols and scheduling
+    'referrals',  # Referral management to/from specialists
 ]
 
 MIDDLEWARE = [

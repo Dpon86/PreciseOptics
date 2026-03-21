@@ -104,7 +104,9 @@ def treatment_effectiveness_timeline(request):
                             continue
                             
                         # Calculate days from treatment onset
-                        days_from_onset = (test_date - baseline_date.date()).days
+                        # Convert both to date objects to avoid datetime/date subtraction issues
+                        test_date_only = test_date.date() if hasattr(test_date, 'date') else test_date
+                        days_from_onset = (test_date_only - baseline_date.date()).days
                         
                         # Only include tests within the specified months window
                         if -30 <= days_from_onset <= (months * 30):

@@ -150,10 +150,16 @@ const PatientDetailPage = () => {
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon">⚧</div>
+          <div className="stat-icon">🎂</div>
           <div className="stat-content">
-            <div className="stat-label">Gender</div>
-            <div className="stat-value">{formatGender(patient.gender)}</div>
+            <div className="stat-label">Date of Birth</div>
+            <div className="stat-value">
+              {new Date(patient.date_of_birth).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+              })}
+            </div>
           </div>
         </div>
         {patient.blood_group && (

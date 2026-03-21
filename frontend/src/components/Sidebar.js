@@ -34,10 +34,25 @@ const Sidebar = ({ isOpen, onClose }) => {
       ]
     },
     {
+      category: 'Conditions Management',
+      items: [
+        { path: '/conditions', label: 'View All Conditions', icon: '🏥' }
+      ]
+    },
+    {
+      category: 'Referrals',
+      items: [
+        { path: '/referrals', label: 'View Referrals', icon: '📤' },
+        { path: '/referrals/create', label: 'Create Referral', icon: '➕' },
+        { path: '/referral-sources', label: 'Manage Sources', icon: '📋' },
+        { path: '/referral-sources/add', label: 'Add Source', icon: '🏥' }
+      ]
+    },
+    {
       category: 'Treatments',
       items: [
         { path: '/treatments', label: 'View Treatments', icon: '💉' },
-        { path: '/treatments/add', label: 'Add Treatment', icon: '➕' }
+        { path: '/patients', label: 'Add Treatment (Select Patient)', icon: '➕' }
       ]
     },
     {
@@ -48,7 +63,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         { path: '/prescriptions/add', label: 'Add Prescription', icon: '📝' },
         { path: '/manufacturers/add', label: 'Add Manufacturer', icon: '🏭' },
         { path: '/medication-categories/add', label: 'Add Category', icon: '📂' },
-        { path: '/inventory/add', label: 'Manage Inventory', icon: '📦' }
+        { path: '/medications', label: 'Medication Stock (No Inventory Module)', icon: '📦' }
       ]
     },
     {
@@ -59,14 +74,19 @@ const Sidebar = ({ isOpen, onClose }) => {
         { path: '/reports/drug-audit', label: 'Drug Audit Report', icon: '🔍' },
         { path: '/reports/patient-visits', label: 'Patient Visits Report', icon: '📈' },
         { path: '/reports/eye-tests-summary', label: 'Eye Tests Summary', icon: '👁️' },
-        { path: '/reports/medication-effectiveness', label: 'Medication Effectiveness', icon: '💊' },
-        { path: '/reports/revenue-analysis', label: 'Revenue Analysis', icon: '💰' }
+        { path: '/reports/medication-effectiveness', label: 'Medication Effectiveness', icon: '💊' }
+      ]
+    },
+    {
+      category: 'Alerts',
+      items: [
+        { path: '/alerts', label: 'Alert Center', icon: '🔔' }
       ]
     },
     {
       category: 'Audit & Compliance',
       items: [
-        { path: '/audit', label: 'Audit Logs', icon: '�' },
+        { path: '/audit-logs', label: 'Audit Logs', icon: '📑' },
         { path: '/audit-logs/add', label: 'Add Audit Entry', icon: '➕' }
       ]
     },
@@ -127,7 +147,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         </nav>
       </div>
       
-      <style jsx>{`
+      <style>{`
         .sidebar-overlay {
           position: fixed;
           top: 0;

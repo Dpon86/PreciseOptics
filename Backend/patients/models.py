@@ -211,3 +211,153 @@ class PatientDocument(models.Model):
     
     def __str__(self):
         return f"{self.patient.get_full_name()} - {self.title}"
+
+
+class AppointmentAlert(models.Model):
+    """
+    Track alerts for missed or late appointments
+    """
+    ALERT_TYPES = (
+        ('missed', 'Missed Appointment'),
+        ('late', 'Late Arrival'),
+        ('upcoming', 'Upcoming Appointment'),
+        ('overdue_followup', 'Overdue Follow-up'),
+    )
+    
+    ALERT_SEVERITY = (
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+        ('critical', 'Critical'),
+    )
+    
+    ALERT_STATUS = (
+        ('active', 'Active'),
+        ('acknowledged', 'Acknowledged'),
+        ('resolved', 'Resolved'),
+        ('dismissed', 'Dismissed'),
+    )
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='alerts')
+    visit = models.ForeignKey(PatientVisit, on_delete=models.CASCADE, related_name='alerts', null=True, blank=True)
+    
+    # Alert Details
+    alert_type = models.CharField(max_length=20, choices=ALERT_TYPES)
+    severity = models.CharField(max_length=10, choices=ALERT_SEVERITY, default='medium')
+    status = models.CharField(max_length=15, choices=ALERT_STATUS, default='active')
+    
+    # Message
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    
+    # Timing
+    trigger_time = models.DateTimeField(help_text="When the alert was triggered")
+    acknowledged_at = models.DateTimeField(null=True, blank=True)
+    acknowledged_by = models.ForeignKey(
+        CustomUser, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='acknowledged_alerts'
+    )
+    resolved_at = models.DateTimeField(null=True, blank=True)
+    resolved_by = models.ForeignKey(
+        CustomUser, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='resolved_alerts'
+    )
+    
+    # Action tracking
+    action_taken = models.TextField(blank=True, help_text="Actions taken to resolve the alert")
+    notes = models.TextField(blank=True)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Appointment Alert"
+        verbose_name_plural = "Appointment Alerts"
+        ordering = ['-trigger_time', '-created_at']
+        indexes = [
+            models.Index(fields=['status', 'alert_type']),
+            models.Index(fields=['trigger_time']),
+            models.Index(fields=['-created_at']),
+        ]
+    
+    def __str__(self):
+        return f"{self.get_alert_type_display()} - {self.patient.get_full_name()} ({self.status})"
+
+
+class AlertConfiguration(models.Model):
+    """
+    System-wide alert configuration settings
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    
+    # Timing thresholds (in minutes)
+    late_threshold_minutes = models.IntegerField(
+        default=15,
+        help_text="Minutes past scheduled time to trigger 'late' alert"
+    )
+    missed_threshold_minutes = models.IntegerField(
+        default=60,
+        help_text="Minutes past scheduled time to mark as 'missed'"
+    )
+    upcoming_reminder_minutes = models.IntegerField(
+        default=60,
+        help_text="Minutes before appointment to send reminder"
+    )
+    overdue_followup_days = models.IntegerField(
+        default=30,
+        help_text="Days after last visit to trigger follow-up alert"
+    )
+    
+    # Auto-resolution settings
+    auto_resolve_on_checkin = models.BooleanField(
+        default=True,
+        help_text="Automatically resolve late/missed alerts when patient checks in"
+    )
+    auto_dismiss_after_days = models.IntegerField(
+        default=7,
+        help_text="Days after which to auto-dismiss unresolved alerts (0 = never)"
+    )
+    
+    # Notification settings
+    send_email_alerts = models.BooleanField(default=False)
+    send_sms_alerts = models.BooleanField(default=False)
+    
+    # Active configuration
+    is_active = models.BooleanField(default=True)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='created_alert_configs'
+    )
+    
+    class Meta:
+        verbose_name = "Alert Configuration"
+        verbose_name_plural = "Alert Configurations"
+        ordering = ['-is_active', '-created_at']
+    
+    def __str__(self):
+        status = "Active" if self.is_active else "Inactive"
+        return f"Alert Configuration ({status}) - Late: {self.late_threshold_minutes}min, Missed: {self.missed_threshold_minutes}min"
+    
+    @classmethod
+    def get_active_config(cls):
+        """Get the active alert configuration"""
+        config = cls.objects.filter(is_active=True).first()
+        if not config:
+            # Create default configuration if none exists
+            config = cls.objects.create(is_active=True)
+        return config
+

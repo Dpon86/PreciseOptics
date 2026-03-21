@@ -20,6 +20,15 @@ export * from './prescriptions';
 // Protocol Management
 export * from './protocols';
 
+// Conditions Management
+export * from './conditions';
+
+// Referrals Management
+export * from './referrals';
+
+// Alerts Management
+export * from './alerts';
+
 // Treatment Management
 export * from './treatments';
 

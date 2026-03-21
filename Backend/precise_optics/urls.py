@@ -30,6 +30,7 @@ urlpatterns = [
     path('', include('reports.urls')),
     path('api/conditions/', include('conditions.urls')),  # Conditions module
     path('api/protocols/', include('protocols.urls')),  # Protocols module
+    path('api/referrals/', include('referrals.urls')),  # Referral management
 ]
 
 # Serve media files in development

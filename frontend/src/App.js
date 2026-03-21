@@ -56,6 +56,24 @@ import {
   AssignProtocolPage,
   PatientProtocolsPage,
   ProtocolBuilderPage,
+  ProtocolSchedulePage,
+  CompleteProtocolStepPage,
+  ConsentFormsPage,
+  // Conditions Management
+  ConditionsPage,
+  PatientConditionsPage,
+  AddPatientConditionPage,
+  ConditionDetailPage,
+  AddConditionProgressPage,
+  // Referrals Management
+  ReferralsPage,
+  CreateReferralPage,
+  ReferralDetailPage,
+  ReferralSourcesPage,
+  AddReferralSourcePage,
+  // Alerts
+  AlertCenter,
+  AlertDetailPage,
   // Reports
   PatientMedicationsReportPage,
   ConsultationReportPage,
@@ -246,6 +264,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <AddTreatmentPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/treatments" 
+            element={
+              <ProtectedRoute>
+                <TreatmentsPage />
               </ProtectedRoute>
             } 
           />
@@ -442,6 +468,14 @@ function AppContent() {
             } 
           />
           <Route 
+            path="/audit" 
+            element={
+              <ProtectedRoute>
+                <AuditLogsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/audit-logs/add" 
             element={
               <ProtectedRoute>
@@ -500,6 +534,14 @@ function AppContent() {
           />
           <Route 
             path="/specializations" 
+            element={
+              <ProtectedRoute>
+                <AddSpecializationPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/specializations/add" 
             element={
               <ProtectedRoute>
                 <AddSpecializationPage />
@@ -578,6 +620,14 @@ function AppContent() {
               </ProtectedRoute>
             } 
           />
+          <Route
+            path="/reports/revenue-analysis"
+            element={
+              <ProtectedRoute>
+                <Navigate to="/reports/treatment-effectiveness" replace />
+              </ProtectedRoute>
+            }
+          />
           <Route 
             path="/medicines/add" 
             element={
@@ -585,6 +635,22 @@ function AppContent() {
                 <AddMedicinePage />
               </ProtectedRoute>
             } 
+          />
+          <Route
+            path="/inventory/add"
+            element={
+              <ProtectedRoute>
+                <Navigate to="/medications" replace />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/treatments/add"
+            element={
+              <ProtectedRoute>
+                <Navigate to="/patients" replace />
+              </ProtectedRoute>
+            }
           />
           
           {/* Protocol Routes */}
@@ -649,6 +715,148 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <PatientProtocolsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/patient-protocols/:patientProtocolId/schedule" 
+            element={
+              <ProtectedRoute>
+                <ProtocolSchedulePage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/protocol-steps/:stepCompletionId/complete" 
+            element={
+              <ProtectedRoute>
+                <CompleteProtocolStepPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/protocols/consent-forms" 
+            element={
+              <ProtectedRoute>
+                <ConsentFormsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/patient/:patientId/consents" 
+            element={
+              <ProtectedRoute>
+                <ConsentFormsPage />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Conditions Management Routes */}
+          <Route 
+            path="/conditions" 
+            element={
+              <ProtectedRoute>
+                <ConditionsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/patients/:patientId/conditions" 
+            element={
+              <ProtectedRoute>
+                <PatientConditionsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/patients/:patientId/conditions/add" 
+            element={
+              <ProtectedRoute>
+                <AddPatientConditionPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/patient-conditions/:id" 
+            element={
+              <ProtectedRoute>
+                <ConditionDetailPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/patient-conditions/:id/progress/add" 
+            element={
+              <ProtectedRoute>
+                <AddConditionProgressPage />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Referrals Management Routes */}
+          <Route 
+            path="/referrals" 
+            element={
+              <ProtectedRoute>
+                <ReferralsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/referrals/create" 
+            element={
+              <ProtectedRoute>
+                <CreateReferralPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/referrals/overdue" 
+            element={
+              <ProtectedRoute>
+                <ReferralsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/referrals/:id" 
+            element={
+              <ProtectedRoute>
+                <ReferralDetailPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/referral-sources" 
+            element={
+              <ProtectedRoute>
+                <ReferralSourcesPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/referral-sources/add" 
+            element={
+              <ProtectedRoute>
+                <AddReferralSourcePage />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* Alert Management Routes */}
+          <Route 
+            path="/alerts" 
+            element={
+              <ProtectedRoute>
+                <AlertCenter />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/alerts/:id" 
+            element={
+              <ProtectedRoute>
+                <AlertDetailPage />
               </ProtectedRoute>
             } 
           />

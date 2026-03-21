@@ -324,6 +324,53 @@ export const apiService = {
   
   get2FAStatus: () =>
     axios.get('/2fa/status/'),
+
+  // Appointment Alerts
+  getAlerts: (params = {}) =>
+    axios.get('/api/alerts/', { params }),
+  
+  getAlert: (id) =>
+    axios.get(`/api/alerts/${id}/`),
+  
+  createAlert: (data) =>
+    axios.post('/api/alerts/', data),
+  
+  acknowledgeAlert: (id) =>
+    axios.post(`/api/alerts/${id}/acknowledge/`),
+  
+  resolveAlert: (id, data) =>
+    axios.post(`/api/alerts/${id}/resolve/`, data),
+  
+  dismissAlert: (id, data) =>
+    axios.post(`/api/alerts/${id}/dismiss/`, data),
+  
+  getAlertStatistics: () =>
+    axios.get('/api/alerts/statistics/'),
+  
+  scanAppointments: () =>
+    axios.post('/api/alerts/scan_appointments/'),
+  
+  generateReminders: () =>
+    axios.post('/api/alerts/generate_reminders/'),
+  
+  checkFollowups: () =>
+    axios.post('/api/alerts/check_followups/'),
+  
+  // Alert Configuration
+  getAlertConfigs: () =>
+    axios.get('/api/alert-config/'),
+  
+  getActiveAlertConfig: () =>
+    axios.get('/api/alert-config/active/'),
+  
+  createAlertConfig: (data) =>
+    axios.post('/api/alert-config/', data),
+  
+  updateAlertConfig: (id, data) =>
+    axios.put(`/api/alert-config/${id}/`, data),
+  
+  activateAlertConfig: (id) =>
+    axios.post(`/api/alert-config/${id}/activate/`),
 };
 
 export default apiService;

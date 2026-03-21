@@ -84,9 +84,12 @@ const AddVisualAcuityTestPage = () => {
         api.getStaff()
       ]);
       
+      console.log('Staff data received:', staffRes.data);
+      const staffData = staffRes.data.results || staffRes.data || [];
+      console.log('Processing staff array:', staffData);
 
       setConsultations(consultationsRes.data.results || consultationsRes.data || []);
-      setStaff(staffRes.data.results || staffRes.data || []);
+      setStaff(staffData);
     } catch (err) {
       console.error('Error fetching initial data:', err);
       setError('Failed to load form data');
@@ -199,7 +202,10 @@ const AddVisualAcuityTestPage = () => {
                 <option value="">Select Staff Member</option>
                 {staff.map(member => (
                   <option key={member.id} value={member.id}>
-                    {member.first_name} {member.last_name} ({member.role})
+                    {member.first_name && member.last_name 
+                      ? `${member.first_name} ${member.last_name}${member.user_type ? ` (${member.user_type})` : ''}`
+                      : member.username || `Staff ID: ${member.id}`
+                    }
                   </option>
                 ))}
               </select>

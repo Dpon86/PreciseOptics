@@ -2,13 +2,18 @@
 API views for PreciseOptics Eye Hospital Management System - Patients
 """
 from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from precise_optics.permissions import ReadOnlyOrAuthenticatedPermission
 from django.utils import timezone
 from django.db import models
-from .models import Patient, PatientVisit
-from .serializers import PatientSerializer, PatientVisitSerializer, PatientCreateSerializer
+from .models import Patient, PatientVisit, AppointmentAlert, AlertConfiguration
+from .serializers import (
+    PatientSerializer, PatientVisitSerializer, PatientCreateSerializer,
+    AppointmentAlertSerializer, AppointmentAlertListSerializer,
+    AppointmentAlertCreateSerializer, AlertConfigurationSerializer
+)
+from .alert_service import AlertService
 
 
 class PatientViewSet(viewsets.ModelViewSet):
@@ -115,6 +120,9 @@ class PatientVisitViewSet(viewsets.ModelViewSet):
         visit.status = 'checked_in'
         visit.check_in_time = timezone.now()
         visit.save()
+
+        # Resolve any active late/missed alerts for this visit
+        AlertService.auto_resolve_visit_alerts(visit)
         
         return Response({
             'message': f'Patient {visit.patient.get_full_name()} checked in successfully',
@@ -140,3 +148,179 @@ class PatientVisitViewSet(viewsets.ModelViewSet):
             'status': visit.get_status_display(),
             'doctor': visit.primary_doctor.get_full_name() if visit.primary_doctor else 'Not assigned'
         } for visit in visits])
+
+
+class AppointmentAlertViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing appointment alerts
+    """
+    queryset = AppointmentAlert.objects.all()
+    serializer_class = AppointmentAlertSerializer
+    permission_classes = [ReadOnlyOrAuthenticatedPermission]
+    
+    def get_serializer_class(self):
+        """Return different serializers based on action"""
+        if self.action == 'list':
+            return AppointmentAlertListSerializer
+        elif self.action == 'create':
+            return AppointmentAlertCreateSerializer
+        return AppointmentAlertSerializer
+    
+    def get_queryset(self):
+        """Filter alerts based on query parameters"""
+        queryset = AppointmentAlert.objects.select_related(
+            'patient', 'visit', 'acknowledged_by', 'resolved_by'
+        )
+        
+        # Filter by status
+        status_filter = self.request.query_params.get('status', None)
+        if status_filter:
+            if status_filter == 'unresolved':
+                queryset = queryset.filter(status__in=['active', 'acknowledged'])
+            else:
+                queryset = queryset.filter(status=status_filter)
+        
+        # Filter by alert type        
+        alert_type = self.request.query_params.get('alert_type', None)
+        if alert_type:
+            queryset = queryset.filter(alert_type=alert_type)
+        
+        # Filter by severity
+        severity = self.request.query_params.get('severity', None)
+        if severity:
+            queryset = queryset.filter(severity=severity)
+        
+        # Filter by patient
+        patient_id = self.request.query_params.get('patient', None)
+        if patient_id:
+            queryset = queryset.filter(patient_id=patient_id)
+        
+        # Filter by date range
+        date_from = self.request.query_params.get('date_from', None)
+        if date_from:
+            queryset = queryset.filter(trigger_time__gte=date_from)
+        
+        date_to = self.request.query_params.get('date_to', None)
+        if date_to:
+            queryset = queryset.filter(trigger_time__lte=date_to)
+        
+        return queryset.order_by('-trigger_time')
+    
+    @action(detail=True, methods=['post'])
+    def acknowledge(self, request, pk=None):
+        """Acknowledge an alert"""
+        alert = self.get_object()
+        success, message = AlertService.acknowledge_alert(alert.id, request.user)
+        
+        if success:
+            return Response({
+                'message': message,
+                'alert': AppointmentAlertSerializer(AppointmentAlert.objects.get(id=alert.id)).data
+            })
+        else:
+            return Response({'error': message}, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=True, methods=['post'])
+    def resolve(self, request, pk=None):
+        """Resolve an alert with action taken"""
+        alert = self.get_object()
+        action_taken = request.data.get('action_taken', '')
+        notes = request.data.get('notes', '')
+        
+        success, message = AlertService.resolve_alert(alert.id, request.user, action_taken, notes)
+        
+        if success:
+            return Response({
+                'message': message,
+                'alert': AppointmentAlertSerializer(AppointmentAlert.objects.get(id=alert.id)).data
+            })
+        else:
+            return Response({'error': message}, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=True, methods=['post'])
+    def dismiss(self, request, pk=None):
+        """Dismiss an alert"""
+        alert = self.get_object()
+        reason = request.data.get('reason', '')
+        
+        success, message = AlertService.dismiss_alert(alert.id, request.user, reason)
+        
+        if success:
+            return Response({
+                'message': message,
+                'alert': AppointmentAlertSerializer(AppointmentAlert.objects.get(id=alert.id)).data
+            })
+        else:
+            return Response({'error': message}, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['get'])
+    def statistics(self, request):
+        """Get alert statistics"""
+        stats = AlertService.get_alert_statistics()
+        return Response(stats)
+    
+    @action(detail=False, methods=['post'])
+    def scan_appointments(self, request):
+        """Manually trigger appointment scan for alerts"""
+        stats = AlertService.scan_all_appointments()
+        return Response({
+            'message': 'Appointment scan completed',
+            'stats': stats
+        })
+    
+    @action(detail=False, methods=['post'])
+    def generate_reminders(self, request):
+        """Generate upcoming appointment reminders"""
+        alerts = AlertService.generate_upcoming_reminders()
+        return Response({
+            'message': f'Generated {len(alerts)} reminders',
+            'count': len(alerts),
+            'alerts': AppointmentAlertListSerializer(alerts, many=True).data
+        })
+    
+    @action(detail=False, methods=['post'])
+    def check_followups(self, request):
+        """Check for overdue follow-ups"""
+        alerts = AlertService.check_overdue_followups()
+        return Response({
+            'message': f'Found {len(alerts)} overdue follow-ups',
+            'count': len(alerts),
+            'alerts': AppointmentAlertListSerializer(alerts, many=True).data
+        })
+
+
+class AlertConfigurationViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing alert configuration
+    """
+    queryset = AlertConfiguration.objects.all()
+    serializer_class = AlertConfigurationSerializer
+    permission_classes = [ReadOnlyOrAuthenticatedPermission]
+    
+    def perform_create(self, serializer):
+        """Set created_by on creation"""
+        serializer.save(created_by=self.request.user)
+    
+    @action(detail=False, methods=['get'])
+    def active(self, request):
+        """Get the active configuration"""
+        config = AlertConfiguration.get_active_config()
+        return Response(AlertConfigurationSerializer(config).data)
+    
+    @action(detail=True, methods=['post'])
+    def activate(self, request, pk=None):
+        """Activate this configuration"""
+        config = self.get_object()
+        
+        # Deactivate all other configurations
+        AlertConfiguration.objects.all().update(is_active=False)
+        
+        # Activate this one
+        config.is_active = True
+        config.save()
+        
+        return Response({
+            'message': 'Configuration activated successfully',
+            'config': AlertConfigurationSerializer(config).data
+        })
+

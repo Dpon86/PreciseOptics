@@ -1206,7 +1206,7 @@ body {
 .patient-selection-section h2 {
   color: #333;
   margin-bottom: 1.5rem;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   border-bottom: 2px solid #667eea;
   padding-bottom: 0.5rem;
 }
@@ -1217,22 +1217,22 @@ body {
 
 .global-actions-section h2 {
   color: #333;
-  margin-bottom: 2rem;
-  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.6rem;
   text-align: center;
 }
 
 .global-actions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
 .global-action-card {
   background: white;
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.2s;
@@ -1241,7 +1241,7 @@ body {
 
 .global-action-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
   border-left-color: #667eea;
 }
 
@@ -1261,30 +1261,33 @@ body {
   justify-content: center;
   border-radius: 50%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  flex-shrink: 0;
 }
 
 .global-action-card h3 {
   color: #333;
   margin: 0;
   font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .global-action-description {
   color: #666;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   line-height: 1.5;
+  font-size: 0.95rem;
 }
 
 .global-action-links {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.6rem;
 }
 
 .global-action-link {
   display: flex;
   align-items: center;
-  padding: 0.75rem 1rem;
+  padding: 0.6rem 1rem;
   background: #f8f9fa;
   color: #333;
   text-decoration: none;
@@ -1338,29 +1341,42 @@ body {
   border-left-color: #dc3545;
 }
 
-/* Patient Management specific styling */
+/* Protocols specific styling */
 .global-action-card:nth-child(3) .global-action-icon {
-  background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
+  background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
 }
 
 .global-action-card:nth-child(3):hover {
-  border-left-color: #17a2b8;
+  border-left-color: #8e44ad;
 }
 
 .global-action-card:nth-child(3) .global-action-link:hover {
+  border-left-color: #8e44ad;
+}
+
+/* Patient Management specific styling */
+.global-action-card:nth-child(4) .global-action-icon {
+  background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
+}
+
+.global-action-card:nth-child(4):hover {
+  border-left-color: #17a2b8;
+}
+
+.global-action-card:nth-child(4) .global-action-link:hover {
   border-left-color: #17a2b8;
 }
 
 /* System Administration specific styling */
-.global-action-card:nth-child(4) .global-action-icon {
+.global-action-card:nth-child(5) .global-action-icon {
   background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
 }
 
-.global-action-card:nth-child(4):hover {
+.global-action-card:nth-child(5):hover {
   border-left-color: #6c757d;
 }
 
-.global-action-card:nth-child(4) .global-action-link:hover {
+.global-action-card:nth-child(5) .global-action-link:hover {
   border-left-color: #6c757d;
 }
 
@@ -1368,17 +1384,25 @@ body {
 @media (max-width: 768px) {
   .global-actions-grid {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 0.75rem;
   }
   
   .global-action-card {
-    padding: 1rem;
+    padding: 0.85rem;
   }
   
   .global-action-header {
-    flex-direction: column;
-    text-align: center;
-    gap: 0.5rem;
+    gap: 0.6rem;
+  }
+  
+  .global-action-icon {
+    width: 35px;
+    height: 35px;
+    font-size: 1.3rem;
+  }
+  
+  .global-action-card h3 {
+    font-size: 0.95rem;
   }
   
   .patient-selection-section {
@@ -2761,6 +2785,38 @@ body {
   gap: 1rem;
   margin-top: 1rem;
 }
+
+/* ============================================ */
+/* COMPACT SECTION & SYSTEM HEALTH SECTION */
+/* ============================================ */
+
+/* Compact Section for Condition Widgets */
+.compact-section {
+  margin: 30px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+/* System Health Section at Bottom */
+.system-health-section {
+  margin-top: 40px;
+  padding: 25px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  border-top: 3px solid #667eea;
+}
+
+.system-health-section h3 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+}
+
+/* ============================================ */
+/* END COMPACT & HEALTH SECTIONS */
+/* ============================================ */
 
 .tip-card {
   background: #e8f5e8;

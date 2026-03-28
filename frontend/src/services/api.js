@@ -433,6 +433,18 @@ export const apiService = {
     axios.get(`/api/protocols/patient-protocols/${id}/`),
   getPatientProtocolSchedule: (id) =>
     axios.get(`/api/protocols/patient-protocols/${id}/schedule/`),
+  getProtocolStatistics: () =>
+    axios.get('/api/protocols/statistics/'),
+  getProtocolAdherenceReport: () =>
+    axios.get('/api/protocols/adherence-report/'),
+
+  // Treatments
+  getTreatmentStatistics: () =>
+    axios.get('/api/treatments/api/treatments/statistics/'),
+
+  // Referral Statistics
+  getReferralStatistics: () =>
+    axios.get('/api/referrals/statistics/'),
 };
 
 export default apiService;

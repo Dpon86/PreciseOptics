@@ -18,10 +18,12 @@ django-otp==1.6.2
 pyqrcode==1.2.1
 pypng==0.20220715.0  # For QR code PNG generation
 
-# Development and testing (optional)
-# django-debug-toolbar==4.2.0
-# pytest-django==4.8.0
-# factory-boy==3.3.0
+# Development and testing
+pytest==8.0.0
+pytest-django==4.8.0
+pytest-cov==4.1.0  # Code coverage support
+factory-boy==3.3.0  # Test data factories
+faker==24.0.0  # Generate realistic test data
 
 # Production deployment (optional)
 # gunicorn==21.2.0

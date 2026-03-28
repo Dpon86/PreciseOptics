@@ -1,22 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import api from '../../services/api';
 import './ConditionsPage.css';
 
 const ConditionsPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   
   const [conditions, setConditions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
-  const [ statistics, setStatistics] = useState(null);
+  const [statistics, setStatistics] = useState(null);
 
   useEffect(() => {
     fetchConditions();
     fetchStatistics();
-  }, []);
+    
+    // Handle URL parameters for pre-filtering
+    const conditionParam = searchParams.get('condition');
+    if (conditionParam) {
+      setSearchTerm(conditionParam);
+    }
+  }, [searchParams]);
 
   const fetchConditions = async () => {
     try {

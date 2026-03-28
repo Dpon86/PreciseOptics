@@ -9,3 +9,9 @@ export { default as TreatmentEffectivenessReport } from './TreatmentEffectivenes
 export { default as DiseaseSpecificReport } from './DiseaseSpecificReport';
 export { default as RevenueAnalysisReport } from './RevenueAnalysisReport';
 export { default as BatchTrackingReport } from './BatchTrackingReport';
+
+// New Advanced Analytics Reports
+export { default as ConditionPrevalenceReport } from './ConditionPrevalenceReport';
+export { default as ConditionOutcomesReport } from './ConditionOutcomesReport';
+export { default as ProtocolAdherenceReport } from './ProtocolAdherenceReport';
+export { default as ReferralSourceReport } from './ReferralSourceReport';

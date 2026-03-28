@@ -3,6 +3,7 @@ URL configuration for accounts app
 """
 from django.urls import path
 from . import views
+from . import lockout_views
 
 app_name = 'accounts'
 
@@ -10,6 +11,11 @@ urlpatterns = [
     # Authentication
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+    
+    # Account Lockout Management
+    path('auth/lockout-status/', lockout_views.check_lockout_status, name='lockout-status'),
+    path('auth/unlock-account/', lockout_views.unlock_account, name='unlock-account'),
+    path('auth/lockout-config/', lockout_views.lockout_config, name='lockout-config'),
     
     # Staff Management
     path('staff/', views.StaffListCreateView.as_view(), name='staff-list-create'),

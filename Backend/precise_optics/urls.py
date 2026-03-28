@@ -7,6 +7,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.authtoken.views import obtain_auth_token
 from .views import api_root
+from .health_checks import (
+    basic_health_check,
+    database_health_check,
+    detailed_health_check,
+    readiness_check,
+    liveness_check
+)
 
 # Customize admin site headers
 admin.site.site_header = "PreciseOptics Eye Hospital Management"
@@ -18,6 +25,13 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
+    
+    # Health Check Endpoints (for monitoring and production readiness)
+    path('health/', basic_health_check, name='health_check'),
+    path('health/db/', database_health_check, name='health_check_db'),
+    path('health/detailed/', detailed_health_check, name='health_check_detailed'),
+    path('health/ready/', readiness_check, name='readiness_check'),
+    path('health/live/', liveness_check, name='liveness_check'),
     
     # App URLs
     path('', include('accounts.urls')),

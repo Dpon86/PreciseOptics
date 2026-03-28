@@ -1,0 +1,28 @@
+# Playwright Test Results
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Screenshots and Videos
+screenshots/
+videos/
+traces/
+
+# Environment Variables
+.env
+.env.local
+
+# Node Modules
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

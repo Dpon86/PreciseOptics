@@ -1,0 +1,29 @@
+{
+  "name": "preciseoptics-playwright-tests",
+  "version": "1.0.0",
+  "description": "Playwright E2E tests for PreciseOptics Eye Hospital Management System",
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "test:login": "playwright test tests/auth/login.spec.js",
+    "test:patient": "playwright test tests/patient/add-patient.spec.js",
+    "test:consultation": "playwright test tests/consultation/add-consultation.spec.js",
+    "test:eye-tests": "playwright test tests/eye-tests/",
+    "test:full": "playwright test --project=chromium",
+    "report": "playwright show-report",
+    "codegen": "playwright codegen http://localhost:3000",
+    "check:servers": "node scripts/check-servers.js"
+  },
+  "keywords": ["playwright", "e2e", "testing", "healthcare", "eye-hospital"],
+  "author": "PreciseOptics Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.42.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  }
+}

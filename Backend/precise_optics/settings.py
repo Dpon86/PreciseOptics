@@ -58,6 +58,10 @@ MIDDLEWARE = [
     'django_otp.middleware.OTPMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+    # Custom security and monitoring middleware
+    'precise_optics.middleware.SecurityHeadersMiddleware',
+    'precise_optics.middleware.RequestLoggingMiddleware',
 ]
 
 ROOT_URLCONF = 'precise_optics.urls'
@@ -115,13 +119,16 @@ DATABASES = {
 # DB_HOST=localhost
 # DB_PORT=5432
 
-# Password validation
+# Password validation - Enhanced for medical system security
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 10,  # Increased from default 8 for medical data security
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -130,6 +137,37 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# Password policy notes:
+# - Minimum 10 characters (strong for medical systems)
+# - Must not be similar to user information
+# - Must not be a common password
+# - Must not be entirely numeric
+# For production: Consider adding password expiry (90 days) and history checking
+
+# Authentication backends (with account lockout support)
+AUTHENTICATION_BACKENDS = [
+    'precise_optics.auth_backends.LockoutModelBackend',  # Custom backend with lockout
+    # 'django.contrib.auth.backends.ModelBackend',  # Replaced by custom backend
+]
+
+# Cache configuration (required for account lockout and performance)
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',  # Local memory cache for development
+        'LOCATION': 'precise-optics-cache',
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000,
+        }
+    }
+}
+# For production: Use Redis or Memcached for better performance and multi-server support
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+#         'LOCATION': 'redis://127.0.0.1:6379/1',
+#     }
+# }
 
 # Internationalization
 LANGUAGE_CODE = 'en-gb'  # UK English for eye hospital
@@ -169,7 +207,7 @@ REST_FRAMEWORK = {
     ],
 }
 
-# Logging configuration for audit trail
+# Logging configuration for audit trail and system monitoring
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -182,13 +220,24 @@ LOGGING = {
             'format': '{levelname} {message}',
             'style': '{',
         },
+        'json': {
+            # Structured logging for production monitoring
+            'format': 'time={asctime} level={levelname} module={module} message={message}',
+            'style': '{',
+        },
+        'security': {
+            'format': 'SECURITY {levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
     },
     'handlers': {
         'file': {
             'level': 'INFO',
-            'class': 'logging.FileHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': BASE_DIR / 'logs' / 'django.log',
             'formatter': 'verbose',
+            'maxBytes': 10 * 1024 * 1024,  # 10MB
+            'backupCount': 5,  # Keep 5 backup files
         },
         'console': {
             'level': 'DEBUG',
@@ -197,41 +246,92 @@ LOGGING = {
         },
         'audit_file': {
             'level': 'INFO',
-            'class': 'logging.FileHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': BASE_DIR / 'logs' / 'audit.log',
             'formatter': 'verbose',
+            'maxBytes': 10 * 1024 * 1024,  # 10MB
+            'backupCount': 10,  # Keep more audit logs
+        },
+        'error_file': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'errors.log',
+            'formatter': 'verbose',
+            'maxBytes': 10 * 1024 * 1024,  # 10MB
+            'backupCount': 5,
+        },
+        'security_file': {
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'security.log',
+            'formatter': 'security',
+            'maxBytes': 10 * 1024 * 1024,  # 10MB
+            'backupCount': 10,  # Keep security logs longer
+        },
+        'performance_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR / 'logs' / 'performance.log',
+            'formatter': 'json',
+            'maxBytes': 10 * 1024 * 1024,  # 10MB
+            'backupCount': 3,
         },
     },
     'loggers': {
         'django': {
-            'handlers': ['file', 'console'],
+            'handlers': ['file', 'console', 'error_file'],
             'level': 'INFO',
             'propagate': True,
+        },
+        'django.security': {
+            'handlers': ['security_file', 'console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['error_file', 'console'],
+            'level': 'ERROR',
+            'propagate': False,
         },
         'audit': {
-            'handlers': ['audit_file'],
+            'handlers': ['audit_file', 'console'],
             'level': 'INFO',
-            'propagate': True,
+            'propagate': False,
         },
         'accounts': {
-            'handlers': ['file'],
+            'handlers': ['file', 'error_file'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'patients': {
-            'handlers': ['file'],
+            'handlers': ['file', 'error_file'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'conditions': {
-            'handlers': ['file'],
+            'handlers': ['file', 'error_file'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'protocols': {
-            'handlers': ['file'],
+            'handlers': ['file', 'error_file'],
             'level': 'DEBUG',
             'propagate': True,
+        },
+        'referrals': {
+            'handlers': ['file', 'error_file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'treatments': {
+            'handlers': ['file', 'error_file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'performance': {
+            'handlers': ['performance_file'],
+            'level': 'INFO',
+            'propagate': False,
         },
     },
 }
@@ -255,9 +355,22 @@ if not DEBUG:
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024   # 10MB
 
-# Session configuration for audit trail
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-SESSION_COOKIE_AGE = 8 * 60 * 60  # 8 hours
+# Session configuration for security and audit trail
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Store sessions in database for audit
+SESSION_COOKIE_AGE = 4 * 60 * 60  # 4 hours (reduced from 8 for better security)
+SESSION_SAVE_EVERY_REQUEST = True  # Update session on every request to track activity
+SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie
+SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF protection
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Allow "Remember Me" functionality
+
+# Session timeout settings
+# Note: For production, consider implementing auto-logout after 15 minutes of inactivity
+# This can be done via middleware or frontend JavaScript
+
+# CSRF protection settings
+CSRF_COOKIE_HTTPONLY = False  # Must be False for JavaScript to access CSRF token
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_USE_SESSIONS = False  # Use cookie-based CSRF (default)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_SAVE_EVERY_REQUEST = True
 

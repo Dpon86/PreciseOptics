@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import apiService from '../services/api';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -6,9 +7,15 @@ const AdminDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('overview');
+    
+    // Enhanced statistics
+    const [conditionsStats, setConditionsStats] = useState(null);
+    const [protocolsStats, setProtocolsStats] = useState(null);
+    const [referralsStats, setReferralsStats] = useState(null);
 
     useEffect(() => {
         fetchAllData();
+        fetchEnhancedStatistics();
     }, []);
 
     const fetchAllData = async () => {
@@ -26,6 +33,31 @@ const AdminDashboard = () => {
             console.error('Error fetching data:', err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchEnhancedStatistics = async () => {
+        try {
+            // Fetch enhanced statistics in parallel
+            const [conditions, protocols, referrals] = await Promise.allSettled([
+                apiService.getConditionStatistics(),
+                apiService.getProtocolStatistics(),
+                apiService.getReferralStatistics()
+            ]);
+
+            if (conditions.status === 'fulfilled') {
+                setConditionsStats(conditions.value.data);
+            }
+
+            if (protocols.status === 'fulfilled') {
+                setProtocolsStats(protocols.value.data);
+            }
+
+            if (referrals.status === 'fulfilled') {
+                setReferralsStats(referrals.value.data);
+            }
+        } catch (err) {
+            console.error('Error fetching enhanced statistics:', err);
         }
     };
 
@@ -150,6 +182,157 @@ const AdminDashboard = () => {
                                     <p>Active Prescriptions</p>
                                 </div>
                             </div>
+                        </div>
+
+                        {/* Enhanced Statistics Sections */}
+                        <div className="enhanced-stats-container">
+                            {/* Conditions Analytics */}
+                            {conditionsStats && (
+                                <div className="enhanced-stat-section">
+                                    <h3 className="section-title">
+                                        <span className="section-icon">👁️</span>
+                                        Conditions Analytics
+                                    </h3>
+                                    <div className="enhanced-stats-grid">
+                                        <div className="enhanced-stat-card">
+                                            <div className="stat-title">Active Patient Conditions</div>
+                                            <div className="stat-value large">{conditionsStats.active_patient_conditions || 0}</div>
+                                            <div className="stat-breakdown">
+                                                <div className="breakdown-item">
+                                                    <span>Total Conditions:</span>
+                                                    <strong>{conditionsStats.active_conditions || 0}</strong>
+                                                </div>
+                                                <div className="breakdown-item">
+                                                    <span>Recent Diagnoses (30 days):</span>
+                                                    <strong>{conditionsStats.recent_diagnoses || 0}</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="enhanced-stat-card">
+                                            <div className="stat-title">Assessment Schedule</div>
+                                            <div className="stat-details-list">
+                                                <div className="detail-row">
+                                                    <span className="detail-label">Upcoming (7 days):</span>
+                                                    <span className="detail-value">{conditionsStats.upcoming_assessments || 0}</span>
+                                                </div>
+                                                {conditionsStats.overdue_assessments > 0 && (
+                                                    <div className="detail-row alert">
+                                                        <span className="detail-label">⚠ Overdue:</span>
+                                                        <span className="detail-value urgent">{conditionsStats.overdue_assessments}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                        {conditionsStats.conditions_by_severity && Object.keys(conditionsStats.conditions_by_severity).length > 0 && (
+                                            <div className="enhanced-stat-card">
+                                                <div className="stat-title">Conditions by Severity</div>
+                                                <div className="severity-breakdown">
+                                                    {Object.entries(conditionsStats.conditions_by_severity).map(([severity, count]) => (
+                                                        <div key={severity} className="severity-item">
+                                                            <span className={`severity-badge ${severity.toLowerCase()}`}>
+                                                                {severity}
+                                                            </span>
+                                                            <span className="severity-count">{count}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Protocols Analytics */}
+                            {protocolsStats && (
+                                <div className="enhanced-stat-section">
+                                    <h3 className="section-title">
+                                        <span className="section-icon">📋</span>
+                                        Protocol Performance
+                                    </h3>
+                                    <div className="enhanced-stats-grid">
+                                        <div className="enhanced-stat-card">
+                                            <div className="stat-title">Active Patient Protocols</div>
+                                            <div className="stat-value large">{protocolsStats.active_patient_protocols || 0}</div>
+                                            <div className="stat-breakdown">
+                                                <div className="breakdown-item">
+                                                    <span>Completed:</span>
+                                                    <strong>{protocolsStats.completed_patient_protocols || 0}</strong>
+                                                </div>
+                                                <div className="breakdown-item">
+                                                    <span>Available Protocols:</span>
+                                                    <strong>{protocolsStats.active_protocols || 0}</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {protocolsStats.avg_adherence && (
+                                            <div className="enhanced-stat-card">
+                                                <div className="stat-title">Protocol Adherence</div>
+                                                <div className="stat-value large">{protocolsStats.avg_adherence.toFixed(1)}%</div>
+                                                <div className="stat-subtitle">Average adherence rate</div>
+                                            </div>
+                                        )}
+                                        {protocolsStats.pending_consents > 0 && (
+                                            <div className="enhanced-stat-card alert-card">
+                                                <div className="stat-title">⚠ Pending Consents</div>
+                                                <div className="stat-value large urgent">{protocolsStats.pending_consents}</div>
+                                                <div className="stat-subtitle">Require patient consent</div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Referrals Analytics */}
+                            {referralsStats && (
+                                <div className="enhanced-stat-section">
+                                    <h3 className="section-title">
+                                        <span className="section-icon">🔄</span>
+                                        Referral Management
+                                    </h3>
+                                    <div className="enhanced-stats-grid">
+                                        <div className="enhanced-stat-card">
+                                            <div className="stat-title">Total Referrals</div>
+                                            <div className="stat-value large">{referralsStats.total_referrals || 0}</div>
+                                            <div className="stat-breakdown">
+                                                <div className="breakdown-item">
+                                                    <span>Incoming:</span>
+                                                    <strong>{referralsStats.incoming_referrals || 0}</strong>
+                                                </div>
+                                                <div className="breakdown-item">
+                                                    <span>Outgoing:</span>
+                                                    <strong>{referralsStats.outgoing_referrals || 0}</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="enhanced-stat-card">
+                                            <div className="stat-title">Referral Status</div>
+                                            <div className="stat-details-list">
+                                                <div className="detail-row">
+                                                    <span className="detail-label">Pending:</span>
+                                                    <span className="detail-value">{referralsStats.pending_count || 0}</span>
+                                                </div>
+                                                {referralsStats.overdue_count > 0 && (
+                                                    <div className="detail-row alert">
+                                                        <span className="detail-label">⚠ Overdue:</span>
+                                                        <span className="detail-value urgent">{referralsStats.overdue_count}</span>
+                                                    </div>
+                                                )}
+                                                <div className="detail-row">
+                                                    <span className="detail-label">Completed:</span>
+                                                    <span className="detail-value">{referralsStats.completed_count || 0}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="enhanced-stat-card">
+                                            <div className="stat-title">Referral Sources</div>
+                                            <div className="stat-value large">{referralsStats.active_sources || 0}</div>
+                                            <div className="stat-subtitle">
+                                                {referralsStats.preferred_sources || 0} preferred sources
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}

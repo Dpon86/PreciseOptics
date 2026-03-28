@@ -90,6 +90,11 @@ import {
   DiseaseSpecificReport,
   RevenueAnalysisReport,
   BatchTrackingReport,
+  // New Advanced Analytics Reports
+  ConditionPrevalenceReport,
+  ConditionOutcomesReport,
+  ProtocolAdherenceReport,
+  ReferralSourceReport,
   // Audit
   AuditLogsPage,
   AddAuditLogPage,
@@ -664,6 +669,38 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <BatchTrackingReport />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports/condition-prevalence"
+            element={
+              <ProtectedRoute>
+                <ConditionPrevalenceReport />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports/condition-outcomes"
+            element={
+              <ProtectedRoute>
+                <ConditionOutcomesReport />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports/protocol-adherence"
+            element={
+              <ProtectedRoute>
+                <ProtocolAdherenceReport />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports/referral-sources"
+            element={
+              <ProtectedRoute>
+                <ReferralSourceReport />
               </ProtectedRoute>
             }
           />

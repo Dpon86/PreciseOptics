@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import { usePatient } from '../context/PatientContext';
 import PatientSelector from '../components/PatientSelector';
 import PatientDashboard from '../components/PatientDashboard';
+import HealthWidget from '../components/HealthWidget';
+import DashboardStats from '../components/DashboardStats';
+import ConditionWidgets from '../components/ConditionWidgets';
 
 const HomePage = () => {
   const { selectedPatient } = usePatient();
@@ -83,7 +86,7 @@ const HomePage = () => {
         <p>Eye Hospital Management System Dashboard</p>
       </div>
       
-      {/* Patient Selection Section - Always Visible */}
+      {/* Patient Selection Section */}
       <div className="patient-selection-section">
         <h2>Patient Services</h2>
         {!selectedPatient ? (
@@ -93,7 +96,15 @@ const HomePage = () => {
         )}
       </div>
       
-      {/* Global Actions - Always Available */}
+      {/* System Overview Statistics */}
+      <DashboardStats />
+      
+      {/* Condition-Specific Metrics - Compact View */}
+      <div className="compact-section">
+        <ConditionWidgets compact={true} />
+      </div>
+      
+      {/* Global Actions - General Management */}
       <div className="global-actions-section">
         <h2>General Management</h2>
         <div className="global-actions-grid">
@@ -118,6 +129,11 @@ const HomePage = () => {
             </div>
           ))}
         </div>
+      </div>
+      
+      {/* System Health Widget - At Bottom */}
+      <div className="system-health-section">
+        <HealthWidget />
       </div>
     </div>
   );

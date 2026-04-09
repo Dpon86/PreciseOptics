@@ -1197,7 +1197,7 @@ body {
 /* New Home Page Layout */
 .patient-selection-section {
   margin-bottom: 3rem;
-  padding: 2rem;
+  padding: 1.5rem 0.5rem;
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -1226,8 +1226,8 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
-  max-width: 1400px;
-  margin: 0 auto;
+  max-width: 100%;
+  margin: 0;
 }
 
 .global-action-card {

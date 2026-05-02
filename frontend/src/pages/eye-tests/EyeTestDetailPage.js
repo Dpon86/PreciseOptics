@@ -46,7 +46,7 @@ const EyeTestDetailPage = () => {
             return;
           }
         } catch (endpointError) {
-          console.log(`Error checking ${apiCall.type}:`, endpointError.message);
+          // Test not found at this endpoint, try next
         }
       }
       

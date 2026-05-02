@@ -3,7 +3,8 @@
  * Displays real-time system health status from the backend health check endpoints
  */
 import React, { useState, useEffect } from 'react';
-import api from '../services/api';
+import PropTypes from 'prop-types';
+import api, { API_BASE_URL } from '../services/api';
 import './HealthWidget.css';
 
 const HealthWidget = ({ compact = false }) => {
@@ -18,7 +19,7 @@ const HealthWidget = ({ compact = false }) => {
             setError(null);
             
             // Fetch detailed health check (no auth required)
-            const response = await fetch('http://localhost:8000/health/detailed/');
+            const response = await fetch(`${API_BASE_URL}/health/detailed/`);
             const data = await response.json();
             
             setHealthData(data);
@@ -199,6 +200,14 @@ const HealthWidget = ({ compact = false }) => {
             )}
         </div>
     );
+};
+
+HealthWidget.propTypes = {
+    compact: PropTypes.bool
+};
+
+HealthWidget.defaultProps = {
+    compact: false
 };
 
 export default HealthWidget;

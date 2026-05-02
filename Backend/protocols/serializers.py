@@ -13,6 +13,7 @@ from conditions.serializers import MedicalConditionSerializer
 from medications.serializers import MedicationSerializer
 from patients.serializers import PatientSerializer
 from accounts.serializers import CustomUserSerializer
+from precise_optics.file_validators import validate_document_extension, validate_file_size
 from .serializers_enhanced import (
     ProtocolStepMedicationSerializer, ProtocolStepTreatmentSerializer,
     ProtocolStepTestSerializer
@@ -467,6 +468,12 @@ class ConsentFormCreateSerializer(serializers.ModelSerializer):
             'interpreter_name', 'notes'
         ]
     
+    def validate_consent_document(self, value):
+        if value:
+            validate_document_extension(value)
+            validate_file_size(value)
+        return value
+
     def validate(self, data):
         """Validate consent form data"""
         if data.get('interpreter_used') and not data.get('interpreter_name'):

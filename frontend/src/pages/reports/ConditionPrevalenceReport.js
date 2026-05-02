@@ -4,6 +4,7 @@
  */
 import React, { useState, useEffect } from 'react';
 import { Bar, Pie, Line } from 'react-chartjs-2';
+import { exportToCSV } from '../../services/exportUtils';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -265,8 +266,28 @@ const ConditionPrevalenceReport = () => {
           <button onClick={fetchPrevalenceData} className="refresh-btn">
             🔄 Refresh
           </button>
-          <button className="export-btn">
-            📊 Export PDF
+          <button className="export-btn" onClick={() => {
+            const rows = (prevalenceData || []).map(item => ({
+              condition: item.condition__name || item.condition_name || item.name || item.code || '',
+              category: item.condition__category || item.category || '',
+              patient_count: item.patient_count ?? item.count ?? '',
+              active_cases: item.active_count ?? '',
+              severity_mild: item.mild ?? '',
+              severity_moderate: item.moderate ?? '',
+              severity_severe: item.severe ?? '',
+            }));
+            const cols = [
+              { key: 'condition', label: 'Condition' },
+              { key: 'category', label: 'Category' },
+              { key: 'patient_count', label: 'Patient Count' },
+              { key: 'active_cases', label: 'Active Cases' },
+              { key: 'severity_mild', label: 'Mild' },
+              { key: 'severity_moderate', label: 'Moderate' },
+              { key: 'severity_severe', label: 'Severe' },
+            ];
+            exportToCSV(rows, cols, `condition-prevalence-report-${new Date().toISOString().slice(0,10)}`);
+          }}>
+            📊 Export CSV
           </button>
         </div>
       </div>

@@ -17,9 +17,11 @@ from .serializers import (
     DiabeticRetinopathyScreeningSerializer, StrabismusAssessmentSerializer,
     PediatricEyeExamSerializer, OCTScanSerializer
 )
+from audit.utils import PatientAccessLoggingMixin, ACCESS_VIEW_TEST_RESULTS
 
 
-class VisualAcuityTestViewSet(viewsets.ModelViewSet):
+class VisualAcuityTestViewSet(PatientAccessLoggingMixin, viewsets.ModelViewSet):
+    _access_type = ACCESS_VIEW_TEST_RESULTS
     """
     ViewSet for managing visual acuity tests
     """
@@ -42,7 +44,8 @@ class VisualAcuityTestViewSet(viewsets.ModelViewSet):
         return queryset.order_by('-test_date')
 
 
-class RefractionTestViewSet(viewsets.ModelViewSet):
+class RefractionTestViewSet(PatientAccessLoggingMixin, viewsets.ModelViewSet):
+    _access_type = ACCESS_VIEW_TEST_RESULTS
     """
     ViewSet for managing refraction tests
     """
@@ -65,7 +68,8 @@ class RefractionTestViewSet(viewsets.ModelViewSet):
         return queryset.order_by('-test_date')
 
 
-class CataractAssessmentViewSet(viewsets.ModelViewSet):
+class CataractAssessmentViewSet(PatientAccessLoggingMixin, viewsets.ModelViewSet):
+    _access_type = ACCESS_VIEW_TEST_RESULTS
     """
     ViewSet for managing cataract assessments
     """
@@ -84,7 +88,8 @@ class CataractAssessmentViewSet(viewsets.ModelViewSet):
         return queryset.order_by('-test_date')
 
 
-class GlaucomaAssessmentViewSet(viewsets.ModelViewSet):
+class GlaucomaAssessmentViewSet(PatientAccessLoggingMixin, viewsets.ModelViewSet):
+    _access_type = ACCESS_VIEW_TEST_RESULTS
     """
     ViewSet for managing glaucoma assessments
     """
@@ -103,7 +108,8 @@ class GlaucomaAssessmentViewSet(viewsets.ModelViewSet):
         return queryset.order_by('-test_date')
 
 
-class VisualFieldTestViewSet(viewsets.ModelViewSet):
+class VisualFieldTestViewSet(PatientAccessLoggingMixin, viewsets.ModelViewSet):
+    _access_type = ACCESS_VIEW_TEST_RESULTS
     """
     ViewSet for managing visual field tests
     """
@@ -122,7 +128,8 @@ class VisualFieldTestViewSet(viewsets.ModelViewSet):
         return queryset.order_by('-test_date')
 
 
-class RetinalAssessmentViewSet(viewsets.ModelViewSet):
+class RetinalAssessmentViewSet(PatientAccessLoggingMixin, viewsets.ModelViewSet):
+    _access_type = ACCESS_VIEW_TEST_RESULTS
     """
     ViewSet for managing retinal assessments
     """
@@ -141,7 +148,8 @@ class RetinalAssessmentViewSet(viewsets.ModelViewSet):
         return queryset.order_by('-test_date')
 
 
-class DiabeticRetinopathyScreeningViewSet(viewsets.ModelViewSet):
+class DiabeticRetinopathyScreeningViewSet(PatientAccessLoggingMixin, viewsets.ModelViewSet):
+    _access_type = ACCESS_VIEW_TEST_RESULTS
     """
     ViewSet for managing diabetic retinopathy screenings
     """
@@ -160,7 +168,8 @@ class DiabeticRetinopathyScreeningViewSet(viewsets.ModelViewSet):
         return queryset.order_by('-test_date')
 
 
-class OCTScanViewSet(viewsets.ModelViewSet):
+class OCTScanViewSet(PatientAccessLoggingMixin, viewsets.ModelViewSet):
+    _access_type = ACCESS_VIEW_TEST_RESULTS
     """
     ViewSet for managing OCT scans
     """

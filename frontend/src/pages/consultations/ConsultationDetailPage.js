@@ -33,21 +33,21 @@ const ConsultationDetailPage = () => {
         const vitalResponse = await api.getVitalSigns(id);
         setVitalSigns(vitalResponse.data);
       } catch (vitalError) {
-        console.log('No vital signs found for this consultation');
+        // Vital signs not available for this consultation
       }
       
       try {
         const documentsResponse = await api.getConsultationDocuments(id);
         setDocuments(documentsResponse.data.results || documentsResponse.data || []);
       } catch (docError) {
-        console.log('No documents found for this consultation');
+        // Documents not available for this consultation
       }
       
       try {
         const imagesResponse = await api.getConsultationImages(id);
         setImages(imagesResponse.data.results || imagesResponse.data || []);
       } catch (imgError) {
-        console.log('No images found for this consultation');
+        // Images not available for this consultation
       }
       
       // Fetch eye tests linked to this consultation
@@ -88,7 +88,7 @@ const ConsultationDetailPage = () => {
         
         setEyeTests(allEyeTests);
       } catch (testError) {
-        console.log('Error fetching eye tests:', testError);
+        // Eye tests not available for this consultation
       }
       
       // Fetch treatments linked to this consultation
@@ -100,7 +100,7 @@ const ConsultationDetailPage = () => {
         );
         setTreatments(consultationTreatments);
       } catch (treatmentError) {
-        console.log('Error fetching treatments:', treatmentError);
+        // Treatments not available for this consultation
       }
       
     } catch (err) {

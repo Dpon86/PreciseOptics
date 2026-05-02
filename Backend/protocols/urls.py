@@ -4,7 +4,6 @@ URL configuration for protocols app
 from django.urls import path
 from . import views
 
-app_name = 'protocols'
 
 urlpatterns = [
     # Treatment Protocol endpoints

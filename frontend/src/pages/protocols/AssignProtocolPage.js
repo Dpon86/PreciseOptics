@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { apiService } from '../../services/api';
 import './AssignProtocolPage.css';
 
 const AssignProtocolPage = () => {
@@ -35,15 +36,8 @@ const AssignProtocolPage = () => {
 
   const fetchProtocols = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://127.0.0.1:8000/api/protocols/protocols/?is_active=true', {
-        headers: {
-          'Authorization': `Token ${token}`
-        }
-      });
-      if (!response.ok) throw new Error('Failed to fetch protocols');
-      const data = await response.json();
-      setProtocols(Array.isArray(data) ? data : data.results || []);
+      const response = await apiService.getProtocols({ is_active: true });
+      setProtocols(Array.isArray(response.data) ? response.data : response.data.results || []);
     } catch (err) {
       console.error('Error fetching protocols:', err);
     }
@@ -51,15 +45,8 @@ const AssignProtocolPage = () => {
 
   const fetchPatients = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://127.0.0.1:8000/api/patients/patients/', {
-        headers: {
-          'Authorization': `Token ${token}`
-        }
-      });
-      if (!response.ok) throw new Error('Failed to fetch patients');
-      const data = await response.json();
-      setPatients(Array.isArray(data) ? data : data.results || []);
+      const response = await apiService.getPatients();
+      setPatients(Array.isArray(response.data) ? response.data : response.data.results || []);
     } catch (err) {
       console.error('Error fetching patients:', err);
     }
@@ -67,16 +54,9 @@ const AssignProtocolPage = () => {
 
   const fetchProtocolDetails = async (protocolId) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://127.0.0.1:8000/api/protocols/protocols/${protocolId}/`, {
-        headers: {
-          'Authorization': `Token ${token}`
-        }
-      });
-      if (!response.ok) throw new Error('Failed to fetch protocol details');
-      const data = await response.json();
-      setProtocolDetails(data);
-      setSelectedProtocol(data);
+      const response = await apiService.getProtocol(protocolId);
+      setProtocolDetails(response.data);
+      setSelectedProtocol(response.data);
     } catch (err) {
       console.error('Error fetching protocol details:', err);
       setProtocolDetails(null);
@@ -98,22 +78,7 @@ const AssignProtocolPage = () => {
     setSuccess(false);
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://127.0.0.1:8000/api/protocols/assign-to-patient/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${token}`
-        },
-        body: JSON.stringify(formData)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to assign protocol');
-      }
-
-      const data = await response.json();
+      const response = await apiService.assignProtocolToPatient(formData);
       setSuccess(true);
       
       setTimeout(() => {

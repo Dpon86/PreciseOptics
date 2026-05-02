@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import './AppointmentAlertList.css';
 
 const AppointmentAlertList = ({ alerts, onAcknowledge, onResolve, onDismiss }) => {
@@ -122,6 +123,22 @@ const AppointmentAlertList = ({ alerts, onAcknowledge, onResolve, onDismiss }) =
       ))}
     </div>
   );
+};
+
+AppointmentAlertList.propTypes = {
+  alerts: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    alert_type: PropTypes.string,
+    severity: PropTypes.string,
+    status: PropTypes.string,
+    patient: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
+    patient_name: PropTypes.string,
+    created_at: PropTypes.string,
+    message: PropTypes.string
+  })),
+  onAcknowledge: PropTypes.func,
+  onResolve: PropTypes.func,
+  onDismiss: PropTypes.func
 };
 
 export default AppointmentAlertList;

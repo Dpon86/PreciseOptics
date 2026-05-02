@@ -8,6 +8,7 @@ from django.utils import timezone
 from datetime import timedelta
 from patients.models import Patient
 from accounts.models import CustomUser
+from precise_optics.file_validators import validate_document_extension, validate_file_size
 from conditions.models import MedicalCondition
 from medications.models import Medication
 import uuid
@@ -916,6 +917,7 @@ class ConsentForm(models.Model):
         upload_to='consent_forms/',
         null=True,
         blank=True,
+        validators=[validate_document_extension, validate_file_size],
         help_text="Signed consent form"
     )
     

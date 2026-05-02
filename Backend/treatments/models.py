@@ -4,6 +4,7 @@ Comprehensive treatment system for UK eye hospitals
 """
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator, DecimalValidator
+from precise_optics.file_validators import validate_document_extension, validate_file_size
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from consultations.models import Consultation
@@ -271,7 +272,7 @@ class TreatmentDocument(models.Model):
     document_type = models.CharField(max_length=30, choices=DOCUMENT_TYPES)
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    file = models.FileField(upload_to='treatments/documents/%Y/%m/%d/')
+    file = models.FileField(upload_to='treatments/documents/%Y/%m/%d/', validators=[validate_document_extension, validate_file_size])
     
     # Audit fields
     created_at = models.DateTimeField(auto_now_add=True)

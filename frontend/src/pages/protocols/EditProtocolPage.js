@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { apiService } from '../../services/api';
 import './AddProtocolPage.css';
 
 const EditProtocolPage = () => {
@@ -35,15 +36,8 @@ const EditProtocolPage = () => {
 
   const fetchProtocol = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://127.0.0.1:8000/api/protocols/protocols/${id}/`, {
-        headers: {
-          'Authorization': `Token ${token}`
-        }
-      });
-      if (!response.ok) throw new Error('Failed to fetch protocol');
-      const data = await response.json();
-      
+      const response = await apiService.getProtocol(id);
+      const data = response.data;
       setFormData({
         name: data.name || '',
         code: data.code || '',
@@ -61,7 +55,6 @@ const EditProtocolPage = () => {
         monitoring_requirements: data.monitoring_requirements || '',
         is_active: data.is_active !== undefined ? data.is_active : true
       });
-      
       setLoading(false);
     } catch (err) {
       setError(err.message || 'Failed to fetch protocol');
@@ -71,15 +64,8 @@ const EditProtocolPage = () => {
 
   const fetchConditions = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://127.0.0.1:8000/api/medications/conditions/', {
-        headers: {
-          'Authorization': `Token ${token}`
-        }
-      });
-      if (!response.ok) throw new Error('Failed to fetch conditions');
-      const data = await response.json();
-      setConditions(data);
+      const response = await apiService.getMedicationConditions();
+      setConditions(response.data.results || response.data);
     } catch (err) {
       console.error('Error fetching conditions:', err);
     }
@@ -99,9 +85,6 @@ const EditProtocolPage = () => {
     setError(null);
 
     try {
-      const token = localStorage.getItem('token');
-      
-      // Prepare data - convert empty strings to null
       const submitData = {
         ...formData,
         condition: formData.condition || null,
@@ -110,23 +93,10 @@ const EditProtocolPage = () => {
         consent_type: formData.consent_type || null
       };
 
-      const response = await fetch(`http://127.0.0.1:8000/api/protocols/protocols/${id}/`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${token}`
-        },
-        body: JSON.stringify(submitData)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(Object.values(errorData).flat().join(', '));
-      }
-
+      await apiService.updateProtocol(id, submitData);
       navigate(`/protocols/${id}`);
     } catch (err) {
-      setError(err.message || 'Failed to update protocol');
+      setError(err.response?.data ? Object.values(err.response.data).flat().join(', ') : err.message || 'Failed to update protocol');
     } finally {
       setSaving(false);
     }
@@ -141,16 +111,7 @@ const EditProtocolPage = () => {
     setError(null);
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://127.0.0.1:8000/api/protocols/protocols/${id}/`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Token ${token}`
-        }
-      });
-
-      if (!response.ok) throw new Error('Failed to delete protocol');
-
+      await apiService.deleteProtocol(id);
       navigate('/protocols');
     } catch (err) {
       setError(err.message || 'Failed to delete protocol');

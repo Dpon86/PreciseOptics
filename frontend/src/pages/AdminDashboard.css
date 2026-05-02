@@ -579,6 +579,147 @@
     border-top: 1px solid #e9ecef;
 }
 
+/* New Tab Sections (Conditions, Protocols, Referrals, Alerts) */
+.conditions-tab-section,
+.protocols-tab-section,
+.referrals-tab-section,
+.alerts-tab-section {
+    padding: 1.5rem;
+}
+
+.conditions-tab-section h2,
+.protocols-tab-section h2,
+.referrals-tab-section h2,
+.alerts-tab-section h2 {
+    font-size: 1.6rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #667eea;
+}
+
+.tab-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.tab-stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border-left: 4px solid #667eea;
+}
+
+.tab-stat-card.highlight-new {
+    border-left-color: #28a745;
+}
+
+.tab-stat-card.highlight-warning {
+    border-left-color: #ffc107;
+}
+
+.tab-stat-card.highlight-danger {
+    border-left-color: #dc3545;
+}
+
+.tab-stat-card .stat-icon {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.tab-stat-card .stat-info h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0 0 4px;
+    line-height: 1;
+}
+
+.tab-stat-card .stat-info p {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin: 0;
+}
+
+.severity-breakdown-section {
+    background: white;
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.severity-breakdown-section h3 {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.severity-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.severity-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    background: #f8f9fa;
+    min-width: 80px;
+}
+
+.severity-card.severity-mild { background: #d4edda; color: #155724; }
+.severity-card.severity-moderate { background: #fff3cd; color: #856404; }
+.severity-card.severity-severe { background: #f8d7da; color: #721c24; }
+.severity-card.severity-very_severe { background: #f5c6cb; color: #491217; }
+
+.sev-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    margin-bottom: 4px;
+}
+
+.sev-count {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.tab-quick-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.quick-link-btn {
+    display: inline-block;
+    padding: 0.6rem 1.2rem;
+    background: #667eea;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.quick-link-btn:hover {
+    background: #5a67d8;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
 .breakdown-item {
     display: flex;
     justify-content: space-between;

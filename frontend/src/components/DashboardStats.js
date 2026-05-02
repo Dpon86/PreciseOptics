@@ -3,6 +3,7 @@
  * Displays system-wide statistics for conditions, protocols, referrals, and alerts
  */
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import apiService from '../services/api';
 import './DashboardStats.css';
 
@@ -251,5 +252,8 @@ const DashboardStats = () => {
         </div>
     );
 };
+
+// No props - component uses internal state and API calls
+DashboardStats.propTypes = {};
 
 export default DashboardStats;

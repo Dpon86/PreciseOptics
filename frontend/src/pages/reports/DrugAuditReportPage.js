@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { exportToCSV } from '../../services/exportUtils';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -109,7 +110,7 @@ const DrugAuditReportPage = () => {
           });
         }
       } catch (apiError) {
-        console.log('API endpoint not available, showing empty state');
+        // API unavailable — show empty state silently in production
         setDrugData({
           medicationEffectiveness: {
             labels: ['No Data'],
@@ -376,15 +377,21 @@ const DrugAuditReportPage = () => {
 
       {/* Export Options */}
       <div className="export-section">
-        <button className="export-btn">
+        <button className="export-btn" onClick={() => {
+          const rows = (drugData.medicationEffectiveness?.datasets?.[0]?.data || []).map((val, i) => ({
+            medication: drugData.medicationEffectiveness?.labels?.[i] || `Med ${i+1}`,
+            effectiveness_score: val,
+          }));
+          const cols = [
+            { key: 'medication', label: 'Medication' },
+            { key: 'effectiveness_score', label: 'Effectiveness Score' },
+          ];
+          exportToCSV(rows, cols, `drug-audit-report-${new Date().toISOString().slice(0,10)}`);
+        }}>
           <i className="fas fa-download"></i>
-          Export PDF Report
+          Export CSV
         </button>
-        <button className="export-btn">
-          <i className="fas fa-file-excel"></i>
-          Export Excel Data
-        </button>
-        <button className="export-btn">
+        <button className="export-btn" onClick={() => window.print()}>
           <i className="fas fa-print"></i>
           Print Report
         </button>

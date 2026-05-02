@@ -6,6 +6,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from patients.models import Patient
 from accounts.models import CustomUser
+from precise_optics.file_validators import validate_document_extension, validate_file_size
 import uuid
 
 
@@ -286,7 +287,7 @@ class ConditionDocument(models.Model):
     document_type = models.CharField(max_length=20, choices=DOCUMENT_TYPES)
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    file = models.FileField(upload_to='condition_documents/')
+    file = models.FileField(upload_to='condition_documents/', validators=[validate_document_extension, validate_file_size])
     
     # Metadata
     uploaded_by = models.ForeignKey(

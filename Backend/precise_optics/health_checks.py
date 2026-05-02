@@ -7,7 +7,7 @@ from django.db import connection
 from django.core.cache import cache
 from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser
 import sys
 import django
 
@@ -22,7 +22,6 @@ def basic_health_check(request):
     return JsonResponse({
         'status': 'healthy',
         'message': 'PreciseOptics API is running',
-        'environment': 'development' if settings.DEBUG else 'production',
     })
 
 
@@ -44,8 +43,6 @@ def database_health_check(request):
             'status': 'healthy' if db_healthy else 'unhealthy',
             'database': {
                 'connected': db_healthy,
-                'engine': settings.DATABASES['default']['ENGINE'],
-                'name': settings.DATABASES['default']['NAME'],
             }
         }, status=200 if db_healthy else 503)
     
@@ -54,13 +51,12 @@ def database_health_check(request):
             'status': 'unhealthy',
             'database': {
                 'connected': False,
-                'error': str(e)
             }
         }, status=503)
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAdminUser])
 def detailed_health_check(request):
     """
     Comprehensive system health check
@@ -79,7 +75,6 @@ def detailed_health_check(request):
             result = cursor.fetchone()
         health_status['checks']['database'] = {
             'status': 'healthy' if result == (1,) else 'unhealthy',
-            'engine': settings.DATABASES['default']['ENGINE'],
         }
     except Exception as e:
         health_status['checks']['database'] = {
@@ -95,7 +90,6 @@ def detailed_health_check(request):
         cache_value = cache.get(cache_key)
         health_status['checks']['cache'] = {
             'status': 'healthy' if cache_value == 'test_value' else 'degraded',
-            'backend': settings.CACHES['default']['BACKEND']
         }
     except Exception as e:
         health_status['checks']['cache'] = {
@@ -108,7 +102,6 @@ def detailed_health_check(request):
         'status': 'healthy',
         'python_version': sys.version,
         'django_version': django.get_version(),
-        'debug_mode': settings.DEBUG,
     }
     
     # Check installed apps

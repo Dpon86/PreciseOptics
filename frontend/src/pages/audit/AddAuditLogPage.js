@@ -85,7 +85,7 @@ const AddAuditLogPage = () => {
         }));
       })
       .catch(err => {
-        console.log('Could not detect IP address:', err);
+        // IP detection failed, fallback to localhost for development
         // Fallback to localhost for development
         setFormData(prev => ({
           ...prev,

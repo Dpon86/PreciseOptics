@@ -2,7 +2,7 @@
 Comprehensive API endpoints for all models data
 """
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db.models import Count, Q, F
 from django.utils import timezone
@@ -18,7 +18,7 @@ from eye_tests.models import (
 from audit.models import AuditLog, MedicationAudit, PatientAccessLog
 
 @api_view(['GET'])
-@permission_classes([AllowAny])  # Allow access without authentication for testing
+@permission_classes([IsAuthenticated])
 def all_models_data(request):
     """
     Get comprehensive data from all models for dashboard display
@@ -235,7 +235,7 @@ def all_models_data(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])  # Allow access without authentication for testing
+@permission_classes([IsAuthenticated])
 def model_counts(request):
     """
     Get count of records in all models

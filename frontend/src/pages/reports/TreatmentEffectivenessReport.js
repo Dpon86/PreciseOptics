@@ -81,18 +81,17 @@ const TreatmentEffectivenessReport = () => {
       
       let response;
       if (viewMode === 'treatment') {
-        response = await fetch(
-          `http://127.0.0.1:8000/api/reports/treatment-effectiveness-timeline/?` +
-          `treatment_type=${treatmentType}&test_type=${testType}&months=${months}&condition=${condition}`
-        );
+        response = await api.getTreatmentEffectivenessTimeline({
+          treatment_type: treatmentType, test_type: testType, months, condition
+        });
       } else {
-        response = await fetch(
-          `http://127.0.0.1:8000/api/reports/medication-effectiveness-timeline/?` +
-          `medication=${medicationName}&test_type=${testType}&months=${months}&include_batch=${includeBatch}&condition=${condition}`
-        );
+        response = await api.getMedicationEffectivenessTimeline({
+          medication: medicationName, test_type: testType, months,
+          include_batch: includeBatch, condition
+        });
       }
       
-      const data = await response.json();
+      const data = response.data;
       
       if (data.success) {
         setTimelineData(data.data.timelines);
@@ -116,20 +115,16 @@ const TreatmentEffectivenessReport = () => {
       
       let response;
       if (viewMode === 'treatment') {
-        // Compare all available treatment types
-        response = await fetch(
-          `http://127.0.0.1:8000/api/reports/compare-treatments/?` +
-          `treatment_types=${treatmentTypes.join(',')}&test_type=${testType}&months=${months}&condition=${condition}`
-        );
+        response = await api.compareTreatments({
+          treatment_types: treatmentTypes.join(','), test_type: testType, months, condition
+        });
       } else {
-        // Compare all available medications
-        response = await fetch(
-          `http://127.0.0.1:8000/api/reports/compare-medications/?` +
-          `medications=${medications.join(',')}&test_type=${testType}&months=${months}&condition=${condition}`
-        );
+        response = await api.compareMedications({
+          medications: medications.join(','), test_type: testType, months, condition
+        });
       }
       
-      const data = await response.json();
+      const data = response.data;
       
       if (data.success) {
         setComparisonData(data.data.comparison);

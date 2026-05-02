@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { usePatient } from '../context/PatientContext';
+import useDebounce from '../hooks/useDebounce';
 
 const PatientSelector = () => {
   const { patients, loading, error, selectPatient, loadPatients } = usePatient();
   const [searchTerm, setSearchTerm] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
+  const debouncedSearch = useDebounce(searchTerm, 300);
 
   // Load patients when component mounts
   useEffect(() => {
     loadPatients();
   }, [loadPatients]);
 
-  const filteredPatients = (Array.isArray(patients) ? patients : []).filter(patient => 
-    `${patient.first_name || ''} ${patient.last_name || ''}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patient.patient_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patient.phone?.includes(searchTerm)
+  const filteredPatients = (Array.isArray(patients) ? patients : []).filter(patient =>
+    `${patient.first_name || ''} ${patient.last_name || ''}`.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+    patient.patient_id?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+    patient.phone?.includes(debouncedSearch)
   );
 
   const handlePatientSelect = (patient) => {
@@ -101,9 +104,9 @@ const PatientSelector = () => {
           </div>
         )}
         
-        {showDropdown && filteredPatients.length === 0 && searchTerm.length > 0 && (
+        {showDropdown && filteredPatients.length === 0 && debouncedSearch.length > 0 && (
           <div className="patient-dropdown">
-            <div className="no-patients-found">No patients found matching "{searchTerm}"</div>
+            <div className="no-patients-found">No patients found matching "{debouncedSearch}"</div>
           </div>
         )}
       </div>
@@ -158,5 +161,8 @@ const PatientSelector = () => {
     </div>
   );
 };
+
+// No props - component uses PatientContext
+PatientSelector.propTypes = {};
 
 export default PatientSelector;

@@ -3,6 +3,7 @@ Security middleware for PreciseOptics
 Tracks authentication events and implements security policies
 """
 import logging
+from django.conf import settings
 from django.utils import timezone
 from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
 from django.dispatch import receiver
@@ -92,25 +93,55 @@ def get_client_ip(request):
 
 class SecurityHeadersMiddleware:
     """
-    Add security headers to all responses
-    Helps protect against common web vulnerabilities
+    Add security headers to all responses.
+    Protects against XSS, clickjacking, MIME sniffing, and information leakage.
     """
-    
+
+    # Content Security Policy directive values.
+    # In development these are permissive to allow hot-reload tools (e.g. React dev server).
+    # In production they are locked down.
+    _CSP_DEVELOPMENT = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
+        "style-src 'self' 'unsafe-inline'; "
+        "img-src 'self' data: blob:; "
+        "font-src 'self' data:; "
+        "connect-src 'self' ws: wss: http://localhost:* http://127.0.0.1:*; "
+        "frame-ancestors 'none';"
+    )
+    _CSP_PRODUCTION = (
+        "default-src 'self'; "
+        "script-src 'self'; "
+        "style-src 'self' 'unsafe-inline'; "
+        "img-src 'self' data: blob:; "
+        "font-src 'self' data:; "
+        "connect-src 'self'; "
+        "frame-ancestors 'none'; "
+        "base-uri 'self'; "
+        "form-action 'self';"
+    )
+
     def __init__(self, get_response):
         self.get_response = get_response
-    
+        is_production = getattr(settings, 'ENVIRONMENT', 'development') == 'production'
+        self._csp = self._CSP_PRODUCTION if is_production else self._CSP_DEVELOPMENT
+
     def __call__(self, request):
         response = self.get_response(request)
-        
-        # Add security headers
+
+        # Prevent MIME-type sniffing
         response['X-Content-Type-Options'] = 'nosniff'
+        # Prevent clickjacking
         response['X-Frame-Options'] = 'DENY'
+        # Legacy XSS filter (browsers that honour it)
         response['X-XSS-Protection'] = '1; mode=block'
+        # Limit referrer information leakage
         response['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-        
-        # Content Security Policy (adjust as needed for your frontend)
-        # response['Content-Security-Policy'] = "default-src 'self'"
-        
+        # Restrict browser features
+        response['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=()'
+        # Content Security Policy
+        response['Content-Security-Policy'] = self._csp
+
         return response
 
 

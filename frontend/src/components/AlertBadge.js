@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import './AlertBadge.css';
 
 const AlertBadge = ({ count, severity = 'medium', onClick }) => {
@@ -29,6 +30,16 @@ const AlertBadge = ({ count, severity = 'medium', onClick }) => {
       <span className="alert-badge-count">{count > 99 ? '99+' : count}</span>
     </button>
   );
+};
+
+AlertBadge.propTypes = {
+  count: PropTypes.number.isRequired,
+  severity: PropTypes.oneOf(['critical', 'high', 'medium', 'low']),
+  onClick: PropTypes.func
+};
+
+AlertBadge.defaultProps = {
+  severity: 'medium'
 };
 
 export default AlertBadge;

@@ -25,15 +25,37 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
-    
+
     # Health Check Endpoints (for monitoring and production readiness)
     path('health/', basic_health_check, name='health_check'),
     path('health/db/', database_health_check, name='health_check_db'),
     path('health/detailed/', detailed_health_check, name='health_check_detailed'),
     path('health/ready/', readiness_check, name='readiness_check'),
     path('health/live/', liveness_check, name='liveness_check'),
-    
-    # App URLs
+
+    # ──────────────────────────────────────────────────────────────────
+    # Versioned API — /api/v1/…
+    # All new clients and external integrations should use these paths.
+    # ──────────────────────────────────────────────────────────────────
+    path('api/v1/', include([
+        path('', include('accounts.urls')),
+        path('', include('patients.urls')),
+        path('', include('consultations.urls')),
+        path('', include('medications.urls')),
+        path('', include('eye_tests.urls')),
+        path('', include('treatments.urls')),
+        path('', include('audit.urls')),
+        path('', include('reports.urls')),
+        path('conditions/', include('conditions.urls')),
+        path('protocols/', include('protocols.urls')),
+        path('referrals/', include('referrals.urls')),
+    ])),
+
+    # ──────────────────────────────────────────────────────────────────
+    # Legacy unversioned paths — kept for backwards compatibility with
+    # the existing React frontend.  New external integrations should
+    # use /api/v1/ above.
+    # ──────────────────────────────────────────────────────────────────
     path('', include('accounts.urls')),
     path('', include('patients.urls')),
     path('', include('consultations.urls')),
@@ -42,9 +64,9 @@ urlpatterns = [
     path('', include('treatments.urls')),
     path('', include('audit.urls')),
     path('', include('reports.urls')),
-    path('api/conditions/', include('conditions.urls')),  # Conditions module
-    path('api/protocols/', include('protocols.urls')),  # Protocols module
-    path('api/referrals/', include('referrals.urls')),  # Referral management
+    path('api/conditions/', include('conditions.urls')),
+    path('api/protocols/', include('protocols.urls')),
+    path('api/referrals/', include('referrals.urls')),
 ]
 
 # Serve media files in development

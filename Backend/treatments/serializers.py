@@ -6,6 +6,7 @@ from .models import (
     TreatmentCategory, TreatmentType, Treatment, TreatmentMedication,
     TreatmentDocument, TreatmentFollowUp, TreatmentComplication
 )
+from precise_optics.file_validators import validate_document_extension, validate_file_size
 # Note: Import serializers only when needed to avoid circular imports
 
 
@@ -45,6 +46,11 @@ class TreatmentDocumentSerializer(serializers.ModelSerializer):
         model = TreatmentDocument
         fields = '__all__'
         read_only_fields = ('id', 'created_at', 'created_by')
+
+    def validate_file(self, value):
+        validate_document_extension(value)
+        validate_file_size(value)
+        return value
 
 
 class TreatmentFollowUpSerializer(serializers.ModelSerializer):

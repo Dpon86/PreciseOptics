@@ -5,6 +5,7 @@ import {
   ResponsiveContainer, Cell
 } from 'recharts';
 import api from '../../services/api';
+import { exportToCSV } from '../../services/exportUtils';
 import './DiseaseSpecificReport.css';
 
 const DISEASES = [
@@ -95,16 +96,42 @@ const DiseaseSpecificReport = () => {
           <h1>Disease-Specific Reports</h1>
           <p>Track patient outcomes, treatment trends, and medication effectiveness by condition</p>
         </div>
-        <select
-          value={months}
-          onChange={e => setMonths(Number(e.target.value))}
-          className="period-select"
-        >
-          <option value={3}>Last 3 Months</option>
-          <option value={6}>Last 6 Months</option>
-          <option value={12}>Last 12 Months</option>
-          <option value={24}>Last 24 Months</option>
-        </select>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <select
+            value={months}
+            onChange={e => setMonths(Number(e.target.value))}
+            className="period-select"
+          >
+            <option value={3}>Last 3 Months</option>
+            <option value={6}>Last 6 Months</option>
+            <option value={12}>Last 12 Months</option>
+            <option value={24}>Last 24 Months</option>
+          </select>
+          <button
+            className="export-btn"
+            onClick={() => {
+              const rows = (data?.patient_list || []).map(p => ({
+                patient_name: p.patient_name || '',
+                disease: disease?.fullName || selectedDisease,
+                severity: p.severity || '',
+                status: p.current_status || '',
+                diagnosis_date: p.diagnosis_date || '',
+                last_assessment: p.last_assessment_date || '',
+              }));
+              const cols = [
+                { key: 'patient_name', label: 'Patient' },
+                { key: 'disease', label: 'Disease' },
+                { key: 'severity', label: 'Severity' },
+                { key: 'status', label: 'Status' },
+                { key: 'diagnosis_date', label: 'Diagnosis Date' },
+                { key: 'last_assessment', label: 'Last Assessment' },
+              ];
+              exportToCSV(rows, cols, `disease-report-${selectedDisease}-${new Date().toISOString().slice(0,10)}`);
+            }}
+          >
+            📊 Export CSV
+          </button>
+        </div>
       </div>
 
       {/* Disease Selector Tabs */}

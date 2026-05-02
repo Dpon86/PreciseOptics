@@ -4,7 +4,7 @@ API views for PreciseOptics Eye Hospital Management System - Consultations
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from precise_optics.permissions import ReadOnlyOrAuthenticatedPermission
+from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from django.db import models
 from .models import Consultation, VitalSigns, ConsultationDocument, ConsultationImage
@@ -12,15 +12,17 @@ from .serializers import (
     ConsultationSerializer, ConsultationCreateSerializer, VitalSignsSerializer,
     ConsultationDocumentSerializer, ConsultationImageSerializer
 )
+from audit.utils import PatientAccessLoggingMixin, ACCESS_VIEW_HISTORY
 
 
-class ConsultationViewSet(viewsets.ModelViewSet):
+class ConsultationViewSet(PatientAccessLoggingMixin, viewsets.ModelViewSet):
+    _access_type = ACCESS_VIEW_HISTORY
     """
     ViewSet for managing consultations
     """
     queryset = Consultation.objects.all()
     serializer_class = ConsultationSerializer
-    permission_classes = [ReadOnlyOrAuthenticatedPermission]
+    permission_classes = [IsAuthenticated]
     
     def get_serializer_class(self):
         """Return different serializer for creation"""
@@ -82,7 +84,7 @@ class VitalSignsViewSet(viewsets.ModelViewSet):
     """
     queryset = VitalSigns.objects.all()
     serializer_class = VitalSignsSerializer
-    permission_classes = [ReadOnlyOrAuthenticatedPermission]
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         """Filter vital signs by consultation"""
@@ -101,7 +103,7 @@ class ConsultationDocumentViewSet(viewsets.ModelViewSet):
     """
     queryset = ConsultationDocument.objects.all()
     serializer_class = ConsultationDocumentSerializer
-    permission_classes = [ReadOnlyOrAuthenticatedPermission]
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         """Filter documents by consultation"""
@@ -120,7 +122,7 @@ class ConsultationImageViewSet(viewsets.ModelViewSet):
     """
     queryset = ConsultationImage.objects.all()
     serializer_class = ConsultationImageSerializer
-    permission_classes = [ReadOnlyOrAuthenticatedPermission]
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         """Filter images by consultation"""
@@ -131,3 +133,4 @@ class ConsultationImageViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(consultation_id=consultation_id)
         
         return queryset.order_by('-created_at')
+

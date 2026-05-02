@@ -4,6 +4,7 @@ Patient models for PreciseOptics Eye Hospital Management System
 from django.db import models
 from django.core.validators import RegexValidator
 from accounts.models import CustomUser
+from precise_optics.file_validators import validate_document_extension, validate_file_size
 import uuid
 
 
@@ -197,7 +198,7 @@ class PatientDocument(models.Model):
     document_type = models.CharField(max_length=20, choices=DOCUMENT_TYPES)
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    file = models.FileField(upload_to='patient_documents/')
+    file = models.FileField(upload_to='patient_documents/', validators=[validate_document_extension, validate_file_size])
     uploaded_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
     
     # Timestamps

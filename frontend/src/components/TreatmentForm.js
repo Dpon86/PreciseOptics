@@ -1,9 +1,71 @@
-import React, { useState, useEffect } from 'react';
+import React, { useReducer, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import './TreatmentForm.css';
 
-const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
-  const [formData, setFormData] = useState({
-    patient: patient?.id || '',
+// Action types
+const ACTIONS = {
+  SET_FORM_DATA: 'SET_FORM_DATA',
+  UPDATE_FIELD: 'UPDATE_FIELD',
+  SET_LOOKUP_DATA: 'SET_LOOKUP_DATA',
+  SET_FILTERED_TYPES: 'SET_FILTERED_TYPES',
+  SET_SELECTED_TYPE: 'SET_SELECTED_TYPE',
+  SET_LOADING: 'SET_LOADING',
+  SET_ERRORS: 'SET_ERRORS',
+  CLEAR_ERROR: 'CLEAR_ERROR'
+};
+
+// Reducer function
+const formReducer = (state, action) => {
+  switch (action.type) {
+    case ACTIONS.SET_FORM_DATA:
+      return {
+        ...state,
+        formData: { ...state.formData, ...action.payload }
+      };
+    case ACTIONS.UPDATE_FIELD:
+      return {
+        ...state,
+        formData: { ...state.formData, [action.field]: action.value }
+      };
+    case ACTIONS.SET_LOOKUP_DATA:
+      return {
+        ...state,
+        ...action.payload
+      };
+    case ACTIONS.SET_FILTERED_TYPES:
+      return {
+        ...state,
+        filteredTreatmentTypes: action.payload
+      };
+    case ACTIONS.SET_SELECTED_TYPE:
+      return {
+        ...state,
+        selectedTreatmentType: action.payload
+      };
+    case ACTIONS.SET_LOADING:
+      return {
+        ...state,
+        loading: action.payload
+      };
+    case ACTIONS.SET_ERRORS:
+      return {
+        ...state,
+        errors: action.payload
+      };
+    case ACTIONS.CLEAR_ERROR:
+      return {
+        ...state,
+        errors: { ...state.errors, [action.field]: '' }
+      };
+    default:
+      return state;
+  }
+};
+
+// Initial state
+const initialState = {
+  formData: {
+    patient: '',
     consultation: '',
     treatment_type: '',
     eye_treated: '',
@@ -20,16 +82,22 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
     requires_follow_up: true,
     follow_up_weeks: 2,
     follow_up_instructions: ''
-  });
+  },
+  treatmentCategories: [],
+  treatmentTypes: [],
+  filteredTreatmentTypes: [],
+  consultations: [],
+  staff: [],
+  selectedTreatmentType: null,
+  loading: false,
+  errors: {}
+};
 
-  const [treatmentCategories, setTreatmentCategories] = useState([]);
-  const [treatmentTypes, setTreatmentTypes] = useState([]);
-  const [filteredTreatmentTypes, setFilteredTreatmentTypes] = useState([]);
-  const [consultations, setConsultations] = useState([]);
-  const [staff, setStaff] = useState([]);
-  const [selectedTreatmentType, setSelectedTreatmentType] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
+const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
+  const [state, dispatch] = useReducer(formReducer, {
+    ...initialState,
+    formData: { ...initialState.formData, patient: patient?.id || '' }
+  });
 
   // Fetch data on component mount
   useEffect(() => {
@@ -39,50 +107,55 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
   // Update form data when initialData changes
   useEffect(() => {
     if (initialData) {
-      setFormData({
-        ...initialData,
-        scheduled_date: initialData.scheduled_date 
-          ? new Date(initialData.scheduled_date).toISOString().slice(0, 16)
-          : '',
-        consent_date: initialData.consent_date
-          ? new Date(initialData.consent_date).toISOString().slice(0, 16)
-          : ''
+      dispatch({
+        type: ACTIONS.SET_FORM_DATA,
+        payload: {
+          ...initialData,
+          scheduled_date: initialData.scheduled_date 
+            ? new Date(initialData.scheduled_date).toISOString().slice(0, 16)
+            : '',
+          consent_date: initialData.consent_date
+            ? new Date(initialData.consent_date).toISOString().slice(0, 16)
+            : ''
+        }
       });
     }
   }, [initialData]);
 
   // Filter treatment types when category selection changes
   useEffect(() => {
-    if (formData.treatment_category) {
-      const filtered = treatmentTypes.filter(
-        type => type.category === formData.treatment_category
+    if (state.formData.treatment_category) {
+      const filtered = state.treatmentTypes.filter(
+        type => type.category === state.formData.treatment_category
       );
-      setFilteredTreatmentTypes(filtered);
+      dispatch({ type: ACTIONS.SET_FILTERED_TYPES, payload: filtered });
     } else {
-      setFilteredTreatmentTypes(treatmentTypes);
+      dispatch({ type: ACTIONS.SET_FILTERED_TYPES, payload: state.treatmentTypes });
     }
-  }, [formData.treatment_category, treatmentTypes]);
+  }, [state.formData.treatment_category, state.treatmentTypes]);
 
   // Update form when treatment type is selected
   useEffect(() => {
-    if (formData.treatment_type && treatmentTypes.length > 0) {
-      const selected = treatmentTypes.find(type => type.id === formData.treatment_type);
-      setSelectedTreatmentType(selected);
+    if (state.formData.treatment_type && state.treatmentTypes.length > 0) {
+      const selected = state.treatmentTypes.find(type => type.id === state.formData.treatment_type);
+      dispatch({ type: ACTIONS.SET_SELECTED_TYPE, payload: selected });
       
       if (selected) {
-        setFormData(prev => ({
-          ...prev,
-          priority: selected.urgency_level || 'routine',
-          anesthesia_used: selected.requires_anesthesia || '',
-          follow_up_weeks: selected.typical_duration_minutes ? 
-            Math.ceil(selected.typical_duration_minutes / 60) : 2
-        }));
+        dispatch({
+          type: ACTIONS.SET_FORM_DATA,
+          payload: {
+            priority: selected.urgency_level || 'routine',
+            anesthesia_used: selected.requires_anesthesia || '',
+            follow_up_weeks: selected.typical_duration_minutes ? 
+              Math.ceil(selected.typical_duration_minutes / 60) : 2
+          }
+        });
       }
     }
-  }, [formData.treatment_type, treatmentTypes]);
+  }, [state.formData.treatment_type, state.treatmentTypes]);
 
   const fetchInitialData = async () => {
-    setLoading(true);
+    dispatch({ type: ACTIONS.SET_LOADING, payload: true });
     try {
       const [categoriesRes, typesRes, consultationsRes, staffRes] = await Promise.all([
         fetch('/api/treatments/categories/'),
@@ -98,15 +171,23 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
         staffRes.json()
       ]);
 
-      setTreatmentCategories(categories.results || categories);
-      setTreatmentTypes(types.results || types);
-      setConsultations(consultationsData.results || consultationsData);
-      setStaff(staffData.results || staffData);
+      dispatch({
+        type: ACTIONS.SET_LOOKUP_DATA,
+        payload: {
+          treatmentCategories: categories.results || categories,
+          treatmentTypes: types.results || types,
+          consultations: consultationsData.results || consultationsData,
+          staff: staffData.results || staffData
+        }
+      });
     } catch (error) {
       console.error('Error fetching data:', error);
-      setErrors({ general: 'Failed to load form data' });
+      dispatch({
+        type: ACTIONS.SET_ERRORS,
+        payload: { general: 'Failed to load form data' }
+      });
     } finally {
-      setLoading(false);
+      dispatch({ type: ACTIONS.SET_LOADING, payload: false });
     }
   };
 
@@ -115,34 +196,38 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
     
     if (name === 'assisting_staff') {
       const staffId = value;
-      const currentStaff = formData.assisting_staff || [];
+      const currentStaff = state.formData.assisting_staff || [];
       
       if (checked) {
-        setFormData(prev => ({
-          ...prev,
-          assisting_staff: [...currentStaff, staffId]
-        }));
+        dispatch({
+          type: ACTIONS.UPDATE_FIELD,
+          field: 'assisting_staff',
+          value: [...currentStaff, staffId]
+        });
       } else {
-        setFormData(prev => ({
-          ...prev,
-          assisting_staff: currentStaff.filter(id => id !== staffId)
-        }));
+        dispatch({
+          type: ACTIONS.UPDATE_FIELD,
+          field: 'assisting_staff',
+          value: currentStaff.filter(id => id !== staffId)
+        });
       }
     } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: type === 'checkbox' ? checked : value
-      }));
+      dispatch({
+        type: ACTIONS.UPDATE_FIELD,
+        field: name,
+        value: type === 'checkbox' ? checked : value
+      });
     }
 
     // Clear errors for this field
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+    if (state.errors[name]) {
+      dispatch({ type: ACTIONS.CLEAR_ERROR, field: name });
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
+    const { formData, selectedTreatmentType } = state;
 
     if (!formData.consultation) newErrors.consultation = 'Consultation is required';
     if (!formData.treatment_type) newErrors.treatment_type = 'Treatment type is required';
@@ -167,7 +252,7 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
       }
     }
 
-    setErrors(newErrors);
+    dispatch({ type: ACTIONS.SET_ERRORS, payload: newErrors });
     return Object.keys(newErrors).length === 0;
   };
 
@@ -178,17 +263,20 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
       return;
     }
 
-    setLoading(true);
+    dispatch({ type: ACTIONS.SET_LOADING, payload: true });
     try {
-      await onSubmit(formData);
+      await onSubmit(state.formData);
     } catch (error) {
-      setErrors({ general: error.message || 'Failed to save treatment' });
+      dispatch({
+        type: ACTIONS.SET_ERRORS,
+        payload: { general: error.message || 'Failed to save treatment' }
+      });
     } finally {
-      setLoading(false);
+      dispatch({ type: ACTIONS.SET_LOADING, payload: false });
     }
   };
 
-  if (loading) {
+  if (state.loading) {
     return (
       <div className="treatment-form-loading">
         <div className="spinner"></div>
@@ -204,9 +292,9 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
         <p>Patient: {patient?.first_name} {patient?.last_name}</p>
       </div>
 
-      {errors.general && (
+      {state.errors.general && (
         <div className="alert alert-error">
-          {errors.general}
+          {state.errors.general}
         </div>
       )}
 
@@ -218,17 +306,17 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
             <div className="form-group">
               <label htmlFor="consultation">
                 Consultation *
-                {errors.consultation && <span className="error">{errors.consultation}</span>}
+                {state.errors.consultation && <span className="error">{state.errors.consultation}</span>}
               </label>
               <select
                 id="consultation"
                 name="consultation"
-                value={formData.consultation}
+                value={state.formData.consultation}
                 onChange={handleInputChange}
                 required
               >
                 <option value="">Select consultation</option>
-                {consultations.map(consultation => (
+                {state.consultations.map(consultation => (
                   <option key={consultation.id} value={consultation.id}>
                     {new Date(consultation.scheduled_time).toLocaleDateString()} - 
                     {consultation.consultation_type}
@@ -242,11 +330,11 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
               <select
                 id="treatment_category"
                 name="treatment_category"
-                value={formData.treatment_category || ''}
+                value={state.formData.treatment_category || ''}
                 onChange={handleInputChange}
               >
                 <option value="">All categories</option>
-                {treatmentCategories.map(category => (
+                {state.treatmentCategories.map(category => (
                   <option key={category.id} value={category.id}>
                     {category.name}
                   </option>
@@ -257,27 +345,27 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
             <div className="form-group">
               <label htmlFor="treatment_type">
                 Treatment Type *
-                {errors.treatment_type && <span className="error">{errors.treatment_type}</span>}
+                {state.errors.treatment_type && <span className="error">{state.errors.treatment_type}</span>}
               </label>
               <select
                 id="treatment_type"
                 name="treatment_type"
-                value={formData.treatment_type}
+                value={state.formData.treatment_type}
                 onChange={handleInputChange}
                 required
               >
                 <option value="">Select treatment type</option>
-                {filteredTreatmentTypes.map(type => (
+                {state.filteredTreatmentTypes.map(type => (
                   <option key={type.id} value={type.id}>
                     {type.name} ({type.code})
                   </option>
                 ))}
               </select>
-              {selectedTreatmentType && (
+              {state.selectedTreatmentType && (
                 <div className="treatment-info">
-                  <p><strong>Description:</strong> {selectedTreatmentType.description}</p>
-                  <p><strong>Duration:</strong> ~{selectedTreatmentType.typical_duration_minutes} minutes</p>
-                  {selectedTreatmentType.requires_consent && (
+                  <p><strong>Description:</strong> {state.selectedTreatmentType.description}</p>
+                  <p><strong>Duration:</strong> ~{state.selectedTreatmentType.typical_duration_minutes} minutes</p>
+                  {state.selectedTreatmentType.requires_consent && (
                     <p className="consent-required">⚠️ This treatment requires patient consent</p>
                   )}
                 </div>
@@ -287,12 +375,12 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
             <div className="form-group">
               <label htmlFor="eye_treated">
                 Eye Treated *
-                {errors.eye_treated && <span className="error">{errors.eye_treated}</span>}
+                {state.errors.eye_treated && <span className="error">{state.errors.eye_treated}</span>}
               </label>
               <select
                 id="eye_treated"
                 name="eye_treated"
-                value={formData.eye_treated}
+                value={state.formData.eye_treated}
                 onChange={handleInputChange}
                 required
               >
@@ -308,7 +396,7 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
               <select
                 id="priority"
                 name="priority"
-                value={formData.priority}
+                value={state.formData.priority}
                 onChange={handleInputChange}
               >
                 <option value="routine">Routine</option>
@@ -325,12 +413,12 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
           <div className="form-group">
             <label htmlFor="indication">
               Clinical Indication *
-              {errors.indication && <span className="error">{errors.indication}</span>}
+              {state.errors.indication && <span className="error">{state.errors.indication}</span>}
             </label>
             <textarea
               id="indication"
               name="indication"
-              value={formData.indication}
+              value={state.formData.indication}
               onChange={handleInputChange}
               rows={3}
               placeholder="Describe the clinical indication for this treatment..."
@@ -343,7 +431,7 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
             <textarea
               id="technique_notes"
               name="technique_notes"
-              value={formData.technique_notes}
+              value={state.formData.technique_notes}
               onChange={handleInputChange}
               rows={3}
               placeholder="Specific surgical approach or technique notes..."
@@ -355,7 +443,7 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
             <select
               id="anesthesia_used"
               name="anesthesia_used"
-              value={formData.anesthesia_used}
+              value={state.formData.anesthesia_used}
               onChange={handleInputChange}
             >
               <option value="">Select anesthesia type</option>
@@ -374,17 +462,17 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
           <div className="form-group">
             <label htmlFor="primary_surgeon">
               Primary Surgeon *
-              {errors.primary_surgeon && <span className="error">{errors.primary_surgeon}</span>}
+              {state.errors.primary_surgeon && <span className="error">{state.errors.primary_surgeon}</span>}
             </label>
             <select
               id="primary_surgeon"
               name="primary_surgeon"
-              value={formData.primary_surgeon}
+              value={state.formData.primary_surgeon}
               onChange={handleInputChange}
               required
             >
               <option value="">Select primary surgeon</option>
-              {staff.filter(s => s.user_type === 'doctor').map(surgeon => (
+              {state.staff.filter(s => s.user_type === 'doctor').map(surgeon => (
                 <option key={surgeon.id} value={surgeon.id}>
                   Dr. {surgeon.first_name} {surgeon.last_name}
                 </option>
@@ -395,13 +483,13 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
           <div className="form-group">
             <label>Assisting Staff</label>
             <div className="staff-checkboxes">
-              {staff.filter(s => s.user_type !== 'admin').map(member => (
+              {state.staff.filter(s => s.user_type !== 'admin').map(member => (
                 <label key={member.id} className="checkbox-label">
                   <input
                     type="checkbox"
                     name="assisting_staff"
                     value={member.id}
-                    checked={formData.assisting_staff?.includes(member.id)}
+                    checked={state.formData.assisting_staff?.includes(member.id)}
                     onChange={handleInputChange}
                   />
                   {member.first_name} {member.last_name} ({member.user_type})
@@ -417,13 +505,13 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
           <div className="form-group">
             <label htmlFor="scheduled_date">
               Scheduled Date & Time
-              {errors.scheduled_date && <span className="error">{errors.scheduled_date}</span>}
+              {state.errors.scheduled_date && <span className="error">{state.errors.scheduled_date}</span>}
             </label>
             <input
               type="datetime-local"
               id="scheduled_date"
               name="scheduled_date"
-              value={formData.scheduled_date}
+              value={state.formData.scheduled_date}
               onChange={handleInputChange}
             />
           </div>
@@ -437,26 +525,26 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
               <input
                 type="checkbox"
                 name="consent_obtained"
-                checked={formData.consent_obtained}
+                checked={state.formData.consent_obtained}
                 onChange={handleInputChange}
               />
               Patient consent obtained
-              {errors.consent_obtained && <span className="error">{errors.consent_obtained}</span>}
+              {state.errors.consent_obtained && <span className="error">{state.errors.consent_obtained}</span>}
             </label>
           </div>
 
-          {formData.consent_obtained && (
+          {state.formData.consent_obtained && (
             <>
               <div className="form-group">
                 <label htmlFor="consent_date">
                   Consent Date & Time *
-                  {errors.consent_date && <span className="error">{errors.consent_date}</span>}
+                  {state.errors.consent_date && <span className="error">{state.errors.consent_date}</span>}
                 </label>
                 <input
                   type="datetime-local"
                   id="consent_date"
                   name="consent_date"
-                  value={formData.consent_date}
+                  value={state.formData.consent_date}
                   onChange={handleInputChange}
                   required
                 />
@@ -467,11 +555,11 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
                 <select
                   id="consent_obtained_by"
                   name="consent_obtained_by"
-                  value={formData.consent_obtained_by}
+                  value={state.formData.consent_obtained_by}
                   onChange={handleInputChange}
                 >
                   <option value="">Select staff member</option>
-                  {staff.filter(s => ['doctor', 'nurse'].includes(s.user_type)).map(member => (
+                  {state.staff.filter(s => ['doctor', 'nurse'].includes(s.user_type)).map(member => (
                     <option key={member.id} value={member.id}>
                       {member.first_name} {member.last_name} ({member.user_type})
                     </option>
@@ -490,14 +578,14 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
               <input
                 type="checkbox"
                 name="requires_follow_up"
-                checked={formData.requires_follow_up}
+                checked={state.formData.requires_follow_up}
                 onChange={handleInputChange}
               />
               Requires follow-up appointment
             </label>
           </div>
 
-          {formData.requires_follow_up && (
+          {state.formData.requires_follow_up && (
             <>
               <div className="form-group">
                 <label htmlFor="follow_up_weeks">Follow-up in (weeks)</label>
@@ -505,7 +593,7 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
                   type="number"
                   id="follow_up_weeks"
                   name="follow_up_weeks"
-                  value={formData.follow_up_weeks}
+                  value={state.formData.follow_up_weeks}
                   onChange={handleInputChange}
                   min="1"
                   max="52"
@@ -517,7 +605,7 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
                 <textarea
                   id="follow_up_instructions"
                   name="follow_up_instructions"
-                  value={formData.follow_up_instructions}
+                  value={state.formData.follow_up_instructions}
                   onChange={handleInputChange}
                   rows={3}
                   placeholder="Post-treatment follow-up instructions..."
@@ -533,21 +621,32 @@ const TreatmentForm = ({ patient, onSubmit, onCancel, initialData = null }) => {
             type="button"
             onClick={onCancel}
             className="btn btn-secondary"
-            disabled={loading}
+            disabled={state.loading}
           >
             Cancel
           </button>
           <button
             type="submit"
             className="btn btn-primary"
-            disabled={loading}
+            disabled={state.loading}
           >
-            {loading ? 'Saving...' : (initialData ? 'Update Treatment' : 'Schedule Treatment')}
+            {state.loading ? 'Saving...' : (initialData ? 'Update Treatment' : 'Schedule Treatment')}
           </button>
         </div>
       </form>
     </div>
   );
+};
+
+TreatmentForm.propTypes = {
+  patient: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    first_name: PropTypes.string,
+    last_name: PropTypes.string
+  }),
+  onSubmit: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  initialData: PropTypes.object
 };
 
 export default TreatmentForm;

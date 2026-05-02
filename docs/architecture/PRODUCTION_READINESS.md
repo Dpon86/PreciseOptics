@@ -73,6 +73,13 @@
 - [ ] **LOW**: Cross-browser compatibility testing could be expanded
 
 ## Completed Production Items
+- [x] **COMPLETED**: Report API endpoints secured — all `AllowAny` replaced with `IsAuthenticated` (views.py, treatment_effectiveness_api.py, comprehensive_api.py)
+- [x] **COMPLETED**: Backend `.env.example` created — full template for all env vars with production/dev variants
+- [x] **COMPLETED**: Deployment Runbook created — `docs/architecture/DEPLOYMENT_RUNBOOK.md`
+- [x] **COMPLETED**: API documentation for Conditions, Protocols, Referrals modules added to BACKEND_DETAILED_REFERENCE.md
+- [x] **COMPLETED**: Frontend unit tests — 42 tests across 6 suites, all passing
+- [x] **COMPLETED**: CSV export on all 8 report pages via shared exportUtils.js
+- [x] **COMPLETED**: Debug console.log statements removed from production paths
 - [x] **COMPLETED**: Basic Django authentication system implemented
 - [x] **COMPLETED**: Django REST Framework API structure established
 - [x] **COMPLETED**: Basic audit logging framework established
@@ -81,6 +88,15 @@
 - [x] **COMPLETED**: Medication tracking system implemented
 - [x] **COMPLETED**: Basic React frontend structure
 - [x] **COMPLETED**: API integration between frontend and backend
+- [x] **COMPLETED**: Conditions module (models, views, serializers, tests)
+- [x] **COMPLETED**: Treatment Protocols module (full CRUD + builder UI)
+- [x] **COMPLETED**: Referrals module (models, views, serializers, tests)
+- [x] **COMPLETED**: Alert/notification system (backend + frontend)
+- [x] **COMPLETED**: 15 report pages with chart visualisations
+- [x] **COMPLETED**: CSV export functionality on all report pages
+- [x] **COMPLETED**: Admin Dashboard with all module tabs
+- [x] **COMPLETED**: Sidebar navigation covering all modules
+- [x] **COMPLETED**: Backend unit tests for conditions, protocols, referrals
 
 ## Notes and Migration Priority
 

@@ -3,6 +3,7 @@ Serializers for PreciseOptics Eye Hospital Management System - Patients
 """
 from rest_framework import serializers
 from .models import Patient, PatientVisit, PatientDocument, AppointmentAlert, AlertConfiguration
+from precise_optics.file_validators import validate_document_extension, validate_file_size
 
 
 class PatientSerializer(serializers.ModelSerializer):
@@ -108,6 +109,11 @@ class PatientDocumentSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'patient_name', 'uploaded_by_name', 'created_at', 'updated_at']
+
+    def validate_file(self, value):
+        validate_document_extension(value)
+        validate_file_size(value)
+        return value
 
 
 class AppointmentAlertSerializer(serializers.ModelSerializer):

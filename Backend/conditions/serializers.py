@@ -5,6 +5,7 @@ from rest_framework import serializers
 from .models import MedicalCondition, PatientCondition, ConditionProgress, ConditionDocument
 from accounts.serializers import CustomUserSerializer
 from patients.serializers import PatientSerializer
+from precise_optics.file_validators import validate_document_extension, validate_file_size
 
 
 class MedicalConditionSerializer(serializers.ModelSerializer):
@@ -101,6 +102,11 @@ class ConditionDocumentSerializer(serializers.ModelSerializer):
             'uploaded_at', 'file_name', 'file_size'
         ]
         read_only_fields = ['id', 'uploaded_at']
+    
+    def validate_file(self, value):
+        validate_document_extension(value)
+        validate_file_size(value)
+        return value
     
     def get_file_name(self, obj):
         if obj.file:

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import './ProtocolTimeline.css';
 
 const STATUS_CFG = {
@@ -132,6 +133,24 @@ const ProtocolTimeline = ({ completions = [], protocolName = '' }) => {
       </div>
     </div>
   );
+};
+
+ProtocolTimeline.propTypes = {
+  completions: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    scheduled_date: PropTypes.string,
+    completion_date: PropTypes.string,
+    status: PropTypes.string,
+    step_name: PropTypes.string,
+    step_order: PropTypes.number,
+    notes: PropTypes.string
+  })),
+  protocolName: PropTypes.string
+};
+
+ProtocolTimeline.defaultProps = {
+  completions: [],
+  protocolName: ''
 };
 
 export default ProtocolTimeline;

@@ -4,7 +4,7 @@ API views for PreciseOptics Eye Hospital Management System - Patients
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
-from precise_optics.permissions import ReadOnlyOrAuthenticatedPermission
+from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from django.db import models
 from .models import Patient, PatientVisit, AppointmentAlert, AlertConfiguration
@@ -14,15 +14,16 @@ from .serializers import (
     AppointmentAlertCreateSerializer, AlertConfigurationSerializer
 )
 from .alert_service import AlertService
+from audit.utils import PatientAccessLoggingMixin
 
 
-class PatientViewSet(viewsets.ModelViewSet):
+class PatientViewSet(PatientAccessLoggingMixin, viewsets.ModelViewSet):
     """
     ViewSet for managing patients
     """
     queryset = Patient.objects.all()
     serializer_class = PatientSerializer
-    permission_classes = [ReadOnlyOrAuthenticatedPermission]
+    permission_classes = [IsAuthenticated]
     
     def get_serializer_class(self):
         """Return different serializer for creation"""
@@ -34,7 +35,7 @@ class PatientViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Filter patients based on user permissions"""
-        queryset = Patient.objects.all()
+        queryset = Patient.objects.select_related('created_by').prefetch_related('visits')
         
         # Add filters for search
         search = self.request.query_params.get('search', None)
@@ -84,7 +85,7 @@ class PatientVisitViewSet(viewsets.ModelViewSet):
     """
     queryset = PatientVisit.objects.all()
     serializer_class = PatientVisitSerializer
-    permission_classes = [ReadOnlyOrAuthenticatedPermission]
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         """Filter visits based on parameters"""
@@ -156,7 +157,7 @@ class AppointmentAlertViewSet(viewsets.ModelViewSet):
     """
     queryset = AppointmentAlert.objects.all()
     serializer_class = AppointmentAlertSerializer
-    permission_classes = [ReadOnlyOrAuthenticatedPermission]
+    permission_classes = [IsAuthenticated]
     
     def get_serializer_class(self):
         """Return different serializers based on action"""
@@ -297,7 +298,7 @@ class AlertConfigurationViewSet(viewsets.ModelViewSet):
     """
     queryset = AlertConfiguration.objects.all()
     serializer_class = AlertConfigurationSerializer
-    permission_classes = [ReadOnlyOrAuthenticatedPermission]
+    permission_classes = [IsAuthenticated]
     
     def perform_create(self, serializer):
         """Set created_by on creation"""
@@ -325,4 +326,5 @@ class AlertConfigurationViewSet(viewsets.ModelViewSet):
             'message': 'Configuration activated successfully',
             'config': AlertConfigurationSerializer(config).data
         })
+
 

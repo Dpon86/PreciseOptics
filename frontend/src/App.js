@@ -108,13 +108,14 @@ import {
   FormsOverviewPage
 } from './pages';
 import AdminDashboard from './pages/AdminDashboard';
+import ErrorBoundary from './components/ErrorBoundary';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import './App_new.css';
 
 // Protected Route Component with Patient Context
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, idleWarning, resetIdleTimer, logout } = useAuth();
 
   if (loading) {
     return <div className="loading">Loading...</div>;
@@ -127,6 +128,35 @@ const ProtectedRoute = ({ children }) => {
   // Wrap authenticated content with PatientProvider
   return (
     <PatientProvider>
+      {idleWarning && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999,
+          background: '#b45309', color: '#fff', textAlign: 'center',
+          padding: '10px 16px', fontSize: '14px',
+        }}>
+          You will be logged out in 1 minute due to inactivity.{' '}
+          <button
+            onClick={resetIdleTimer}
+            style={{
+              marginLeft: '12px', padding: '4px 14px', cursor: 'pointer',
+              background: '#fff', color: '#b45309', border: 'none',
+              borderRadius: '4px', fontWeight: 600,
+            }}
+          >
+            Stay logged in
+          </button>
+          <button
+            onClick={logout}
+            style={{
+              marginLeft: '8px', padding: '4px 14px', cursor: 'pointer',
+              background: 'transparent', color: '#fff', border: '1px solid #fff',
+              borderRadius: '4px',
+            }}
+          >
+            Log out now
+          </button>
+        </div>
+      )}
       {children}
     </PatientProvider>
   );
@@ -174,7 +204,8 @@ function AppContent() {
         <Sidebar isOpen={sidebarOpen} onClose={handleSidebarClose} />
       )}
       <main className="main-content">
-        <Routes>
+        <ErrorBoundary>
+          <Routes>
           <Route 
             path="/login" 
             element={
@@ -1059,6 +1090,7 @@ function AppContent() {
             } 
           />
         </Routes>
+        </ErrorBoundary>
       </main>
     </div>
   );

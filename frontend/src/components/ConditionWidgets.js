@@ -4,6 +4,7 @@
  */
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import apiService from '../services/api';
 import './ConditionWidgets.css';
 
@@ -294,6 +295,14 @@ const ConditionWidgets = ({ compact = false }) => {
             </div>
         </div>
     );
+};
+
+ConditionWidgets.propTypes = {
+    compact: PropTypes.bool
+};
+
+ConditionWidgets.defaultProps = {
+    compact: false
 };
 
 export default ConditionWidgets;

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { apiService } from '../../services/api';
+import { exportToCSV } from '../../services/exportUtils';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -71,7 +72,26 @@ const ReferralSourceReport = () => {
   };
 
   const handleExport = () => {
-    alert('Export functionality will be implemented soon');
+    const sourceRows = referralStats?.referral_sources?.map(s => ({
+      source_name: s.name || s.referral_source__name || '',
+      source_type: s.source_type || s.referral_source__source_type || '',
+      total_referrals: s.total_referrals ?? s.count ?? '',
+      incoming: s.incoming_count ?? '',
+      outgoing: s.outgoing_count ?? '',
+      completed: s.completed_count ?? '',
+      avg_response_days: s.avg_response_days ?? '',
+    })) || [];
+
+    const cols = [
+      { key: 'source_name', label: 'Referral Source' },
+      { key: 'source_type', label: 'Source Type' },
+      { key: 'total_referrals', label: 'Total Referrals' },
+      { key: 'incoming', label: 'Incoming' },
+      { key: 'outgoing', label: 'Outgoing' },
+      { key: 'completed', label: 'Completed' },
+      { key: 'avg_response_days', label: 'Avg Response Days' },
+    ];
+    exportToCSV(sourceRows, cols, `referral-source-report-${new Date().toISOString().slice(0,10)}`);
   };
 
   // Chart Data Generators

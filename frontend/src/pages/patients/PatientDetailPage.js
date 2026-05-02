@@ -34,7 +34,7 @@ const PatientDetailPage = () => {
           .slice(0, 5);
         setRecentConsultations(patientConsultations);
       } catch (err) {
-        console.log('Could not fetch consultations:', err);
+        // Consultations not available
       }
 
       // Fetch recent eye tests
@@ -51,7 +51,7 @@ const PatientDetailPage = () => {
         
         setRecentTests(allTests);
       } catch (err) {
-        console.log('Could not fetch eye tests:', err);
+        // Eye tests not available
       }
 
       setLoading(false);

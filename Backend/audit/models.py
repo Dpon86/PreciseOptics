@@ -107,8 +107,8 @@ class PatientAccessLog(models.Model):
     )
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='access_logs')
-    accessed_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='access_logs')
+    accessed_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
     access_type = models.CharField(max_length=30, choices=ACCESS_TYPES)
     
     # Access Details
@@ -153,13 +153,13 @@ class MedicationAudit(models.Model):
     )
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='medication_audits')
-    medication = models.ForeignKey(Medication, on_delete=models.CASCADE)
-    prescription = models.ForeignKey(Prescription, on_delete=models.CASCADE, null=True, blank=True)
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='medication_audits')
+    medication = models.ForeignKey(Medication, on_delete=models.PROTECT)
+    prescription = models.ForeignKey(Prescription, on_delete=models.SET_NULL, null=True, blank=True)
     
     # Action Details
     action = models.CharField(max_length=20, choices=MEDICATION_ACTIONS)
-    performed_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    performed_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
     
     # Medication Details
     dosage = models.CharField(max_length=100, blank=True)
@@ -220,8 +220,8 @@ class ClinicalDecisionAudit(models.Model):
     )
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='clinical_decisions')
-    decision_maker = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    patient = models.ForeignKey(Patient, on_delete=models.PROTECT, related_name='clinical_decisions')
+    decision_maker = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
     
     # Decision Details
     decision_type = models.CharField(max_length=20, choices=DECISION_TYPES)
@@ -293,7 +293,7 @@ class DataExportLog(models.Model):
     )
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    exported_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    exported_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
     
     # Export Details
     export_type = models.CharField(max_length=20, choices=EXPORT_TYPES)
@@ -378,7 +378,7 @@ class ComplianceReport(models.Model):
     issues_resolved = models.PositiveIntegerField(default=0)
     
     # Report Generation
-    generated_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    generated_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='generated_reports')
     reviewed_by = models.ForeignKey(
         CustomUser,
         on_delete=models.SET_NULL,

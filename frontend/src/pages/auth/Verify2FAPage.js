@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import apiService from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import '../../App_new.css';
 
 const Verify2FAPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { completeLogin } = useAuth();
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -32,13 +34,10 @@ const Verify2FAPage = () => {
     try {
       setLoading(true);
       const response = await apiService.verify2FALogin(user_id, username, password, code);
-      
-      // Store token and user data
-      localStorage.setItem('authToken', response.data.token);
-      localStorage.setItem('userData', JSON.stringify(response.data.user));
-      if (response.data.staff_profile) {
-        localStorage.setItem('staffProfile', JSON.stringify(response.data.staff_profile));
-      }
+
+      // Complete login through AuthContext — token stored in sessionStorage only,
+      // NOT in localStorage (CRIT-12 fix). Staff profile is NOT persisted to storage.
+      completeLogin(response.data.token, username);
 
       // Redirect to dashboard
       navigate('/dashboard');

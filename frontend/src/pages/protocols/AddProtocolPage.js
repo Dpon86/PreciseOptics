@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiService } from '../../services/api';
 import './AddProtocolPage.css';
 
 const AddProtocolPage = () => {
@@ -31,15 +32,8 @@ const AddProtocolPage = () => {
 
   const fetchConditions = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://127.0.0.1:8000/api/medications/conditions/', {
-        headers: {
-          'Authorization': `Token ${token}`
-        }
-      });
-      if (!response.ok) throw new Error('Failed to fetch conditions');
-      const data = await response.json();
-      setConditions(data);
+      const response = await apiService.getMedicationConditions();
+      setConditions(response.data.results || response.data);
     } catch (err) {
       console.error('Error fetching conditions:', err);
     }
@@ -59,8 +53,6 @@ const AddProtocolPage = () => {
     setError(null);
 
     try {
-      const token = localStorage.getItem('token');
-      
       // Prepare data - convert empty strings to null
       const submitData = {
         ...formData,
@@ -70,22 +62,8 @@ const AddProtocolPage = () => {
         consent_type: formData.consent_type || null
       };
 
-      const response = await fetch('http://127.0.0.1:8000/api/protocols/protocols/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${token}`
-        },
-        body: JSON.stringify(submitData)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(Object.values(errorData).flat().join(', '));
-      }
-
-      const data = await response.json();
-      navigate(`/protocols/${data.id}`);
+      const response = await apiService.createProtocol(submitData);
+      navigate(`/protocols/${response.data.id}`);
     } catch (err) {
       setError(err.message || 'Failed to create protocol');
     } finally {

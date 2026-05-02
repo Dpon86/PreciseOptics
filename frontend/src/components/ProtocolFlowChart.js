@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import './ProtocolFlowChart.css';
 
 const STEP_TYPE_CONFIG = {
@@ -209,6 +210,30 @@ const ProtocolFlowChart = ({ steps = [], completions = [] }) => {
       </div>
     </div>
   );
+};
+
+ProtocolFlowChart.propTypes = {
+  steps: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    step_number: PropTypes.number,
+    step_name: PropTypes.string,
+    step_type: PropTypes.string,
+    description: PropTypes.string,
+    required: PropTypes.bool,
+    items: PropTypes.array
+  })),
+  completions: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    protocol_step: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    step_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    status: PropTypes.string,
+    completion_date: PropTypes.string
+  }))
+};
+
+ProtocolFlowChart.defaultProps = {
+  steps: [],
+  completions: []
 };
 
 export default ProtocolFlowChart;

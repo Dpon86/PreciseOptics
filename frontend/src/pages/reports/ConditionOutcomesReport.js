@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { apiService } from '../../services/api';
+import { exportToCSV } from '../../services/exportUtils';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -77,7 +78,27 @@ const ConditionOutcomesReport = () => {
   };
 
   const handleExport = () => {
-    alert('Export functionality will be implemented soon');
+    const rows = [];
+
+    // Conditions by category summary
+    if (conditionsData?.conditions_by_category) {
+      Object.entries(conditionsData.conditions_by_category).forEach(([cat, count]) => {
+        rows.push({ section: 'Conditions by Category', category: cat, count });
+      });
+    }
+    // Conditions by severity summary
+    if (conditionsData?.conditions_by_severity) {
+      Object.entries(conditionsData.conditions_by_severity).forEach(([sev, count]) => {
+        rows.push({ section: 'Conditions by Severity', category: sev, count });
+      });
+    }
+
+    const cols = [
+      { key: 'section', label: 'Section' },
+      { key: 'category', label: 'Category / Severity' },
+      { key: 'count', label: 'Count' },
+    ];
+    exportToCSV(rows, cols, `condition-outcomes-report-${new Date().toISOString().slice(0,10)}`);
   };
 
   // Chart Data Generators

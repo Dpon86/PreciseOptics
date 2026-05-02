@@ -21,11 +21,8 @@ const ProtocolsPage = () => {
     try {
       setLoading(true);
       setError('');
-      
-      const response = await fetch('http://127.0.0.1:8000/api/protocols/protocols/');
-      const data = await response.json();
-      
-      setProtocols(data.results || data || []);
+      const response = await api.getProtocols();
+      setProtocols(response.data.results || response.data || []);
     } catch (err) {
       console.error('Error fetching protocols:', err);
       setError('Failed to load protocols');

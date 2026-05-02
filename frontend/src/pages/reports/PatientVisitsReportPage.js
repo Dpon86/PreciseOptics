@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { exportToCSV } from '../../services/exportUtils';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -103,7 +104,7 @@ const PatientVisitsReportPage = () => {
           });
         }
       } catch (apiError) {
-        console.log('API endpoint not available, showing empty state');
+        // API unavailable — show empty state silently in production
         setVisitsData({
           dailyVisits: { 
             labels: ['No Data'], 
@@ -419,13 +420,25 @@ const PatientVisitsReportPage = () => {
 
       {/* Export Options */}
       <div className="export-section">
-        <button className="export-btn">
+        <button className="export-btn" onClick={() => {
+          const rows = (visitsData.visitsByPurpose || []).map(item => ({
+            purpose: item.consultation_type || item.purpose || item.name || '',
+            count: item.count || item.value || '',
+            percentage: item.percentage || '',
+          }));
+          const cols = [
+            { key: 'purpose', label: 'Visit Purpose' },
+            { key: 'count', label: 'Count' },
+            { key: 'percentage', label: 'Percentage' },
+          ];
+          exportToCSV(rows, cols, `patient-visits-report-${new Date().toISOString().slice(0,10)}`);
+        }}>
           <i className="fas fa-download"></i>
-          Export PDF Report
+          Export CSV
         </button>
-        <button className="export-btn">
-          <i className="fas fa-file-excel"></i>
-          Export Excel Data
+        <button className="export-btn" onClick={() => window.print()}>
+          <i className="fas fa-print"></i>
+          Print Report
         </button>
         <button className="export-btn">
           <i className="fas fa-calendar-alt"></i>

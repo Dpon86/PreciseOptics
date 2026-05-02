@@ -11,27 +11,29 @@ export const usePatient = () => {
   return context;
 };
 
+// Security (CRIT-13): store only the patient ID in sessionStorage, never the
+// full patient object (PHI).  The full record is fetched from the API on demand.
+const PATIENT_ID_KEY = 'selectedPatientId';
+
 export const PatientProvider = ({ children }) => {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Load patients only when explicitly requested
-  // (removed automatic loading on mount)
-
   const loadPatients = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
       const response = await api.getPatients();
-      // Ensure we always set an array, handle different response structures
       const patientsData = response.data?.results || response.data || [];
-      setPatients(Array.isArray(patientsData) ? patientsData : []);
+      const list = Array.isArray(patientsData) ? patientsData : [];
+      setPatients(list);
+      return list;
     } catch (err) {
-      console.error('Error loading patients:', err);
       setError('Failed to load patients');
-      setPatients([]); // Set empty array on error
+      setPatients([]);
+      return [];
     } finally {
       setLoading(false);
     }
@@ -39,26 +41,53 @@ export const PatientProvider = ({ children }) => {
 
   const selectPatient = (patient) => {
     setSelectedPatient(patient);
-    // Store in localStorage for persistence
-    localStorage.setItem('selectedPatient', JSON.stringify(patient));
+    // Persist only the ID (not PHI) so we can restore the selection after a
+    // page refresh within the same browser session (sessionStorage is cleared
+    // when the tab/window closes).
+    if (patient?.id) {
+      sessionStorage.setItem(PATIENT_ID_KEY, patient.id);
+    } else {
+      sessionStorage.removeItem(PATIENT_ID_KEY);
+    }
+    // Remove any legacy full-object entries written by previous versions
+    localStorage.removeItem('selectedPatient');
   };
 
   const clearSelectedPatient = () => {
     setSelectedPatient(null);
+    sessionStorage.removeItem(PATIENT_ID_KEY);
     localStorage.removeItem('selectedPatient');
   };
 
-  // Restore selected patient from localStorage on mount
+  // On mount: if a patient ID was persisted from a previous page in the same
+  // session, reload the full object from the API so we have up-to-date data.
   useEffect(() => {
-    const stored = localStorage.getItem('selectedPatient');
-    if (stored) {
+    const storedId = sessionStorage.getItem(PATIENT_ID_KEY);
+    // Also handle legacy localStorage entries from previous versions
+    const legacyStored = localStorage.getItem('selectedPatient');
+
+    if (storedId) {
+      api.getPatient(storedId)
+        .then((res) => setSelectedPatient(res.data))
+        .catch(() => {
+          sessionStorage.removeItem(PATIENT_ID_KEY);
+        });
+    } else if (legacyStored) {
+      // Migrate: pull the ID from the old stored object, fetch fresh data, clear legacy key
       try {
-        const patient = JSON.parse(stored);
-        setSelectedPatient(patient);
-      } catch (err) {
-        console.error('Error parsing stored patient:', err);
-        localStorage.removeItem('selectedPatient');
+        const legacyPatient = JSON.parse(legacyStored);
+        if (legacyPatient?.id) {
+          api.getPatient(legacyPatient.id)
+            .then((res) => {
+              setSelectedPatient(res.data);
+              sessionStorage.setItem(PATIENT_ID_KEY, legacyPatient.id);
+            })
+            .catch(() => {});
+        }
+      } catch {
+        // Corrupt data — ignore
       }
+      localStorage.removeItem('selectedPatient');
     }
   }, []);
 
@@ -69,7 +98,7 @@ export const PatientProvider = ({ children }) => {
     error,
     selectPatient,
     clearSelectedPatient,
-    loadPatients
+    loadPatients,
   };
 
   return (

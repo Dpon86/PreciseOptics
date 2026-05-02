@@ -2,9 +2,11 @@
 Custom User and Staff models for PreciseOptics Eye Hospital Management System
 """
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.hashers import make_password, check_password
 from django.db import models
 from django.core.validators import RegexValidator
 import uuid
+import secrets
 
 
 class CustomUser(AbstractUser):
@@ -136,3 +138,89 @@ class PasswordResetToken(models.Model):
         """Check if token is still valid"""
         from django.utils import timezone
         return not self.is_used and timezone.now() < self.expires_at
+
+
+class TwoFactorBackupCode(models.Model):
+    """
+    One-time-use emergency backup codes for 2FA recovery.
+
+    Codes are stored as hashes (via Django's password hashing framework)
+    so that a database breach does not expose usable codes.
+
+    Codes are generated as 10 uppercase hex chars split with a hyphen
+    (e.g. "ABCD1-EF234") so they are easy to read and type.
+    """
+
+    BACKUP_CODE_COUNT = 10
+
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='backup_codes',
+    )
+    code_hash = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+    used_at = models.DateTimeField(null=True, blank=True)
+    is_used = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "2FA Backup Code"
+        verbose_name_plural = "2FA Backup Codes"
+        ordering = ['created_at']
+
+    def __str__(self):
+        used = " (used)" if self.is_used else ""
+        return f"Backup code for {self.user.username}{used}"
+
+    # ------------------------------------------------------------------
+    # Class helpers
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def _format_code(cls, raw: str) -> str:
+        """Format a 10-char hex string as XXXXX-XXXXX."""
+        raw = raw.upper()
+        return f"{raw[:5]}-{raw[5:]}"
+
+    @classmethod
+    def generate_for_user(cls, user) -> list[str]:
+        """
+        Delete existing backup codes for the user and generate a fresh set.
+
+        Returns the list of **plaintext** codes (shown once; never stored
+        in plaintext).
+        """
+        from django.utils import timezone
+
+        cls.objects.filter(user=user).delete()
+
+        plaintext_codes = []
+        for _ in range(cls.BACKUP_CODE_COUNT):
+            raw = secrets.token_hex(5)          # 10 hex chars = 40-bit entropy
+            formatted = cls._format_code(raw)
+            cls.objects.create(
+                user=user,
+                code_hash=make_password(formatted),
+            )
+            plaintext_codes.append(formatted)
+
+        return plaintext_codes
+
+    @classmethod
+    def verify_and_consume(cls, user, code: str) -> bool:
+        """
+        Check whether `code` matches an unused backup code for `user`.
+
+        If a match is found, marks it as used and returns True.
+        Returns False if the code is invalid or already used.
+        """
+        from django.utils import timezone
+
+        code = code.strip().upper()
+        for backup in cls.objects.filter(user=user, is_used=False):
+            if check_password(code, backup.code_hash):
+                backup.is_used = True
+                backup.used_at = timezone.now()
+                backup.save(update_fields=['is_used', 'used_at'])
+                return True
+        return False

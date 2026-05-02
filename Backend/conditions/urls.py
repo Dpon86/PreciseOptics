@@ -4,7 +4,6 @@ URL configuration for conditions app
 from django.urls import path
 from . import views
 
-app_name = 'conditions'
 
 urlpatterns = [
     # Medical Condition endpoints

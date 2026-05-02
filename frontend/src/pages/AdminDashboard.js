@@ -21,12 +21,8 @@ const AdminDashboard = () => {
     const fetchAllData = async () => {
         try {
             setLoading(true);
-            const response = await fetch('http://127.0.0.1:8000/api/data/all-models/');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const result = await response.json();
-            setData(result);
+            const response = await apiService.getAllModelsData();
+            setData(response.data);
             setError(null);
         } catch (err) {
             setError('Failed to fetch data: ' + err.message);
@@ -107,10 +103,14 @@ const AdminDashboard = () => {
         { id: 'staff', label: 'Staff', icon: '👨‍⚕️' },
         { id: 'visits', label: 'Visits', icon: '🏥' },
         { id: 'consultations', label: 'Consultations', icon: '💬' },
+        { id: 'conditions', label: 'Conditions', icon: '🏥' },
+        { id: 'protocols', label: 'Protocols', icon: '📋' },
+        { id: 'referrals', label: 'Referrals', icon: '🔄' },
         { id: 'medications', label: 'Medications', icon: '💊' },
-        { id: 'prescriptions', label: 'Prescriptions', icon: '📋' },
+        { id: 'prescriptions', label: 'Prescriptions', icon: '📝' },
         { id: 'eye-tests', label: 'Eye Tests', icon: '👁️' },
-        { id: 'audit', label: 'Audit Logs', icon: '📝' },
+        { id: 'alerts', label: 'Alerts', icon: '🔔' },
+        { id: 'audit', label: 'Audit Logs', icon: '📑' },
     ];
 
     return (
@@ -666,6 +666,249 @@ const AdminDashboard = () => {
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'conditions' && (
+                    <div className="conditions-tab-section">
+                        <h2>Conditions Overview</h2>
+                        {conditionsStats ? (
+                            <div className="tab-stats-grid">
+                                <div className="tab-stat-card">
+                                    <div className="stat-icon">🏥</div>
+                                    <div className="stat-info">
+                                        <h3>{conditionsStats.active_conditions || 0}</h3>
+                                        <p>Active Condition Types</p>
+                                    </div>
+                                </div>
+                                <div className="tab-stat-card">
+                                    <div className="stat-icon">👤</div>
+                                    <div className="stat-info">
+                                        <h3>{conditionsStats.active_patient_conditions || 0}</h3>
+                                        <p>Active Patient Conditions</p>
+                                    </div>
+                                </div>
+                                <div className="tab-stat-card highlight-new">
+                                    <div className="stat-icon">🆕</div>
+                                    <div className="stat-info">
+                                        <h3>{conditionsStats.recent_diagnoses || 0}</h3>
+                                        <p>New Diagnoses (30 days)</p>
+                                    </div>
+                                </div>
+                                <div className="tab-stat-card highlight-warning">
+                                    <div className="stat-icon">⚠️</div>
+                                    <div className="stat-info">
+                                        <h3>{conditionsStats.overdue_assessments || 0}</h3>
+                                        <p>Overdue Assessments</p>
+                                    </div>
+                                </div>
+                                <div className="tab-stat-card">
+                                    <div className="stat-icon">📅</div>
+                                    <div className="stat-info">
+                                        <h3>{conditionsStats.upcoming_assessments || 0}</h3>
+                                        <p>Upcoming (7 days)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <p>No conditions data available.</p>
+                        )}
+                        {conditionsStats?.conditions_by_severity && (
+                            <div className="severity-breakdown-section">
+                                <h3>Patients by Severity</h3>
+                                <div className="severity-grid">
+                                    {Object.entries(conditionsStats.conditions_by_severity).map(([sev, count]) => (
+                                        <div key={sev} className={`severity-card severity-${sev.toLowerCase()}`}>
+                                            <span className="sev-label">{sev}</span>
+                                            <span className="sev-count">{count}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        <div className="tab-quick-links">
+                            <a href="/conditions" className="quick-link-btn">View All Conditions</a>
+                            <a href="/reports/diseases" className="quick-link-btn">Disease-Specific Reports</a>
+                            <a href="/reports/condition-prevalence" className="quick-link-btn">Prevalence Report</a>
+                            <a href="/reports/condition-outcomes" className="quick-link-btn">Outcomes Report</a>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'protocols' && (
+                    <div className="protocols-tab-section">
+                        <h2>Protocols Overview</h2>
+                        {protocolsStats ? (
+                            <div className="tab-stats-grid">
+                                <div className="tab-stat-card">
+                                    <div className="stat-icon">📋</div>
+                                    <div className="stat-info">
+                                        <h3>{protocolsStats.active_protocols || 0}</h3>
+                                        <p>Available Protocols</p>
+                                    </div>
+                                </div>
+                                <div className="tab-stat-card highlight-new">
+                                    <div className="stat-icon">🔄</div>
+                                    <div className="stat-info">
+                                        <h3>{protocolsStats.active_patient_protocols || 0}</h3>
+                                        <p>Active Patient Protocols</p>
+                                    </div>
+                                </div>
+                                <div className="tab-stat-card">
+                                    <div className="stat-icon">✅</div>
+                                    <div className="stat-info">
+                                        <h3>{protocolsStats.completed_patient_protocols || 0}</h3>
+                                        <p>Completed Protocols</p>
+                                    </div>
+                                </div>
+                                {protocolsStats.avg_adherence != null && (
+                                    <div className="tab-stat-card">
+                                        <div className="stat-icon">📈</div>
+                                        <div className="stat-info">
+                                            <h3>{protocolsStats.avg_adherence.toFixed(1)}%</h3>
+                                            <p>Avg Adherence Rate</p>
+                                        </div>
+                                    </div>
+                                )}
+                                {protocolsStats.pending_consents > 0 && (
+                                    <div className="tab-stat-card highlight-warning">
+                                        <div className="stat-icon">📝</div>
+                                        <div className="stat-info">
+                                            <h3>{protocolsStats.pending_consents}</h3>
+                                            <p>Pending Consents</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <p>No protocol data available.</p>
+                        )}
+                        <div className="tab-quick-links">
+                            <a href="/protocols" className="quick-link-btn">View All Protocols</a>
+                            <a href="/protocols/builder" className="quick-link-btn">Protocol Builder</a>
+                            <a href="/protocols/add" className="quick-link-btn">Create Protocol</a>
+                            <a href="/reports/protocol-adherence" className="quick-link-btn">Adherence Report</a>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'referrals' && (
+                    <div className="referrals-tab-section">
+                        <h2>Referrals Overview</h2>
+                        {referralsStats ? (
+                            <div className="tab-stats-grid">
+                                <div className="tab-stat-card">
+                                    <div className="stat-icon">🔄</div>
+                                    <div className="stat-info">
+                                        <h3>{referralsStats.total_referrals || 0}</h3>
+                                        <p>Total Referrals</p>
+                                    </div>
+                                </div>
+                                <div className="tab-stat-card">
+                                    <div className="stat-icon">📥</div>
+                                    <div className="stat-info">
+                                        <h3>{referralsStats.incoming_referrals || 0}</h3>
+                                        <p>Incoming</p>
+                                    </div>
+                                </div>
+                                <div className="tab-stat-card">
+                                    <div className="stat-icon">📤</div>
+                                    <div className="stat-info">
+                                        <h3>{referralsStats.outgoing_referrals || 0}</h3>
+                                        <p>Outgoing</p>
+                                    </div>
+                                </div>
+                                <div className="tab-stat-card highlight-warning">
+                                    <div className="stat-icon">⏳</div>
+                                    <div className="stat-info">
+                                        <h3>{referralsStats.pending_count || 0}</h3>
+                                        <p>Pending</p>
+                                    </div>
+                                </div>
+                                {referralsStats.overdue_count > 0 && (
+                                    <div className="tab-stat-card highlight-danger">
+                                        <div className="stat-icon">⚠️</div>
+                                        <div className="stat-info">
+                                            <h3>{referralsStats.overdue_count}</h3>
+                                            <p>Overdue</p>
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="tab-stat-card">
+                                    <div className="stat-icon">✅</div>
+                                    <div className="stat-info">
+                                        <h3>{referralsStats.completed_count || 0}</h3>
+                                        <p>Completed</p>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <p>No referral data available.</p>
+                        )}
+                        <div className="tab-quick-links">
+                            <a href="/referrals" className="quick-link-btn">View All Referrals</a>
+                            <a href="/referrals/create" className="quick-link-btn">Create Referral</a>
+                            <a href="/referral-sources" className="quick-link-btn">Manage Sources</a>
+                            <a href="/reports/referral-sources" className="quick-link-btn">Referral Analytics</a>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'alerts' && (
+                    <div className="alerts-tab-section">
+                        <h2>Alerts &amp; Monitoring</h2>
+                        <div className="tab-stats-grid">
+                            {conditionsStats?.overdue_assessments > 0 && (
+                                <div className="tab-stat-card highlight-danger">
+                                    <div className="stat-icon">⚠️</div>
+                                    <div className="stat-info">
+                                        <h3>{conditionsStats.overdue_assessments}</h3>
+                                        <p>Overdue Condition Assessments</p>
+                                    </div>
+                                </div>
+                            )}
+                            {conditionsStats?.upcoming_assessments > 0 && (
+                                <div className="tab-stat-card highlight-warning">
+                                    <div className="stat-icon">📅</div>
+                                    <div className="stat-info">
+                                        <h3>{conditionsStats.upcoming_assessments}</h3>
+                                        <p>Upcoming Assessments (7 days)</p>
+                                    </div>
+                                </div>
+                            )}
+                            {protocolsStats?.pending_consents > 0 && (
+                                <div className="tab-stat-card highlight-warning">
+                                    <div className="stat-icon">📝</div>
+                                    <div className="stat-info">
+                                        <h3>{protocolsStats.pending_consents}</h3>
+                                        <p>Pending Protocol Consents</p>
+                                    </div>
+                                </div>
+                            )}
+                            {referralsStats?.overdue_count > 0 && (
+                                <div className="tab-stat-card highlight-danger">
+                                    <div className="stat-icon">🔄</div>
+                                    <div className="stat-info">
+                                        <h3>{referralsStats.overdue_count}</h3>
+                                        <p>Overdue Referrals</p>
+                                    </div>
+                                </div>
+                            )}
+                            {referralsStats?.pending_count > 0 && (
+                                <div className="tab-stat-card highlight-warning">
+                                    <div className="stat-icon">⏳</div>
+                                    <div className="stat-info">
+                                        <h3>{referralsStats.pending_count}</h3>
+                                        <p>Pending Referrals</p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        <div className="tab-quick-links">
+                            <a href="/alerts" className="quick-link-btn">Alert Centre</a>
+                            <a href="/alerts/followup" className="quick-link-btn">Follow-up Alerts</a>
+                            <a href="/alerts/return-due" className="quick-link-btn">Return Due Alerts</a>
                         </div>
                     </div>
                 )}

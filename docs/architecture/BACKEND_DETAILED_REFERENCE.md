@@ -841,6 +841,186 @@ Fields:
 ├── new_dosage: CharField
 ├── reason_for_change: TextField
 ├── drug_interactions_checked: BooleanField
+
+---
+
+## 9. **CONDITIONS APP** - Medical Condition Management
+
+**Base URL:** `http://localhost:8000/api/conditions/`  
+**Authentication:** Token required (`Authorization: Token <token>`)
+
+### Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET, POST | `/api/conditions/` | List all conditions / Create new condition |
+| GET, PUT, PATCH, DELETE | `/api/conditions/<id>/` | Retrieve / update / delete a condition |
+| GET | `/api/conditions/code/<code>/` | Get condition by code (e.g. `AMD`) |
+| GET | `/api/conditions/prevalence/` | Prevalence data for all conditions |
+| GET | `/api/conditions/statistics/` | Aggregate statistics for dashboard |
+| GET, POST | `/api/conditions/patient-conditions/` | List / create patient-condition assignments |
+| GET, PUT, PATCH, DELETE | `/api/conditions/patient-conditions/<id>/` | Patient condition detail |
+| POST | `/api/conditions/patient-conditions/<id>/resolve/` | Mark condition as resolved |
+| GET | `/api/conditions/patient-conditions/<id>/timeline/` | Full history timeline |
+| GET | `/api/conditions/patient-conditions/overdue/` | Patients with overdue assessments |
+| GET | `/api/conditions/patient-conditions/upcoming/` | Assessments due within 7 days |
+| POST | `/api/conditions/patient-conditions/bulk-update/` | Bulk status update |
+| GET | `/api/conditions/patient/<patient_id>/conditions/` | All conditions for a patient |
+| GET, POST | `/api/conditions/progress/` | List / create condition progress entries |
+| GET, PUT, PATCH, DELETE | `/api/conditions/progress/<id>/` | Progress entry detail |
+| GET | `/api/conditions/patient-conditions/<id>/progress/` | Progress history for a patient condition |
+| GET, POST | `/api/conditions/documents/` | List / upload condition documents |
+| GET, DELETE | `/api/conditions/documents/<id>/` | Document detail / delete |
+| GET | `/api/conditions/patient-conditions/<id>/documents/` | Documents for a patient condition |
+
+### Statistics Response Shape (`GET /api/conditions/statistics/`)
+```json
+{
+  "total_conditions": 15,
+  "active_conditions": 12,
+  "active_patient_conditions": 145,
+  "recent_diagnoses": 8,
+  "upcoming_assessments": 12,
+  "overdue_assessments": 3,
+  "conditions_by_severity": { "mild": 45, "moderate": 67, "severe": 28, "very_severe": 5 },
+  "conditions_by_category": { "retinal": 89, "diabetic": 34, "glaucoma": 22 }
+}
+```
+
+### Prevalence Response Shape (`GET /api/conditions/prevalence/`)
+```json
+[
+  { "condition__name": "AMD", "condition__category": "retinal", "patient_count": 45 },
+  { "condition__name": "Diabetic Retinopathy", "condition__category": "diabetic", "patient_count": 34 }
+]
+```
+
+---
+
+## 10. **PROTOCOLS APP** - Treatment Protocol Management
+
+**Base URL:** `http://localhost:8000/api/protocols/`  
+**Authentication:** Token required  
+**Note:** Protocol and PatientProtocol PKs are **UUIDs**
+
+### Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET, POST | `/api/protocols/` | List protocols / create protocol |
+| GET, PUT, PATCH, DELETE | `/api/protocols/<uuid>/` | Protocol detail |
+| GET | `/api/protocols/code/<code>/` | Get protocol by code |
+| GET | `/api/protocols/<uuid>/steps/` | All steps for a protocol |
+| GET | `/api/protocols/statistics/` | Aggregate stats for dashboard |
+| GET | `/api/protocols/adherence-report/` | Patient adherence data |
+| GET, POST | `/api/protocols/steps/` | List / create protocol steps |
+| GET, PUT, PATCH, DELETE | `/api/protocols/steps/<uuid>/` | Step detail |
+| GET, POST | `/api/protocols/patient-protocols/` | List / assign protocol to patient |
+| GET, PUT, PATCH, DELETE | `/api/protocols/patient-protocols/<uuid>/` | Assignment detail |
+| GET | `/api/protocols/patient-protocols/<uuid>/schedule/` | Scheduled steps |
+| POST | `/api/protocols/patient-protocols/<uuid>/discontinue/` | Discontinue protocol |
+| POST | `/api/protocols/patient-protocols/<uuid>/complete-step/<step_uuid>/` | Complete a step |
+| GET | `/api/protocols/patient/<patient_uuid>/protocols/` | All protocols for a patient |
+| GET, POST | `/api/protocols/completions/` | Step completion records |
+| GET | `/api/protocols/completions/upcoming/` | Upcoming scheduled steps |
+| GET | `/api/protocols/completions/overdue/` | Overdue steps |
+| POST | `/api/protocols/completions/<uuid>/reschedule/` | Reschedule a step |
+| POST | `/api/protocols/completions/bulk-reschedule/` | Bulk reschedule |
+| GET | `/api/protocols/completions/adverse-events/` | Adverse event report |
+| GET, POST | `/api/protocols/completions/<uuid>/results/` | Results for a completion |
+| POST | `/api/protocols/completions/<uuid>/record-results/` | Record step results |
+| POST | `/api/protocols/completions/<uuid>/evaluate-branching/` | Evaluate branching logic |
+| GET, POST | `/api/protocols/consent-forms/` | List / create consent forms |
+| GET | `/api/protocols/patient/<patient_uuid>/consent-forms/` | Patient consent forms |
+| POST | `/api/protocols/consent-forms/<uuid>/withdraw/` | Withdraw consent |
+
+### Statistics Response Shape (`GET /api/protocols/statistics/`)
+```json
+{
+  "total_protocols": 8,
+  "active_protocols": 6,
+  "active_patient_protocols": 28,
+  "completed_patient_protocols": 150,
+  "overdue_protocols": 2,
+  "avg_adherence": 84.5
+}
+```
+
+---
+
+## 11. **REFERRALS APP** - Referral Management
+
+**Base URL:** `http://localhost:8000/api/referrals/`  
+**Authentication:** Token required  
+**Note:** All PKs are **UUIDs**
+
+### Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET, POST | `/api/referrals/sources/` | List / create referral sources |
+| GET, PUT, PATCH, DELETE | `/api/referrals/sources/<uuid>/` | Source detail |
+| GET | `/api/referrals/sources/<uuid>/performance/` | Source performance metrics |
+| GET, POST | `/api/referrals/` | List / create referrals |
+| GET, PUT, PATCH, DELETE | `/api/referrals/<uuid>/` | Referral detail |
+| POST | `/api/referrals/<uuid>/status/` | Update referral status |
+| POST | `/api/referrals/<uuid>/send/` | Send referral to recipient |
+| POST | `/api/referrals/<uuid>/cancel/` | Cancel a referral |
+| GET | `/api/referrals/patient/<patient_uuid>/` | All referrals for a patient |
+| GET, POST | `/api/referrals/documents/` | List / upload documents |
+| GET, DELETE | `/api/referrals/documents/<uuid>/` | Document detail |
+| GET | `/api/referrals/<uuid>/documents/` | Documents for a referral |
+| GET, POST | `/api/referrals/responses/` | List / create responses |
+| GET | `/api/referrals/<uuid>/responses/` | Responses for a referral |
+| GET | `/api/referrals/statistics/` | Aggregate stats for dashboard |
+| GET | `/api/referrals/overdue/` | Overdue referrals |
+
+### Statistics Response Shape (`GET /api/referrals/statistics/`)
+```json
+{
+  "total_referrals": 89,
+  "pending_referrals": 12,
+  "completed_referrals": 65,
+  "urgent_referrals": 4,
+  "avg_response_days": 3.2,
+  "referral_sources": [
+    { "name": "GP Surgery", "source_type": "gp", "total_referrals": 34, "completed_count": 28 }
+  ]
+}
+```
+
+### Referral Status Flow
+```
+draft → sent → acknowledged → in_progress → completed
+                                          ↘ cancelled
+```
+
+---
+
+## 12. **AUTHENTICATION**
+
+All API endpoints (except health checks) require Token authentication.
+
+```http
+Authorization: Token <your_token_here>
+```
+
+**Obtain token:**
+```http
+POST /api/auth/login/
+Content-Type: application/json
+
+{ "username": "dr.smith", "password": "password123" }
+```
+
+**Response:**
+```json
+{ "token": "abc123...", "user_id": 1, "user_type": "doctor" }
+```
+
+---
+
+*Last updated: May 1, 2026*
 ├── contraindications_reviewed: BooleanField
 ├── allergy_check_performed: BooleanField
 ├── supervisor_approval: ForeignKey → CustomUser (nullable)

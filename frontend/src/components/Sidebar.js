@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
@@ -36,7 +37,20 @@ const Sidebar = ({ isOpen, onClose }) => {
     {
       category: 'Conditions Management',
       items: [
-        { path: '/conditions', label: 'View All Conditions', icon: '🏥' }
+        { path: '/conditions', label: 'View All Conditions', icon: '🏥' },
+        { path: '/patients', label: 'Patient Conditions (Select Patient)', icon: '👤' },
+        { path: '/reports/condition-prevalence', label: 'Prevalence Report', icon: '📊' },
+        { path: '/reports/condition-outcomes', label: 'Outcomes Report', icon: '📈' },
+        { path: '/reports/diseases', label: 'Disease-Specific Report', icon: '🦠' }
+      ]
+    },
+    {
+      category: 'Treatment Protocols',
+      items: [
+        { path: '/protocols', label: 'View All Protocols', icon: '📋' },
+        { path: '/protocols/builder', label: 'Protocol Builder', icon: '🏗️' },
+        { path: '/protocols/add', label: 'Create Protocol', icon: '➕' },
+        { path: '/reports/protocol-adherence', label: 'Protocol Adherence', icon: '✅' }
       ]
     },
     {
@@ -63,8 +77,8 @@ const Sidebar = ({ isOpen, onClose }) => {
         { path: '/prescriptions/add', label: 'Add Prescription', icon: '📝' },
         { path: '/manufacturers/add', label: 'Add Manufacturer', icon: '🏭' },
         { path: '/medication-categories/add', label: 'Add Category', icon: '📂' },
-        { path: '/medications', label: 'Medication Stock', icon: '📦' },
-        { path: '/medications/recalls', label: 'Medication Recall Centre', icon: '⚠️' }
+        { path: '/medications/recalls', label: 'Medication Recall Centre', icon: '⚠️' },
+        { path: '/reports/batch-tracking', label: 'Batch Number Tracking', icon: '📦' }
       ]
     },
     {
@@ -77,8 +91,12 @@ const Sidebar = ({ isOpen, onClose }) => {
         { path: '/reports/eye-tests-summary', label: 'Eye Tests Summary', icon: '👁️' },
         { path: '/reports/medication-effectiveness', label: 'Medication Effectiveness', icon: '💊' },
         { path: '/reports/diseases', label: 'Disease-Specific Reports', icon: '🦠' },
-        { path: '/reports/revenue-analysis', label: 'Revenue Analysis', icon: '💷' },
-        { path: '/reports/batch-tracking', label: 'Batch Number Tracking', icon: '📆' }
+        { path: '/reports/condition-prevalence', label: 'Condition Prevalence', icon: '📉' },
+        { path: '/reports/condition-outcomes', label: 'Condition Outcomes', icon: '🎯' },
+        { path: '/reports/protocol-adherence', label: 'Protocol Adherence', icon: '✅' },
+        { path: '/reports/referral-sources', label: 'Referral Source Analysis', icon: '🔄' },
+        { path: '/reports/batch-tracking', label: 'Batch Number Tracking', icon: '📦' },
+        { path: '/reports/revenue-analysis', label: 'Revenue Analysis', icon: '💷' }
       ]
     },
     {
@@ -283,6 +301,11 @@ const Sidebar = ({ isOpen, onClose }) => {
       `}</style>
     </>
   );
+};
+
+Sidebar.propTypes = {
+  isOpen: PropTypes.bool,
+  onClose: PropTypes.func
 };
 
 export default Sidebar;

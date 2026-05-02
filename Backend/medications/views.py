@@ -5,7 +5,7 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db import models
-from precise_optics.permissions import ReadOnlyOrAuthenticatedPermission
+from rest_framework.permissions import IsAuthenticated
 from .models import (
     Medication, Prescription, PrescriptionItem, MedicationAdministration,
     DrugAllergy, Manufacturer, MedicationCategory, MedicationRecall
@@ -24,7 +24,7 @@ class ManufacturerViewSet(viewsets.ModelViewSet):
     """
     queryset = Manufacturer.objects.all()
     serializer_class = ManufacturerSerializer
-    permission_classes = [ReadOnlyOrAuthenticatedPermission]
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         """Filter manufacturers"""
@@ -48,7 +48,7 @@ class MedicationCategoryViewSet(viewsets.ModelViewSet):
     """
     queryset = MedicationCategory.objects.all()
     serializer_class = MedicationCategorySerializer
-    permission_classes = [ReadOnlyOrAuthenticatedPermission]
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         """Filter categories"""
@@ -77,11 +77,13 @@ class MedicationViewSet(viewsets.ModelViewSet):
     """
     queryset = Medication.objects.all()
     serializer_class = MedicationSerializer
-    permission_classes = [ReadOnlyOrAuthenticatedPermission]
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         """Filter medications based on parameters"""
-        queryset = Medication.objects.filter(approval_status=True)
+        queryset = Medication.objects.select_related(
+            'manufacturer', 'category', 'created_by'
+        ).filter(approval_status=True)
         
         # Search by name or generic name
         search = self.request.query_params.get('search', None)
@@ -319,3 +321,4 @@ class MedicationRecallViewSet(viewsets.ModelViewSet):
             'id', 'first_name', 'last_name', 'date_of_birth', 'phone_number'
         )
         return Response(list(patients))
+

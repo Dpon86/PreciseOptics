@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { apiService } from '../../services/api';
 import ProtocolFlowChart from '../../components/ProtocolFlowChart';
 import './ProtocolDetailPage.css';
 
@@ -19,15 +20,8 @@ const ProtocolDetailPage = () => {
 
   const fetchProtocol = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://127.0.0.1:8000/api/protocols/protocols/${id}/`, {
-        headers: {
-          'Authorization': `Token ${token}`
-        }
-      });
-      if (!response.ok) throw new Error('Failed to fetch protocol');
-      const data = await response.json();
-      setProtocol(data);
+      const response = await apiService.getProtocol(id);
+      setProtocol(response.data);
       setLoading(false);
     } catch (err) {
       setError(err.message || 'Failed to fetch protocol');
@@ -37,15 +31,8 @@ const ProtocolDetailPage = () => {
 
   const fetchProtocolSteps = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://127.0.0.1:8000/api/protocols/steps/?protocol=${id}`, {
-        headers: {
-          'Authorization': `Token ${token}`
-        }
-      });
-      if (!response.ok) throw new Error('Failed to fetch protocol steps');
-      const data = await response.json();
-      setSteps(Array.isArray(data) ? data : data.results || []);
+      const response = await apiService.getProtocolSteps(id);
+      setSteps(Array.isArray(response.data) ? response.data : response.data.results || []);
     } catch (err) {
       console.error('Error fetching protocol steps:', err);
     }

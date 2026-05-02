@@ -3,6 +3,7 @@ Serializers for PreciseOptics Eye Hospital Management System - Consultations
 """
 from rest_framework import serializers
 from .models import Consultation, VitalSigns, ConsultationDocument, ConsultationImage
+from precise_optics.file_validators import validate_document_extension, validate_file_size, validate_image_extension
 
 
 class VitalSignsSerializer(serializers.ModelSerializer):
@@ -26,6 +27,11 @@ class ConsultationDocumentSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['id', 'uploaded_by_name', 'created_at', 'updated_at']
 
+    def validate_file(self, value):
+        validate_document_extension(value)
+        validate_file_size(value)
+        return value
+
 
 class ConsultationImageSerializer(serializers.ModelSerializer):
     """
@@ -37,6 +43,11 @@ class ConsultationImageSerializer(serializers.ModelSerializer):
         model = ConsultationImage
         fields = '__all__'
         read_only_fields = ['id', 'captured_by_name', 'created_at', 'updated_at']
+
+    def validate_image(self, value):
+        validate_image_extension(value)
+        validate_file_size(value)
+        return value
 
 
 class ConsultationSerializer(serializers.ModelSerializer):

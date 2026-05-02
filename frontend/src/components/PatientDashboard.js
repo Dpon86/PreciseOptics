@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import { usePatient } from '../context/PatientContext';
 
 const PatientDashboard = () => {
@@ -127,5 +128,8 @@ const PatientDashboard = () => {
     </div>
   );
 };
+
+// No props - component uses PatientContext
+PatientDashboard.propTypes = {};
 
 export default PatientDashboard;

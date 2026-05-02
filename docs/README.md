@@ -15,11 +15,14 @@ This directory contains all project documentation organized by category.
 ## Directory Structure
 
 ### 📐 Architecture (`architecture/`)
-**4 documents** - High-level system architecture and reference documentation
-- `BACKEND_DETAILED_REFERENCE.md` - Backend API and model reference
-- `FRONTEND_ARCHITECTURE_MAP.md` - Frontend component architecture
+**7 documents** - High-level system architecture and reference documentation
+- `COMPLETE_ARCHITECTURE.md` - **⭐ Complete application architecture (127 routes, full navigation)** ✨ NEW
+- `QUICK_REFERENCE_ARCHITECTURE.md` - **⚡ Quick reference guide for developers** ✨ NEW
 - `SOFTWARE_ARCHITECTURE_MAP.md` - Overall system architecture
+- `FRONTEND_ARCHITECTURE_MAP.md` - Frontend component architecture
+- `BACKEND_DETAILED_REFERENCE.md` - Backend API and model reference
 - `PRODUCTION_READINESS.md` - Production deployment readiness checklist
+- `DEPLOYMENT_RUNBOOK.md` - Deployment procedures and runbook
 
 ### 🐛 Bug Fixes (`bug-fixes/`)
 **8 documents** - Bug fix documentation and issue resolutions
@@ -68,6 +71,8 @@ This directory contains all project documentation organized by category.
 
 **Looking for...**
 - **What to work on next?** → [MASTER_TODO.md](MASTER_TODO.md) ⭐
+- **Complete architecture reference?** → `architecture/COMPLETE_ARCHITECTURE.md` ⭐ NEW
+- **Quick architecture guide?** → `architecture/QUICK_REFERENCE_ARCHITECTURE.md` ⚡ NEW
 - System architecture? → `architecture/SOFTWARE_ARCHITECTURE_MAP.md`
 - Production checklist? → `architecture/PRODUCTION_READINESS.md`
 - Current TODOs? → `planning/TODO_CHECKLIST.md`
@@ -76,6 +81,6 @@ This directory contains all project documentation organized by category.
 
 ---
 
-**Total Documents**: 30 files organized across 6 categories
+**Total Documents**: 33 files organized across 6 categories
 
-**Last Updated**: March 28, 2026
+**Last Updated**: May 2, 2026

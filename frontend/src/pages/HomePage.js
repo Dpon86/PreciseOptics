@@ -17,13 +17,56 @@ const HomePage = () => {
       description: 'Generate reports and view analytics',
       icon: '📊',
       links: [
-        { path: '/reports/patient-medications', label: 'Patient Medications Report' },
+        { path: '/reports/diseases', label: 'Disease-Specific Reports' },
+        { path: '/reports/treatment-effectiveness', label: 'Treatment Effectiveness' },
+        { path: '/reports/patient-medications', label: 'Patient Medications' },
         { path: '/reports/drug-audit', label: 'Drug Audit Report' },
-        { path: '/reports/patient-visits', label: 'Patient Visits Report' },
-        { path: '/reports/eye-tests-summary', label: 'Eye Tests Summary' },
-        { path: '/reports/medication-effectiveness', label: 'Medication Effectiveness' },
-        { path: '/reports/revenue-analysis', label: 'Revenue Analysis' },
-        { path: '/audit', label: 'Audit Logs' }
+        { path: '/reports/condition-prevalence', label: 'Condition Prevalence' },
+        { path: '/reports/condition-outcomes', label: 'Condition Outcomes' },
+        { path: '/reports/protocol-adherence', label: 'Protocol Adherence' },
+        { path: '/reports/referral-sources', label: 'Referral Source Analysis' },
+        { path: '/audit-logs', label: 'Audit Logs' }
+      ]
+    },
+    
+    // Conditions Management - No patient required
+    {
+      title: 'Conditions Management',
+      description: 'Track and manage patient conditions by disease',
+      icon: '🏥',
+      links: [
+        { path: '/conditions', label: 'View All Conditions' },
+        { path: '/patients', label: 'Patient Conditions (Select Patient)' },
+        { path: '/reports/diseases', label: 'Disease-Specific Reports' },
+        { path: '/reports/condition-prevalence', label: 'Prevalence Report' },
+        { path: '/reports/condition-outcomes', label: 'Outcomes Report' }
+      ]
+    },
+    
+    // Protocols - No patient required
+    {
+      title: 'Treatment Protocols',
+      description: 'Manage clinical protocols and procedures',
+      icon: '📋',
+      links: [
+        { path: '/protocols', label: 'View All Protocols' },
+        { path: '/protocols/builder', label: 'Protocol Builder' },
+        { path: '/protocols/add', label: 'Create Protocol' },
+        { path: '/reports/protocol-adherence', label: 'Protocol Adherence Report' }
+      ]
+    },
+    
+    // Referrals Management
+    {
+      title: 'Referral Management',
+      description: 'Manage incoming and outgoing patient referrals',
+      icon: '🔄',
+      links: [
+        { path: '/referrals', label: 'View All Referrals' },
+        { path: '/referrals/create', label: 'Create Referral' },
+        { path: '/referral-sources', label: 'Manage Sources' },
+        { path: '/referral-sources/add', label: 'Add Referral Source' },
+        { path: '/reports/referral-sources', label: 'Referral Analytics' }
       ]
     },
     
@@ -37,19 +80,20 @@ const HomePage = () => {
         { path: '/medications/add', label: 'Add New Medication' },
         { path: '/manufacturers/add', label: 'Add Manufacturer' },
         { path: '/medication-categories/add', label: 'Add Category' },
-        { path: '/inventory/add', label: 'Manage Inventory' }
+        { path: '/medications/recalls', label: 'Medication Recall Centre' },
+        { path: '/reports/batch-tracking', label: 'Batch Tracking Report' }
       ]
     },
     
-    // Protocols - No patient required
+    // Alerts & Monitoring
     {
-      title: 'Treatment Protocols',
-      description: 'Manage clinical protocols and procedures',
-      icon: '📋',
+      title: 'Alerts & Monitoring',
+      description: 'Monitor appointments, follow-ups, and system alerts',
+      icon: '🔔',
       links: [
-        { path: '/protocols', label: 'View Protocols' },
-        { path: '/protocols/builder', label: '🏗️ Create Protocol' },
-        { path: '/protocols/statistics', label: 'Protocol Statistics' }
+        { path: '/alerts', label: 'Alert Centre' },
+        { path: '/alerts/followup', label: 'Follow-up Alerts' },
+        { path: '/alerts/return-due', label: 'Return Due Alerts' }
       ]
     },
     
@@ -60,8 +104,7 @@ const HomePage = () => {
       icon: '👥',
       links: [
         { path: '/patients', label: 'View All Patients' },
-        { path: '/patients/add', label: 'Add New Patient' },
-        { path: '/patients/medical-history/add', label: 'Add Medical History' }
+        { path: '/patients/add', label: 'Add New Patient' }
       ]
     },
     

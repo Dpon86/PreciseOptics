@@ -52,7 +52,7 @@ const EyeTestsPage = () => {
           
           allTests.push(...transformedTests);
         } catch (endpointError) {
-          console.log(`${apiCall.type} endpoint error:`, endpointError.message);
+          // This endpoint had no results for this test type
         }
       }
       

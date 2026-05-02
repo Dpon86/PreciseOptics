@@ -15,6 +15,7 @@ import {
 } from 'chart.js';
 import { Line, Bar, Radar, Scatter } from 'react-chartjs-2';
 import api from '../../services/api';
+import { exportToCSV } from '../../services/exportUtils';
 
 // Register Chart.js components
 ChartJS.register(
@@ -111,7 +112,7 @@ const EyeTestsSummaryReportPage = () => {
           });
         }
       } catch (apiError) {
-        console.log('API endpoint not available, showing empty state');
+        // API unavailable — show empty state silently in production
         setEyeTestData({
           iopTrends: {
             labels: ['No Data'],
@@ -490,21 +491,33 @@ const EyeTestsSummaryReportPage = () => {
 
       {/* Export and Actions */}
       <div className="export-section">
-        <button className="export-btn primary">
+        <button className="export-btn primary" onClick={() => {
+          const rows = (eyeTestData.testTypeBreakdown || []).map(item => ({
+            test_type: item.test_type || item.name || '',
+            total_tests: item.count || item.total || '',
+            avg_score_left: item.avg_left ?? '',
+            avg_score_right: item.avg_right ?? '',
+            improved: item.improved ?? '',
+            stable: item.stable ?? '',
+            declined: item.declined ?? '',
+          }));
+          const cols = [
+            { key: 'test_type', label: 'Test Type' },
+            { key: 'total_tests', label: 'Total Tests' },
+            { key: 'avg_score_left', label: 'Avg Score (Left)' },
+            { key: 'avg_score_right', label: 'Avg Score (Right)' },
+            { key: 'improved', label: 'Improved' },
+            { key: 'stable', label: 'Stable' },
+            { key: 'declined', label: 'Declined' },
+          ];
+          exportToCSV(rows, cols, `eye-tests-summary-${new Date().toISOString().slice(0,10)}`);
+        }}>
           <i className="fas fa-download"></i>
-          Export Comprehensive Report
+          Export CSV Report
         </button>
-        <button className="export-btn">
-          <i className="fas fa-chart-line"></i>
-          Create Treatment Plan
-        </button>
-        <button className="export-btn">
-          <i className="fas fa-bell"></i>
-          Set Alerts
-        </button>
-        <button className="export-btn">
-          <i className="fas fa-share"></i>
-          Share with Team
+        <button className="export-btn" onClick={() => window.print()}>
+          <i className="fas fa-print"></i>
+          Print Report
         </button>
       </div>
     </div>

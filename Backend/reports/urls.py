@@ -6,7 +6,7 @@ from . import views
 from . import comprehensive_api
 from . import treatment_effectiveness_api
 
-app_name = 'reports'
+
 
 urlpatterns = [
     path('api/reports/drug-audit/', views.drug_audit_report, name='drug-audit-report'),

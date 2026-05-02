@@ -6,6 +6,7 @@ from django.db import models
 from django.core.validators import EmailValidator, RegexValidator
 from patients.models import Patient
 from accounts.models import CustomUser
+from precise_optics.file_validators import validate_document_extension, validate_file_size
 import uuid
 
 
@@ -249,7 +250,7 @@ class ReferralDocument(models.Model):
     )
     
     document_type = models.CharField(max_length=30, choices=DOCUMENT_TYPES)
-    file = models.FileField(upload_to='referral_documents/%Y/%m/')
+    file = models.FileField(upload_to='referral_documents/%Y/%m/', validators=[validate_document_extension, validate_file_size])
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     

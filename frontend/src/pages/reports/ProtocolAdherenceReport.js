@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { apiService } from '../../services/api';
+import { exportToCSV } from '../../services/exportUtils';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -76,7 +77,39 @@ const ProtocolAdherenceReport = () => {
   };
 
   const handleExport = () => {
-    alert('Export functionality will be implemented soon');
+    const rows = [];
+
+    if (adherenceData?.protocols) {
+      adherenceData.protocols.forEach(p => {
+        rows.push({
+          protocol_name: p.name || p.protocol_name || '',
+          protocol_type: p.protocol_type || '',
+          total_patients: p.total_patients ?? '',
+          completed: p.completed ?? '',
+          adherence_rate: p.adherence_rate ?? '',
+          avg_steps_completed: p.avg_steps_completed ?? '',
+        });
+      });
+    } else if (protocolStats) {
+      rows.push({
+        protocol_name: 'All Protocols',
+        protocol_type: '',
+        total_patients: protocolStats.active_patient_protocols ?? '',
+        completed: protocolStats.completed_patient_protocols ?? '',
+        adherence_rate: protocolStats.avg_adherence ?? '',
+        avg_steps_completed: '',
+      });
+    }
+
+    const cols = [
+      { key: 'protocol_name', label: 'Protocol' },
+      { key: 'protocol_type', label: 'Type' },
+      { key: 'total_patients', label: 'Total Patients' },
+      { key: 'completed', label: 'Completed' },
+      { key: 'adherence_rate', label: 'Adherence Rate (%)' },
+      { key: 'avg_steps_completed', label: 'Avg Steps Completed' },
+    ];
+    exportToCSV(rows, cols, `protocol-adherence-report-${new Date().toISOString().slice(0,10)}`);
   };
 
   // Calculate summary statistics

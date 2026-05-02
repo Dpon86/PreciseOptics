@@ -1,7 +1,7 @@
 // API service for communicating with Django backend
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000';
+export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
 
 // Configure axios defaults
 axios.defaults.baseURL = API_BASE_URL;
@@ -427,8 +427,16 @@ export const apiService = {
     axios.get('/api/protocols/protocols/', { params }),
   getProtocol: (id) =>
     axios.get(`/api/protocols/protocols/${id}/`),
+  createProtocol: (data) =>
+    axios.post('/api/protocols/protocols/', data),
+  updateProtocol: (id, data) =>
+    axios.put(`/api/protocols/protocols/${id}/`, data),
+  deleteProtocol: (id) =>
+    axios.delete(`/api/protocols/protocols/${id}/`),
+  assignProtocolToPatient: (data) =>
+    axios.post('/api/protocols/patient-protocols/', data),
   getProtocolSteps: (protocolId) =>
-    axios.get(`/api/protocols/steps/?protocol=${protocolId}`),
+    axios.get('/api/protocols/steps/', { params: { protocol: protocolId } }),
   getPatientProtocol: (id) =>
     axios.get(`/api/protocols/patient-protocols/${id}/`),
   getPatientProtocolSchedule: (id) =>
@@ -437,6 +445,24 @@ export const apiService = {
     axios.get('/api/protocols/statistics/'),
   getProtocolAdherenceReport: () =>
     axios.get('/api/protocols/adherence-report/'),
+
+  // Medication conditions (used in protocol forms)
+  getMedicationConditions: () =>
+    axios.get('/api/medications/conditions/'),
+
+  // Treatment Effectiveness Reports
+  getTreatmentEffectivenessTimeline: (params = {}) =>
+    axios.get('/api/reports/treatment-effectiveness-timeline/', { params }),
+  getMedicationEffectivenessTimeline: (params = {}) =>
+    axios.get('/api/reports/medication-effectiveness-timeline/', { params }),
+  compareTreatments: (params = {}) =>
+    axios.get('/api/reports/compare-treatments/', { params }),
+  compareMedications: (params = {}) =>
+    axios.get('/api/reports/compare-medications/', { params }),
+
+  // Admin data overview
+  getAllModelsData: () =>
+    axios.get('/api/data/all-models/'),
 
   // Treatments
   getTreatmentStatistics: () =>

@@ -111,10 +111,6 @@ const AddConsultationPage = () => {
         api.getNurses()
       ]);
       
-      console.log('Raw Patients response:', patientsRes);
-      console.log('Raw Doctors response:', doctorsRes);
-      console.log('Raw Nurses response:', nursesRes);
-      
       // Handle different response structures
       const patientsData = patientsRes.data?.results || patientsRes.data || [];
       const doctorsData = doctorsRes.data?.results || doctorsRes.data || [];
@@ -122,9 +118,6 @@ const AddConsultationPage = () => {
       
       // Combine doctors and nurses for the consulting staff dropdown
       const allStaffData = [...doctorsData, ...nursesData];
-      
-      console.log('Processed Patients data:', patientsData);
-      console.log('Processed All Staff data:', allStaffData);
       
       setPatients(patientsData);
       setDoctors(allStaffData);

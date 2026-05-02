@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import AlertBadge from './AlertBadge';
@@ -86,6 +87,10 @@ const Header = ({ onMenuClick }) => {
       </div>
     </header>
   );
+};
+
+Header.propTypes = {
+  onMenuClick: PropTypes.func
 };
 
 export default Header;

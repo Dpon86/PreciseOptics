@@ -84,9 +84,7 @@ const AddVisualAcuityTestPage = () => {
         api.getStaff()
       ]);
       
-      console.log('Staff data received:', staffRes.data);
       const staffData = staffRes.data.results || staffRes.data || [];
-      console.log('Processing staff array:', staffData);
 
       setConsultations(consultationsRes.data.results || consultationsRes.data || []);
       setStaff(staffData);

@@ -10,12 +10,15 @@ from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-hm$hf!$*s@wx0=#nlr6%z$d2og&gpp6z8=5yq+(9bj-z=gt0uy')
+# SECRET_KEY must be set in the .env file — no fallback default is provided.
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']  # Configure appropriately for production
+# In production, set ALLOWED_HOSTS in .env to the real domain(s) only.
+# Never use '*' in production — it enables host-header injection attacks.
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=lambda v: [s.strip() for s in v.split(',')])
 
 # Application definition
 INSTALLED_APPS = [
@@ -136,6 +139,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+    {
+        'NAME': 'precise_optics.password_validators.PasswordComplexityValidator',
+    },
 ]
 
 # Password policy notes:
@@ -193,19 +199,42 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 # Django REST Framework configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+        # ExpiringTokenAuthentication rejects tokens older than TOKEN_EXPIRY_HOURS
+        'precise_optics.permissions.ExpiringTokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PAGINATION_CLASS': 'precise_optics.pagination.StandardResultsPagination',
     'PAGE_SIZE': 20,
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
+        # BrowsableAPIRenderer is development-only — disabled in production via ENVIRONMENT check below
     ],
+    # API versioning — URL-path versioning so future /api/v2/ changes are non-breaking
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
+    'DEFAULT_VERSION': 'v1',
+    'ALLOWED_VERSIONS': ['v1'],
+    'VERSION_PARAM': 'version',
+    # Rate limiting — protect login, password-reset, and general API endpoints
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        # Anonymous callers (unauthenticated): 100 requests/hour
+        'anon': '100/hour',
+        # Authenticated users: 2000 requests/hour
+        'user': '2000/hour',
+        # Strict limit for auth endpoints (applied via ScopedRateThrottle)
+        'login': '10/minute',
+        'password_reset': '5/hour',
+    },
 }
+
+# Token expiry in hours (default 24 h, override in .env)
+TOKEN_EXPIRY_HOURS = config('TOKEN_EXPIRY_HOURS', default=24, cast=int)
 
 # Logging configuration for audit trail and system monitoring
 LOGGING = {
@@ -341,7 +370,25 @@ os.makedirs(BASE_DIR / 'logs', exist_ok=True)
 os.makedirs(BASE_DIR / 'media', exist_ok=True)
 
 # Security settings for production
-if not DEBUG:
+ENVIRONMENT = config('ENVIRONMENT', default='development')
+
+# Guard: refuse to start with SQLite outside of development — SQLite has no
+# per-user access control, no encryption at rest, and no safe concurrent writes.
+if ENVIRONMENT == 'production' and 'sqlite3' in DATABASES['default']['ENGINE']:
+    from django.core.exceptions import ImproperlyConfigured
+    raise ImproperlyConfigured(
+        'SQLite3 is not permitted in production. '
+        'Set DB_ENGINE to django.db.backends.postgresql or django.db.backends.mysql '
+        'and configure DB_NAME, DB_USER, DB_PASSWORD, DB_HOST in your .env file.'
+    )
+
+# Enable the DRF Browsable API only in development
+if ENVIRONMENT == 'development':
+    REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'].append(
+        'rest_framework.renderers.BrowsableAPIRenderer'
+    )
+
+if ENVIRONMENT == 'production':
     SECURE_SSL_REDIRECT = True
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
@@ -361,7 +408,7 @@ SESSION_COOKIE_AGE = 4 * 60 * 60  # 4 hours (reduced from 8 for better security)
 SESSION_SAVE_EVERY_REQUEST = True  # Update session on every request to track activity
 SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie
 SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF protection
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Allow "Remember Me" functionality
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Session ends when browser closes
 
 # Session timeout settings
 # Note: For production, consider implementing auto-logout after 15 minutes of inactivity
@@ -371,8 +418,9 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Allow "Remember Me" functionality
 CSRF_COOKIE_HTTPONLY = False  # Must be False for JavaScript to access CSRF token
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_USE_SESSIONS = False  # Use cookie-based CSRF (default)
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-SESSION_SAVE_EVERY_REQUEST = True
+# SESSION_SAVE_EVERY_REQUEST: set False to avoid a DB write on every API call.
+# Sessions are updated automatically when authentication changes.
+SESSION_SAVE_EVERY_REQUEST = False
 
 # Email configuration (for notifications and reports)
 EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
@@ -384,16 +432,18 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@preciseoptics.com')
 
 # Frontend URL for password reset links
-FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:3000')
+# REQUIRED: must be set in .env. No default — localhost would break production emails.
+FRONTEND_URL = config('FRONTEND_URL')
 
 # CORS settings to allow frontend to connect
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-]
-
-# For development, you can also use:
-CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only allow all origins in DEBUG mode
+CORS_ALLOWED_ORIGINS = config(
+    'CORS_ALLOWED_ORIGINS',
+    default='http://localhost:3000,http://127.0.0.1:3000',
+    cast=lambda v: [s.strip() for s in v.split(',')]
+)
+# CORS_ALLOW_ALL_ORIGINS must never be True in production.
+# In development it is controlled by the CORS_ALLOW_ALL_ORIGINS env var (default False).
+CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', default=False, cast=bool)
 
 CORS_ALLOW_CREDENTIALS = True
 

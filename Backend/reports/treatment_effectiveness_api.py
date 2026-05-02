@@ -3,11 +3,24 @@ Treatment and Medication Effectiveness Report API
 Tracks patient outcomes from onset of treatment/medication
 """
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db.models import Q, Min
 from datetime import datetime, timedelta
 from collections import defaultdict
+
+
+def _get_int_param(request, name, default, min_val=1, max_val=120):
+    """Parse an integer query param with bounds checking. Returns Response on error."""
+    raw = request.GET.get(name, default)
+    try:
+        value = int(raw)
+    except (ValueError, TypeError):
+        return Response(
+            {'error': f"Invalid value for '{name}': must be an integer."},
+            status=400,
+        )
+    return max(min_val, min(value, max_val))
 
 from treatments.models import Treatment, TreatmentType
 from medications.models import Medication, Prescription, PrescriptionItem
@@ -20,7 +33,7 @@ from consultations.models import Consultation
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def treatment_effectiveness_timeline(request):
     """
     Analyze treatment effectiveness by tracking eye test results from treatment onset
@@ -36,7 +49,9 @@ def treatment_effectiveness_timeline(request):
         patient_id = request.GET.get('patient_id', '')
         condition_filter = request.GET.get('condition', '')
         test_type_filter = request.GET.get('test_type', 'all')
-        months = int(request.GET.get('months', 12))
+        months = _get_int_param(request, 'months', 12)
+        if isinstance(months, Response):
+            return months
         
         # Get all treatments with their first occurrence per patient
         treatments_query = Treatment.objects.select_related(
@@ -198,7 +213,7 @@ def treatment_effectiveness_timeline(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def medication_effectiveness_timeline(request):
     """
     Analyze medication effectiveness by tracking eye test results from medication onset
@@ -215,7 +230,9 @@ def medication_effectiveness_timeline(request):
         patient_id = request.GET.get('patient_id', '')
         condition_filter = request.GET.get('condition', '')
         test_type_filter = request.GET.get('test_type', 'all')
-        months = int(request.GET.get('months', 12))
+        months = _get_int_param(request, 'months', 12)
+        if isinstance(months, Response):
+            return months
         include_batch = request.GET.get('include_batch', 'true').lower() == 'true'
         
         # Get all prescriptions with medication details
@@ -374,7 +391,7 @@ def medication_effectiveness_timeline(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def compare_treatments(request):
     """
     Compare effectiveness between different treatment types
@@ -387,7 +404,9 @@ def compare_treatments(request):
     try:
         treatment_types_param = request.GET.get('treatment_types', '')
         test_type = request.GET.get('test_type', 'visual_acuity')
-        months = int(request.GET.get('months', 12))
+        months = _get_int_param(request, 'months', 12)
+        if isinstance(months, Response):
+            return months
         condition_filter = request.GET.get('condition', '')
         
         if not treatment_types_param:
@@ -474,7 +493,7 @@ def compare_treatments(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def compare_medications(request):
     """
     Compare effectiveness between different medications
@@ -487,7 +506,9 @@ def compare_medications(request):
     try:
         medications_param = request.GET.get('medications', '')
         test_type = request.GET.get('test_type', 'visual_acuity')
-        months = int(request.GET.get('months', 12))
+        months = _get_int_param(request, 'months', 12)
+        if isinstance(months, Response):
+            return months
         condition_filter = request.GET.get('condition', '')
         
         if not medications_param:

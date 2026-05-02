@@ -5,6 +5,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from patients.models import Patient, PatientVisit
 from accounts.models import CustomUser
+from precise_optics.file_validators import validate_document_extension, validate_file_size, validate_image_extension
 import uuid
 
 
@@ -203,7 +204,7 @@ class ConsultationDocument(models.Model):
     document_type = models.CharField(max_length=30, choices=DOCUMENT_TYPES)
     title = models.CharField(max_length=200)
     content = models.TextField(blank=True)
-    file = models.FileField(upload_to='consultation_documents/', null=True, blank=True)
+    file = models.FileField(upload_to='consultation_documents/', null=True, blank=True, validators=[validate_document_extension, validate_file_size])
     
     # Metadata
     created_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
@@ -251,7 +252,7 @@ class ConsultationImage(models.Model):
     # Image Details
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    image = models.ImageField(upload_to='consultation_images/')
+    image = models.ImageField(upload_to='consultation_images/', validators=[validate_image_extension, validate_file_size])
     
     # Technical Details
     equipment_used = models.CharField(max_length=200, blank=True)

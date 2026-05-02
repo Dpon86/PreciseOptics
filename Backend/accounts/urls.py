@@ -5,8 +5,6 @@ from django.urls import path
 from . import views
 from . import lockout_views
 
-app_name = 'accounts'
-
 urlpatterns = [
     # Authentication
     path('login/', views.login_view, name='login'),
@@ -45,4 +43,6 @@ urlpatterns = [
     path('2fa/verify-login/', views.verify_2fa_login, name='2fa-verify-login'),
     path('2fa/disable/', views.disable_2fa, name='2fa-disable'),
     path('2fa/status/', views.get_2fa_status, name='2fa-status'),
+    path('2fa/backup-codes/verify/', views.verify_backup_code, name='2fa-backup-verify'),
+    path('2fa/backup-codes/regenerate/', views.regenerate_backup_codes, name='2fa-backup-regenerate'),
 ]

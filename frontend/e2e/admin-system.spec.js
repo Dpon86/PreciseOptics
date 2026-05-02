@@ -8,14 +8,14 @@ test.describe('Administrative & System Module', () => {
   // ==========================================
   
   test('should display admin dashboard', async ({ page }) => {
-    await page.goto('/admin-dashboard');
+    await page.goto('/admin');
     await waitForStablePage(page);
     
     await expect(page.locator('h1, h2').filter({ hasText: /admin|dashboard/i })).toBeVisible();
   });
 
   test('should display admin tabs', async ({ page }) => {
-    await page.goto('/admin-dashboard');
+    await page.goto('/admin');
     await waitForStablePage(page);
     
     // Check for common admin tabs
@@ -39,7 +39,7 @@ test.describe('Administrative & System Module', () => {
   });
 
   test('should switch between admin tabs', async ({ page }) => {
-    await page.goto('/admin-dashboard');
+    await page.goto('/admin');
     await waitForStablePage(page);
     
     const patientsTab = page.locator('button').filter({ hasText: /patients/i }).first();
@@ -166,7 +166,10 @@ test.describe('User Manual - Admin & System Screenshots', () => {
   test('01 - Admin Dashboard Overview', async ({ page }) => {
     await authenticatedPage(page);
     
-    await page.goto('/admin-dashboard');
+    await page.goto('/admin');
+    
+    // Wait to ensure we're NOT redirected to login
+    await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 5000 });
     await waitForStablePage(page, 2000);
     
     await captureManualScreenshot(page, 'admin', '01-admin-dashboard', {
@@ -177,7 +180,7 @@ test.describe('User Manual - Admin & System Screenshots', () => {
   test('02 - Admin Dashboard Overview Tab', async ({ page }) => {
     await authenticatedPage(page);
     
-    await page.goto('/admin-dashboard');
+    await page.goto('/admin');
     await waitForStablePage(page, 1500);
     
     // Ensure on Overview tab
@@ -195,7 +198,7 @@ test.describe('User Manual - Admin & System Screenshots', () => {
   test('03 - Admin Dashboard Patients Tab', async ({ page }) => {
     await authenticatedPage(page);
     
-    await page.goto('/admin-dashboard');
+    await page.goto('/admin');
     await waitForStablePage(page);
     
     const patientsTab = page.locator('button').filter({ hasText: /patients/i }).first();
@@ -212,7 +215,7 @@ test.describe('User Manual - Admin & System Screenshots', () => {
   test('04 - Admin Dashboard Medications Tab', async ({ page }) => {
     await authenticatedPage(page);
     
-    await page.goto('/admin-dashboard');
+    await page.goto('/admin');
     await waitForStablePage(page);
     
     const medicationsTab = page.locator('button').filter({ hasText: /medications/i }).first();
@@ -229,7 +232,7 @@ test.describe('User Manual - Admin & System Screenshots', () => {
   test('05 - Admin Dashboard Conditions Tab', async ({ page }) => {
     await authenticatedPage(page);
     
-    await page.goto('/admin-dashboard');
+    await page.goto('/admin');
     await waitForStablePage(page);
     
     const conditionsTab = page.locator('button').filter({ hasText: /conditions/i }).first();
@@ -246,7 +249,7 @@ test.describe('User Manual - Admin & System Screenshots', () => {
   test('06 - Admin Dashboard Protocols Tab', async ({ page }) => {
     await authenticatedPage(page);
     
-    await page.goto('/admin-dashboard');
+    await page.goto('/admin');
     await waitForStablePage(page);
     
     const protocolsTab = page.locator('button').filter({ hasText: /protocols/i }).first();
@@ -263,7 +266,7 @@ test.describe('User Manual - Admin & System Screenshots', () => {
   test('07 - Admin Dashboard Referrals Tab', async ({ page }) => {
     await authenticatedPage(page);
     
-    await page.goto('/admin-dashboard');
+    await page.goto('/admin');
     await waitForStablePage(page);
     
     const referralsTab = page.locator('button').filter({ hasText: /referrals/i }).first();
@@ -280,7 +283,7 @@ test.describe('User Manual - Admin & System Screenshots', () => {
   test('08 - Admin Dashboard Alerts Tab', async ({ page }) => {
     await authenticatedPage(page);
     
-    await page.goto('/admin-dashboard');
+    await page.goto('/admin');
     await waitForStablePage(page);
     
     const alertsTab = page.locator('button').filter({ hasText: /alerts/i }).first();
@@ -548,7 +551,7 @@ test.describe('User Manual - Admin & System Screenshots', () => {
   test('25 - System Statistics Summary', async ({ page }) => {
     await authenticatedPage(page);
     
-    await page.goto('/admin-dashboard');
+    await page.goto('/admin');
     await waitForStablePage(page, 2000);
     
     // Capture just the statistics summary section

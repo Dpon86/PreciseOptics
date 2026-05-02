@@ -12,15 +12,34 @@ export const test = base.extend({
   // Authenticated page fixture
   authenticatedPage: async ({ page }, use) => {
     // Navigate to login page
-    await page.goto('/login');
+    await page.goto('/login', { waitUntil: 'networkidle' });
+    await page.waitForTimeout(2000); // Wait for React app to fully mount
     
-    // Perform login (customize credentials as needed)
-    await page.fill('input[name="username"], input[type="text"]', process.env.TEST_USERNAME || 'testuser');
-    await page.fill('input[name="password"], input[type="password"]', process.env.TEST_PASSWORD || 'testpassword');
-    await page.locator('button[type="submit"]').click();
+    // Wait for login form to be fully visible
+    await page.locator('.login-form').waitFor({ state: 'visible', timeout: 10000 });
     
-    // Wait for successful login (adjust selector based on your app)
-    await page.waitForURL(/dashboard|home|\/$/, { timeout: 10000 });
+    // Fill and submit the form
+    await page.locator('input[name="username"]').fill('admin');
+    await page.locator('input[name="password"]').fill('admin123');
+    
+    // Click submit and wait for navigation
+    await Promise.all([
+      page.waitForURL((url) => url.pathname === '/', { timeout: 15000 }),
+      page.locator('button[type="submit"]').click()
+    ]);
+    
+    // Wait for page to stabilize and auth token to be set
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(2000); // Give time for auth token to be stored in sessionStorage
+    
+    // Verify we're authenticated
+    const hasToken = await page.evaluate(() => {
+      return sessionStorage.getItem('authToken') !== null;
+    });
+    
+    if (!hasToken) {
+      throw new Error('Authentication failed - no token in sessionStorage');
+    }
     
     // Use the authenticated page
     await use(page);
@@ -38,6 +57,46 @@ export const test = base.extend({
 });
 
 export { expect } from '@playwright/test';
+
+/**
+ * Helper Functions for Authentication
+ */
+
+/**
+ * Authenticate a page (for use in screenshot tests)
+ * @param {Page} page - Playwright page object
+ */
+export async function authenticatedPage(page) {
+  // Navigate to login page
+  await page.goto('/login', { waitUntil: 'networkidle' });
+  await page.waitForTimeout(2000); // Wait for React app to fully mount
+  
+  // Wait for login form to be fully visible
+  await page.locator('.login-form').waitFor({ state: 'visible', timeout: 10000 });
+  
+  // Fill and submit the form
+  await page.locator('input[name="username"]').fill('admin');
+  await page.locator('input[name="password"]').fill('admin123');
+  
+  // Click submit and wait for navigation
+  await Promise.all([
+    page.waitForURL((url) => url.pathname === '/', { timeout: 15000 }),
+    page.locator('button[type="submit"]').click()
+  ]);
+  
+  // Wait for page to stabilize and auth token to be set
+  await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(2000); // Give time for auth token to be stored in sessionStorage
+  
+  // Verify we're authenticated by checking sessionStorage has auth token
+  const hasToken = await page.evaluate(() => {
+    return sessionStorage.getItem('authToken') !== null;
+  });
+  
+  if (!hasToken) {
+    throw new Error('Authentication failed - no token in sessionStorage');
+  }
+}
 
 /**
  * Helper Functions for Screenshot Capture

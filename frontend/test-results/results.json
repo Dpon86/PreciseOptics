@@ -1,0 +1,1408 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\playwright.config.js",
+    "rootDir": "C:/Users/NickD/Documents/Github/PreciseOptics/frontend/e2e",
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/NickD/Documents/Github/PreciseOptics/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/NickD/Documents/Github/PreciseOptics/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/NickD/Documents/Github/PreciseOptics/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "C:/Users/NickD/Documents/Github/PreciseOptics/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/NickD/Documents/Github/PreciseOptics/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "C:/Users/NickD/Documents/Github/PreciseOptics/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/NickD/Documents/Github/PreciseOptics/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-chrome",
+        "name": "mobile-chrome",
+        "testDir": "C:/Users/NickD/Documents/Github/PreciseOptics/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/NickD/Documents/Github/PreciseOptics/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-safari",
+        "name": "mobile-safari",
+        "testDir": "C:/Users/NickD/Documents/Github/PreciseOptics/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "C:/Users/NickD/Documents/Github/PreciseOptics/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "tablet",
+        "name": "tablet",
+        "testDir": "C:/Users/NickD/Documents/Github/PreciseOptics/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report",
+          "open": "never"
+        }
+      ],
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.59.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npm start",
+      "url": "http://localhost:3000",
+      "reuseExistingServer": false,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "admin-system.spec.js",
+      "file": "admin-system.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "User Manual - Admin & System Screenshots",
+          "file": "admin-system.spec.js",
+          "line": 162,
+          "column": 6,
+          "specs": [
+            {
+              "title": "01 - Admin Dashboard Overview",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9832,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📸 Captured: admin/01-admin-dashboard.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:18:13.936Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-4ace906051ca989e3802",
+              "file": "admin-system.spec.js",
+              "line": 166,
+              "column": 7
+            },
+            {
+              "title": "02 - Admin Dashboard Overview Tab",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9823,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📸 Captured: admin/02-overview-tab.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:18:24.022Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-74bd51cb46b9731c762e",
+              "file": "admin-system.spec.js",
+              "line": 180,
+              "column": 7
+            },
+            {
+              "title": "03 - Admin Dashboard Patients Tab",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9266,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📸 Captured: admin/03-patients-tab.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:18:33.856Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-7ea6ae2629e6035cb1e5",
+              "file": "admin-system.spec.js",
+              "line": 198,
+              "column": 7
+            },
+            {
+              "title": "04 - Admin Dashboard Medications Tab",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9288,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📸 Captured: admin/04-medications-tab.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:18:43.132Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-426f29ca90b12f8f4cb6",
+              "file": "admin-system.spec.js",
+              "line": 215,
+              "column": 7
+            },
+            {
+              "title": "05 - Admin Dashboard Conditions Tab",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9309,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📸 Captured: admin/05-conditions-tab.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:18:52.432Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-378c7378b0e9135d63a0",
+              "file": "admin-system.spec.js",
+              "line": 232,
+              "column": 7
+            },
+            {
+              "title": "06 - Admin Dashboard Protocols Tab",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9207,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📸 Captured: admin/06-protocols-tab.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:19:01.756Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-9dfe288e6148104ff6f2",
+              "file": "admin-system.spec.js",
+              "line": 249,
+              "column": 7
+            },
+            {
+              "title": "07 - Admin Dashboard Referrals Tab",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9200,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📸 Captured: admin/07-referrals-tab.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:19:10.973Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-23e9f3c13996bb627691",
+              "file": "admin-system.spec.js",
+              "line": 266,
+              "column": 7
+            },
+            {
+              "title": "08 - Admin Dashboard Alerts Tab",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9208,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📸 Captured: admin/08-alerts-tab.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:19:20.182Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-4da17c7de6da21b9c7aa",
+              "file": "admin-system.spec.js",
+              "line": 283,
+              "column": 7
+            },
+            {
+              "title": "09 - Staff Management Page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9098,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📸 Captured: admin/09-staff-management.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:19:29.401Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-fbb3a519c8578b6f61e9",
+              "file": "admin-system.spec.js",
+              "line": 300,
+              "column": 7
+            },
+            {
+              "title": "10 - Add Staff Button",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 17885,
+                      "error": {
+                        "message": "TimeoutError: locator.hover: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button, a').filter({ hasText: /add.*staff|new.*staff/i }).first()\u001b[22m\n\u001b[2m    - locator resolved to <a href=\"/staff/add\" class=\"nav-item-link \">…</a>\u001b[22m\n\u001b[2m  - attempting hover action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m      - element is visible and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying hover action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m      - element is visible and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying hover action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    19 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m       - element is visible and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - element is outside of the viewport\u001b[22m\n\u001b[2m     - retrying hover action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+                        "stack": "TimeoutError: locator.hover: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button, a').filter({ hasText: /add.*staff|new.*staff/i }).first()\u001b[22m\n\u001b[2m    - locator resolved to <a href=\"/staff/add\" class=\"nav-item-link \">…</a>\u001b[22m\n\u001b[2m  - attempting hover action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m      - element is visible and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying hover action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m      - element is visible and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying hover action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    19 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m       - element is visible and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - element is outside of the viewport\u001b[22m\n\u001b[2m     - retrying hover action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js:319:23",
+                        "location": {
+                          "file": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js",
+                          "column": 23,
+                          "line": 319
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 317 |\u001b[39m     \u001b[36mconst\u001b[39m addButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button, a'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[35m/add.*staff|new.*staff/i\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n \u001b[90m 318 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[36mawait\u001b[39m addButton\u001b[33m.\u001b[39misVisible()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 319 |\u001b[39m       \u001b[36mawait\u001b[39m addButton\u001b[33m.\u001b[39mhover()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 320 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m500\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 321 |\u001b[39m       \n \u001b[90m 322 |\u001b[39m       \u001b[36mawait\u001b[39m captureManualScreenshot(page\u001b[33m,\u001b[39m \u001b[32m'admin'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'10-add-staff-button'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js",
+                            "column": 23,
+                            "line": 319
+                          },
+                          "message": "TimeoutError: locator.hover: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button, a').filter({ hasText: /add.*staff|new.*staff/i }).first()\u001b[22m\n\u001b[2m    - locator resolved to <a href=\"/staff/add\" class=\"nav-item-link \">…</a>\u001b[22m\n\u001b[2m  - attempting hover action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m      - element is visible and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying hover action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m      - element is visible and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying hover action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    19 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m       - element is visible and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - element is outside of the viewport\u001b[22m\n\u001b[2m     - retrying hover action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n\n\u001b[0m \u001b[90m 317 |\u001b[39m     \u001b[36mconst\u001b[39m addButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button, a'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[35m/add.*staff|new.*staff/i\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n \u001b[90m 318 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[36mawait\u001b[39m addButton\u001b[33m.\u001b[39misVisible()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 319 |\u001b[39m       \u001b[36mawait\u001b[39m addButton\u001b[33m.\u001b[39mhover()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 320 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m500\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 321 |\u001b[39m       \n \u001b[90m 322 |\u001b[39m       \u001b[36mawait\u001b[39m captureManualScreenshot(page\u001b[33m,\u001b[39m \u001b[32m'admin'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'10-add-staff-button'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js:319:23\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:19:38.508Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\test-results\\admin-system-User-Manual---6c238-shots-10---Add-Staff-Button-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\test-results\\admin-system-User-Manual---6c238-shots-10---Add-Staff-Button-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\test-results\\admin-system-User-Manual---6c238-shots-10---Add-Staff-Button-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js",
+                        "column": 23,
+                        "line": 319
+                      }
+                    },
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 18127,
+                      "error": {
+                        "message": "TimeoutError: locator.hover: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button, a').filter({ hasText: /add.*staff|new.*staff/i }).first()\u001b[22m\n\u001b[2m    - locator resolved to <a href=\"/staff/add\" class=\"nav-item-link \">…</a>\u001b[22m\n\u001b[2m  - attempting hover action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m      - element is visible and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying hover action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m      - element is visible and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying hover action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    19 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m       - element is visible and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - element is outside of the viewport\u001b[22m\n\u001b[2m     - retrying hover action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+                        "stack": "TimeoutError: locator.hover: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button, a').filter({ hasText: /add.*staff|new.*staff/i }).first()\u001b[22m\n\u001b[2m    - locator resolved to <a href=\"/staff/add\" class=\"nav-item-link \">…</a>\u001b[22m\n\u001b[2m  - attempting hover action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m      - element is visible and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying hover action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m      - element is visible and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying hover action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    19 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m       - element is visible and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - element is outside of the viewport\u001b[22m\n\u001b[2m     - retrying hover action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js:319:23",
+                        "location": {
+                          "file": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js",
+                          "column": 23,
+                          "line": 319
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 317 |\u001b[39m     \u001b[36mconst\u001b[39m addButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button, a'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[35m/add.*staff|new.*staff/i\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n \u001b[90m 318 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[36mawait\u001b[39m addButton\u001b[33m.\u001b[39misVisible()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 319 |\u001b[39m       \u001b[36mawait\u001b[39m addButton\u001b[33m.\u001b[39mhover()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 320 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m500\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 321 |\u001b[39m       \n \u001b[90m 322 |\u001b[39m       \u001b[36mawait\u001b[39m captureManualScreenshot(page\u001b[33m,\u001b[39m \u001b[32m'admin'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'10-add-staff-button'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js",
+                            "column": 23,
+                            "line": 319
+                          },
+                          "message": "TimeoutError: locator.hover: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button, a').filter({ hasText: /add.*staff|new.*staff/i }).first()\u001b[22m\n\u001b[2m    - locator resolved to <a href=\"/staff/add\" class=\"nav-item-link \">…</a>\u001b[22m\n\u001b[2m  - attempting hover action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m      - element is visible and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying hover action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m      - element is visible and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying hover action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    19 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m       - element is visible and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - element is outside of the viewport\u001b[22m\n\u001b[2m     - retrying hover action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n\n\u001b[0m \u001b[90m 317 |\u001b[39m     \u001b[36mconst\u001b[39m addButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button, a'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[35m/add.*staff|new.*staff/i\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n \u001b[90m 318 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[36mawait\u001b[39m addButton\u001b[33m.\u001b[39misVisible()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 319 |\u001b[39m       \u001b[36mawait\u001b[39m addButton\u001b[33m.\u001b[39mhover()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 320 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m500\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 321 |\u001b[39m       \n \u001b[90m 322 |\u001b[39m       \u001b[36mawait\u001b[39m captureManualScreenshot(page\u001b[33m,\u001b[39m \u001b[32m'admin'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'10-add-staff-button'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js:319:23\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-05-02T17:19:57.643Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\test-results\\admin-system-User-Manual---6c238-shots-10---Add-Staff-Button-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\test-results\\admin-system-User-Manual---6c238-shots-10---Add-Staff-Button-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\test-results\\admin-system-User-Manual---6c238-shots-10---Add-Staff-Button-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\test-results\\admin-system-User-Manual---6c238-shots-10---Add-Staff-Button-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js",
+                        "column": 23,
+                        "line": 319
+                      }
+                    },
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 17943,
+                      "error": {
+                        "message": "TimeoutError: locator.hover: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button, a').filter({ hasText: /add.*staff|new.*staff/i }).first()\u001b[22m\n\u001b[2m    - locator resolved to <a href=\"/staff/add\" class=\"nav-item-link \">…</a>\u001b[22m\n\u001b[2m  - attempting hover action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m      - element is visible and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying hover action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m      - element is visible and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying hover action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    19 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m       - element is visible and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - element is outside of the viewport\u001b[22m\n\u001b[2m     - retrying hover action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+                        "stack": "TimeoutError: locator.hover: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button, a').filter({ hasText: /add.*staff|new.*staff/i }).first()\u001b[22m\n\u001b[2m    - locator resolved to <a href=\"/staff/add\" class=\"nav-item-link \">…</a>\u001b[22m\n\u001b[2m  - attempting hover action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m      - element is visible and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying hover action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m      - element is visible and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying hover action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    19 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m       - element is visible and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - element is outside of the viewport\u001b[22m\n\u001b[2m     - retrying hover action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js:319:23",
+                        "location": {
+                          "file": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js",
+                          "column": 23,
+                          "line": 319
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 317 |\u001b[39m     \u001b[36mconst\u001b[39m addButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button, a'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[35m/add.*staff|new.*staff/i\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n \u001b[90m 318 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[36mawait\u001b[39m addButton\u001b[33m.\u001b[39misVisible()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 319 |\u001b[39m       \u001b[36mawait\u001b[39m addButton\u001b[33m.\u001b[39mhover()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 320 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m500\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 321 |\u001b[39m       \n \u001b[90m 322 |\u001b[39m       \u001b[36mawait\u001b[39m captureManualScreenshot(page\u001b[33m,\u001b[39m \u001b[32m'admin'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'10-add-staff-button'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js",
+                            "column": 23,
+                            "line": 319
+                          },
+                          "message": "TimeoutError: locator.hover: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button, a').filter({ hasText: /add.*staff|new.*staff/i }).first()\u001b[22m\n\u001b[2m    - locator resolved to <a href=\"/staff/add\" class=\"nav-item-link \">…</a>\u001b[22m\n\u001b[2m  - attempting hover action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m      - element is visible and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying hover action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m      - element is visible and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying hover action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    19 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m       - element is visible and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - element is outside of the viewport\u001b[22m\n\u001b[2m     - retrying hover action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n\n\u001b[0m \u001b[90m 317 |\u001b[39m     \u001b[36mconst\u001b[39m addButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button, a'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[35m/add.*staff|new.*staff/i\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n \u001b[90m 318 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[36mawait\u001b[39m addButton\u001b[33m.\u001b[39misVisible()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 319 |\u001b[39m       \u001b[36mawait\u001b[39m addButton\u001b[33m.\u001b[39mhover()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 320 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m500\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 321 |\u001b[39m       \n \u001b[90m 322 |\u001b[39m       \u001b[36mawait\u001b[39m captureManualScreenshot(page\u001b[33m,\u001b[39m \u001b[32m'admin'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'10-add-staff-button'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js:319:23\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 2,
+                      "startTime": "2026-05-02T17:20:17.518Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\test-results\\admin-system-User-Manual---6c238-shots-10---Add-Staff-Button-chromium-retry2\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\test-results\\admin-system-User-Manual---6c238-shots-10---Add-Staff-Button-chromium-retry2\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\test-results\\admin-system-User-Manual---6c238-shots-10---Add-Staff-Button-chromium-retry2\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js",
+                        "column": 23,
+                        "line": 319
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-33c32dd29fb4830bf36d",
+              "file": "admin-system.spec.js",
+              "line": 311,
+              "column": 7
+            },
+            {
+              "title": "11 - Add Staff Form",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9166,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📸 Captured: admin/11-add-staff-form.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:20:36.849Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-e90261cb0208f74c0add",
+              "file": "admin-system.spec.js",
+              "line": 326,
+              "column": 7
+            },
+            {
+              "title": "12 - Staff Form Filled",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8060,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📸 Captured: admin/12-staff-form-filled.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:20:46.229Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-7c4ca49bda70edcbbb8a",
+              "file": "admin-system.spec.js",
+              "line": 337,
+              "column": 7
+            },
+            {
+              "title": "13 - Staff Detail View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9031,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📸 Captured: admin/13-staff-detail.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:20:54.303Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-cc57bbb4379a3ee2eb14",
+              "file": "admin-system.spec.js",
+              "line": 371,
+              "column": 7
+            },
+            {
+              "title": "14 - Edit Staff Member",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9613,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📸 Captured: admin/14-edit-staff.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:21:03.343Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-7df558d11d601a7b70db",
+              "file": "admin-system.spec.js",
+              "line": 389,
+              "column": 7
+            },
+            {
+              "title": "15 - System Settings Page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9029,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📸 Captured: admin/15-system-settings.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:21:12.966Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-cc628672e7742ebdfa3d",
+              "file": "admin-system.spec.js",
+              "line": 413,
+              "column": 7
+            },
+            {
+              "title": "16 - System Configuration",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8473,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📸 Captured: admin/16-system-configuration.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:21:22.005Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-50a797cf7c206f1d0c80",
+              "file": "admin-system.spec.js",
+              "line": 424,
+              "column": 7
+            },
+            {
+              "title": "17 - Audit Logs Page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9146,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📸 Captured: admin/17-audit-logs.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:21:30.488Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-c27fde4545413c2b29cd",
+              "file": "admin-system.spec.js",
+              "line": 435,
+              "column": 7
+            },
+            {
+              "title": "18 - Audit Log Details",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7359,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:21:39.643Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-56bd4e8e518d5829ae2d",
+              "file": "admin-system.spec.js",
+              "line": 446,
+              "column": 7
+            },
+            {
+              "title": "19 - Audit Logs Filter",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7283,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:21:47.011Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-c5875e13573833f63dc6",
+              "file": "admin-system.spec.js",
+              "line": 462,
+              "column": 7
+            },
+            {
+              "title": "20 - Audit Logs Search",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7415,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:21:54.303Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-aee191c20eaca9d64eea",
+              "file": "admin-system.spec.js",
+              "line": 478,
+              "column": 7
+            },
+            {
+              "title": "21 - Forms Overview Page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9223,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📸 Captured: admin/21-forms-overview.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:22:01.729Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-c3af75af582ca38a9407",
+              "file": "admin-system.spec.js",
+              "line": 496,
+              "column": 7
+            },
+            {
+              "title": "22 - Specializations Management",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 17895,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button, a').filter({ hasText: /specialization/i }).first()\u001b[22m\n\u001b[2m    - locator resolved to <a class=\"nav-item-link \" href=\"/specializations/add\">…</a>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    19 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - element is outside of the viewport\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button, a').filter({ hasText: /specialization/i }).first()\u001b[22m\n\u001b[2m    - locator resolved to <a class=\"nav-item-link \" href=\"/specializations/add\">…</a>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    19 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - element is outside of the viewport\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js:516:35",
+                        "location": {
+                          "file": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js",
+                          "column": 35,
+                          "line": 516
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 514 |\u001b[39m     \u001b[36mconst\u001b[39m specializationsButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button, a'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[35m/specialization/i\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n \u001b[90m 515 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[36mawait\u001b[39m specializationsButton\u001b[33m.\u001b[39misVisible()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 516 |\u001b[39m       \u001b[36mawait\u001b[39m specializationsButton\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 517 |\u001b[39m       \u001b[36mawait\u001b[39m waitForStablePage(page\u001b[33m,\u001b[39m \u001b[35m1500\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 518 |\u001b[39m       \n \u001b[90m 519 |\u001b[39m       \u001b[36mawait\u001b[39m captureManualScreenshot(page\u001b[33m,\u001b[39m \u001b[32m'admin'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'22-specializations'\u001b[39m\u001b[33m,\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js",
+                            "column": 35,
+                            "line": 516
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button, a').filter({ hasText: /specialization/i }).first()\u001b[22m\n\u001b[2m    - locator resolved to <a class=\"nav-item-link \" href=\"/specializations/add\">…</a>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    19 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - element is outside of the viewport\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n\n\u001b[0m \u001b[90m 514 |\u001b[39m     \u001b[36mconst\u001b[39m specializationsButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button, a'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[35m/specialization/i\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n \u001b[90m 515 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[36mawait\u001b[39m specializationsButton\u001b[33m.\u001b[39misVisible()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 516 |\u001b[39m       \u001b[36mawait\u001b[39m specializationsButton\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 517 |\u001b[39m       \u001b[36mawait\u001b[39m waitForStablePage(page\u001b[33m,\u001b[39m \u001b[35m1500\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 518 |\u001b[39m       \n \u001b[90m 519 |\u001b[39m       \u001b[36mawait\u001b[39m captureManualScreenshot(page\u001b[33m,\u001b[39m \u001b[32m'admin'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'22-specializations'\u001b[39m\u001b[33m,\u001b[39m {\u001b[0m\n\u001b[2m    at C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js:516:35\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:22:10.961Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\test-results\\admin-system-User-Manual---ff3a6--Specializations-Management-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\test-results\\admin-system-User-Manual---ff3a6--Specializations-Management-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\test-results\\admin-system-User-Manual---ff3a6--Specializations-Management-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js",
+                        "column": 35,
+                        "line": 516
+                      }
+                    },
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 18159,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button, a').filter({ hasText: /specialization/i }).first()\u001b[22m\n\u001b[2m    - locator resolved to <a class=\"nav-item-link \" href=\"/specializations/add\">…</a>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    19 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - element is outside of the viewport\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button, a').filter({ hasText: /specialization/i }).first()\u001b[22m\n\u001b[2m    - locator resolved to <a class=\"nav-item-link \" href=\"/specializations/add\">…</a>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    19 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - element is outside of the viewport\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js:516:35",
+                        "location": {
+                          "file": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js",
+                          "column": 35,
+                          "line": 516
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 514 |\u001b[39m     \u001b[36mconst\u001b[39m specializationsButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button, a'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[35m/specialization/i\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n \u001b[90m 515 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[36mawait\u001b[39m specializationsButton\u001b[33m.\u001b[39misVisible()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 516 |\u001b[39m       \u001b[36mawait\u001b[39m specializationsButton\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 517 |\u001b[39m       \u001b[36mawait\u001b[39m waitForStablePage(page\u001b[33m,\u001b[39m \u001b[35m1500\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 518 |\u001b[39m       \n \u001b[90m 519 |\u001b[39m       \u001b[36mawait\u001b[39m captureManualScreenshot(page\u001b[33m,\u001b[39m \u001b[32m'admin'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'22-specializations'\u001b[39m\u001b[33m,\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js",
+                            "column": 35,
+                            "line": 516
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button, a').filter({ hasText: /specialization/i }).first()\u001b[22m\n\u001b[2m    - locator resolved to <a class=\"nav-item-link \" href=\"/specializations/add\">…</a>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    19 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - element is outside of the viewport\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n\n\u001b[0m \u001b[90m 514 |\u001b[39m     \u001b[36mconst\u001b[39m specializationsButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button, a'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[35m/specialization/i\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n \u001b[90m 515 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[36mawait\u001b[39m specializationsButton\u001b[33m.\u001b[39misVisible()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 516 |\u001b[39m       \u001b[36mawait\u001b[39m specializationsButton\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 517 |\u001b[39m       \u001b[36mawait\u001b[39m waitForStablePage(page\u001b[33m,\u001b[39m \u001b[35m1500\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 518 |\u001b[39m       \n \u001b[90m 519 |\u001b[39m       \u001b[36mawait\u001b[39m captureManualScreenshot(page\u001b[33m,\u001b[39m \u001b[32m'admin'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'22-specializations'\u001b[39m\u001b[33m,\u001b[39m {\u001b[0m\n\u001b[2m    at C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js:516:35\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-05-02T17:22:30.132Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\test-results\\admin-system-User-Manual---ff3a6--Specializations-Management-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\test-results\\admin-system-User-Manual---ff3a6--Specializations-Management-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\test-results\\admin-system-User-Manual---ff3a6--Specializations-Management-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\test-results\\admin-system-User-Manual---ff3a6--Specializations-Management-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js",
+                        "column": 35,
+                        "line": 516
+                      }
+                    },
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 17955,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button, a').filter({ hasText: /specialization/i }).first()\u001b[22m\n\u001b[2m    - locator resolved to <a class=\"nav-item-link \" href=\"/specializations/add\">…</a>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    19 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - element is outside of the viewport\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+                        "stack": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button, a').filter({ hasText: /specialization/i }).first()\u001b[22m\n\u001b[2m    - locator resolved to <a class=\"nav-item-link \" href=\"/specializations/add\">…</a>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    19 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - element is outside of the viewport\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js:516:35",
+                        "location": {
+                          "file": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js",
+                          "column": 35,
+                          "line": 516
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 514 |\u001b[39m     \u001b[36mconst\u001b[39m specializationsButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button, a'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[35m/specialization/i\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n \u001b[90m 515 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[36mawait\u001b[39m specializationsButton\u001b[33m.\u001b[39misVisible()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 516 |\u001b[39m       \u001b[36mawait\u001b[39m specializationsButton\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 517 |\u001b[39m       \u001b[36mawait\u001b[39m waitForStablePage(page\u001b[33m,\u001b[39m \u001b[35m1500\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 518 |\u001b[39m       \n \u001b[90m 519 |\u001b[39m       \u001b[36mawait\u001b[39m captureManualScreenshot(page\u001b[33m,\u001b[39m \u001b[32m'admin'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'22-specializations'\u001b[39m\u001b[33m,\u001b[39m {\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js",
+                            "column": 35,
+                            "line": 516
+                          },
+                          "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button, a').filter({ hasText: /specialization/i }).first()\u001b[22m\n\u001b[2m    - locator resolved to <a class=\"nav-item-link \" href=\"/specializations/add\">…</a>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - element is outside of the viewport\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    19 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - element is outside of the viewport\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n\n\u001b[0m \u001b[90m 514 |\u001b[39m     \u001b[36mconst\u001b[39m specializationsButton \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'button, a'\u001b[39m)\u001b[33m.\u001b[39mfilter({ hasText\u001b[33m:\u001b[39m \u001b[35m/specialization/i\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n \u001b[90m 515 |\u001b[39m     \u001b[36mif\u001b[39m (\u001b[36mawait\u001b[39m specializationsButton\u001b[33m.\u001b[39misVisible()) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 516 |\u001b[39m       \u001b[36mawait\u001b[39m specializationsButton\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 517 |\u001b[39m       \u001b[36mawait\u001b[39m waitForStablePage(page\u001b[33m,\u001b[39m \u001b[35m1500\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 518 |\u001b[39m       \n \u001b[90m 519 |\u001b[39m       \u001b[36mawait\u001b[39m captureManualScreenshot(page\u001b[33m,\u001b[39m \u001b[32m'admin'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'22-specializations'\u001b[39m\u001b[33m,\u001b[39m {\u001b[0m\n\u001b[2m    at C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js:516:35\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 2,
+                      "startTime": "2026-05-02T17:22:50.089Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\test-results\\admin-system-User-Manual---ff3a6--Specializations-Management-chromium-retry2\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\test-results\\admin-system-User-Manual---ff3a6--Specializations-Management-chromium-retry2\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\test-results\\admin-system-User-Manual---ff3a6--Specializations-Management-chromium-retry2\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\NickD\\Documents\\Github\\PreciseOptics\\frontend\\e2e\\admin-system.spec.js",
+                        "column": 35,
+                        "line": 516
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-ae570acd008322382718",
+              "file": "admin-system.spec.js",
+              "line": 507,
+              "column": 7
+            },
+            {
+              "title": "23 - Add Specialization Form",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9101,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📸 Captured: admin/23-add-specialization.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:23:09.589Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-b3835d2d7e1c73f03ec6",
+              "file": "admin-system.spec.js",
+              "line": 525,
+              "column": 7
+            },
+            {
+              "title": "24 - User Profile Settings",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6965,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:23:18.962Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-05beaacf4cc53b6c7310",
+              "file": "admin-system.spec.js",
+              "line": 536,
+              "column": 7
+            },
+            {
+              "title": "25 - System Statistics Summary",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9997,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📸 Captured: admin/25-system-statistics.png\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-02T17:23:25.949Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a5833f49a294b2cef607-d5f4b799d17ec0659edd",
+              "file": "admin-system.spec.js",
+              "line": 551,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-05-02T17:18:05.693Z",
+    "duration": 330672.126,
+    "expected": 23,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

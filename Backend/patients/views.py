@@ -35,7 +35,7 @@ class PatientViewSet(PatientAccessLoggingMixin, viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Filter patients based on user permissions"""
-        queryset = Patient.objects.select_related('created_by').prefetch_related('visits')
+        queryset = Patient.objects.select_related('registered_by').prefetch_related('visits')
         
         # Add filters for search
         search = self.request.query_params.get('search', None)

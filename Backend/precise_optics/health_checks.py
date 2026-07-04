@@ -7,7 +7,7 @@ from django.db import connection
 from django.core.cache import cache
 from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 import sys
 import django
 
@@ -56,7 +56,7 @@ def database_health_check(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsAuthenticated])
 def detailed_health_check(request):
     """
     Comprehensive system health check

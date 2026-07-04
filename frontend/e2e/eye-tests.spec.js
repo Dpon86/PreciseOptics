@@ -1,369 +1,108 @@
 import { test, expect } from '@playwright/test';
-import { authenticatedPage, captureManualScreenshot, waitForStablePage } from './helpers.js';
+import { login, clickSidebarLink, step } from './helpers.js';
 
-test.describe('Eye Tests Module', () => {
-  
-  // ==========================================
-  // Eye Tests Navigation Tests
-  // ==========================================
-  
-  test('should display eye tests page', async ({ page }) => {
-    await page.goto('/eye-tests');
-    await waitForStablePage(page);
-    
-    // May be under different routes
-    if (page.url().includes('404') || page.url().includes('not-found')) {
-      // Try alternative routes
-      await page.goto('/tests');
-    }
+const SARAH_ID = '56747eb4-4b3f-49e6-bcca-df188350a6d9';
+
+// ============================================================
+// Eye Tests Module – E2E Workflow Tests
+// Every test: login → sidebar click → workflow → verify
+// ============================================================
+
+test.describe('View Eye Tests List', () => {
+  test.beforeEach(async ({ page }) => {
+    await login(page);
   });
 
-  test('should display test types', async ({ page }) => {
-    await page.goto('/eye-tests');
-    await waitForStablePage(page);
-    
-    // Common eye test types
-    const testTypes = [
-      'Visual Acuity',
-      'Intraocular Pressure',
-      'Visual Field',
-      'OCT',
-      'Fundus',
-    ];
-    
-    for (const testType of testTypes) {
-      const element = page.locator(`text=${testType}`).first();
-      if (await element.isVisible()) {
-        await expect(element).toBeVisible();
-        break; // Found at least one test type
-      }
-    }
+  test('navigate to Eye Tests via sidebar and see list', async ({ page }) => {
+    await step(page, 'eye-tests', '01-dashboard-before-eye-tests-click');
+    await clickSidebarLink(page, 'View Eye Tests');
+    await step(page, 'eye-tests', '02-eye-tests-list-loaded');
+    await expect(page).toHaveURL(/eye-tests/);
+    const heading = page.locator('h1, h2').first();
+    await expect(heading).toBeVisible();
   });
-
-  // ==========================================
-  // Eye Test Recording Tests
-  // ==========================================
-
-  test('should navigate to new eye test form', async ({ page }) => {
-    // Usually from patient page
-    await page.goto('/patients');
-    await waitForStablePage(page);
-    
-    const patientLink = page.locator('a[href*="/patients/"]').first();
-    if (await patientLink.isVisible()) {
-      await patientLink.click();
-      await waitForStablePage(page);
-      
-      // Look for add test button
-      const addTestButton = page.locator('button, a').filter({ hasText: /add.*test|new.*test|record.*test/i }).first();
-      if (await addTestButton.isVisible()) {
-        await expect(addTestButton).toBeVisible();
-      }
-    }
-  });
-
 });
 
-// ==========================================
-// USER MANUAL SCREENSHOT GENERATION
-// ==========================================
-
-test.describe('User Manual - Eye Tests Module Screenshots', () => {
-  
-  test.use({ viewport: { width: 1280, height: 720 } });
-
-  test('01 - Eye Tests Overview', async ({ page }) => {
-    await authenticatedPage(page);
-    
-    // Navigate to patient with tests
-    await page.goto('/patients');
-    await waitForStablePage(page);
-    
-    const patientLink = page.locator('a[href*="/patients/"]').first();
-    if (await patientLink.isVisible()) {
-      await patientLink.click();
-      await waitForStablePage(page);
-      
-      // Click Eye Tests tab
-      const eyeTestsTab = page.locator('button:has-text("Eye Tests"), button:has-text("Tests")').first();
-      if (await eyeTestsTab.isVisible()) {
-        await eyeTestsTab.click();
-        await waitForStablePage(page, 2000);
-        
-        await captureManualScreenshot(page, 'eye-tests', '01-eye-tests-overview', {
-          fullPage: true
-        });
-      }
-    }
+test.describe('Add Visual Acuity Test', () => {
+  test.beforeEach(async ({ page }) => {
+    await login(page);
   });
 
-  test('02 - Eye Test Types List', async ({ page }) => {
-    await authenticatedPage(page);
-    
-    await page.goto('/patients');
-    await waitForStablePage(page);
-    
-    const patientLink = page.locator('a[href*="/patients/"]').first();
-    if (await patientLink.isVisible()) {
-      await patientLink.click();
-      await waitForStablePage(page);
-      
-      const eyeTestsTab = page.locator('button:has-text("Eye Tests"), button:has-text("Tests")').first();
-      if (await eyeTestsTab.isVisible()) {
-        await eyeTestsTab.click();
-        await waitForStablePage(page);
-        
-        // Look for test type selector
-        const testTypeButton = page.locator('button, a').filter({ hasText: /add.*test|new.*test/i }).first();
-        if (await testTypeButton.isVisible()) {
-          await testTypeButton.click();
-          await waitForStablePage(page, 1000);
-          
-          await captureManualScreenshot(page, 'eye-tests', '02-test-types-list');
-        }
-      }
-    }
+  test('navigate to Visual Acuity Test via sidebar and verify form loads', async ({ page }) => {
+    await step(page, 'eye-tests', '03-dashboard-before-visual-acuity-click');
+    await clickSidebarLink(page, 'Visual Acuity Test');
+    await step(page, 'eye-tests', '04-visual-acuity-form-empty');
+    await expect(page).toHaveURL(/visual-acuity/);
+    // performed_by select must be present (no patient select — patient set via context)
+    const performedBySelect = page.locator('select[name="performed_by"]').first();
+    await performedBySelect.waitFor({ state: 'visible', timeout: 8000 });
+    await expect(performedBySelect).toBeVisible();
   });
 
-  test('03 - Visual Acuity Test Form', async ({ page }) => {
-    await authenticatedPage(page);
-    
-    await page.goto('/patients');
-    await waitForStablePage(page);
-    
-    const patientLink = page.locator('a[href*="/patients/"]').first();
-    if (await patientLink.isVisible()) {
-      await patientLink.click();
-      await waitForStablePage(page);
-      
-      const eyeTestsTab = page.locator('button:has-text("Eye Tests"), button:has-text("Tests")').first();
-      if (await eyeTestsTab.isVisible()) {
-        await eyeTestsTab.click();
-        await waitForStablePage(page);
-        
-        const addTestButton = page.locator('button, a').filter({ hasText: /add.*test|visual acuity/i }).first();
-        if (await addTestButton.isVisible()) {
-          await addTestButton.click();
-          await waitForStablePage(page, 1500);
-          
-          await captureManualScreenshot(page, 'eye-tests', '03-visual-acuity-form', {
-            fullPage: true
-          });
-        }
+  test('fill Visual Acuity Test form for Sarah White and submit', async ({ page }) => {
+    // Capture API response for debugging
+    let apiStatus = null;
+    let apiBody = null;
+    page.on('response', async (response) => {
+      if (response.url().includes('/api/visual-acuity-tests/') && response.request().method() === 'POST') {
+        apiStatus = response.status();
+        try { apiBody = await response.text(); } catch {}
       }
-    }
-  });
+    });
 
-  test('04 - Visual Acuity Form Filled', async ({ page }) => {
-    await authenticatedPage(page);
-    
-    await page.goto('/patients');
-    await waitForStablePage(page);
-    
-    const patientLink = page.locator('a[href*="/patients/"]').first();
-    if (await patientLink.isVisible()) {
-      await patientLink.click();
-      await waitForStablePage(page);
-      
-      const eyeTestsTab = page.locator('button:has-text("Eye Tests"), button:has-text("Tests")').first();
-      if (await eyeTestsTab.isVisible()) {
-        await eyeTestsTab.click();
-        await waitForStablePage(page);
-        
-        const addTestButton = page.locator('button, a').filter({ hasText: /add.*test/i }).first();
-        if (await addTestButton.isVisible()) {
-          await addTestButton.click();
-          await waitForStablePage(page);
-          
-          // Fill form fields
-          const rightEyeInput = page.locator('input[name*="right"], input[name*="od"]').first();
-          if (await rightEyeInput.isVisible()) {
-            await rightEyeInput.fill('6/6');
-          }
-          
-          const leftEyeInput = page.locator('input[name*="left"], input[name*="os"]').first();
-          if (await leftEyeInput.isVisible()) {
-            await leftEyeInput.fill('6/9');
-          }
-          
-          await page.waitForTimeout(500);
-          
-          await captureManualScreenshot(page, 'eye-tests', '04-visual-acuity-filled', {
-            fullPage: true
-          });
-        }
-      }
-    }
-  });
+    // Set selectedPatientId in sessionStorage so PatientContext restores Sarah on reload
+    await page.evaluate((id) => sessionStorage.setItem('selectedPatientId', id), SARAH_ID);
+    await page.reload();
+    await page.waitForLoadState('networkidle');
 
-  test('05 - IOP Test Form', async ({ page }) => {
-    await authenticatedPage(page);
-    
-    await page.goto('/patients');
-    await waitForStablePage(page);
-    
-    const patientLink = page.locator('a[href*="/patients/"]').first();
-    if (await patientLink.isVisible()) {
-      await patientLink.click();
-      await waitForStablePage(page);
-      
-      const eyeTestsTab = page.locator('button:has-text("Eye Tests"), button:has-text("Tests")').first();
-      if (await eyeTestsTab.isVisible()) {
-        await eyeTestsTab.click();
-        await waitForStablePage(page);
-        
-        const addTestButton = page.locator('button, a').filter({ hasText: /iop|pressure/i }).first();
-        if (await addTestButton.isVisible()) {
-          await addTestButton.click();
-          await waitForStablePage(page, 1500);
-          
-          await captureManualScreenshot(page, 'eye-tests', '05-iop-test-form', {
-            fullPage: true
-          });
-        }
-      }
-    }
-  });
+    // Navigate to the Visual Acuity add form (no patientId route param needed — context has patient)
+    await page.goto('/eye-tests/visual-acuity/add');
+    await page.waitForLoadState('networkidle');
+    await step(page, 'eye-tests', '05-visual-acuity-form-for-sarah');
 
-  test('06 - Test Results Timeline', async ({ page }) => {
-    await authenticatedPage(page);
-    
-    await page.goto('/patients');
-    await waitForStablePage(page);
-    
-    const patientLink = page.locator('a[href*="/patients/"]').first();
-    if (await patientLink.isVisible()) {
-      await patientLink.click();
-      await waitForStablePage(page);
-      
-      const eyeTestsTab = page.locator('button:has-text("Eye Tests"), button:has-text("Tests")').first();
-      if (await eyeTestsTab.isVisible()) {
-        await eyeTestsTab.click();
-        await waitForStablePage(page, 2000);
-        
-        await captureManualScreenshot(page, 'eye-tests', '06-test-timeline', {
-          fullPage: true
-        });
-      }
-    }
-  });
+    // performed_by is required — select the first available staff member
+    const performedBySelect = page.locator('select[name="performed_by"]').first();
+    await performedBySelect.waitFor({ state: 'visible', timeout: 8000 });
+    await performedBySelect.selectOption({ index: 1 });
 
-  test('07 - Test Results Comparison', async ({ page }) => {
-    await authenticatedPage(page);
-    
-    await page.goto('/patients');
-    await waitForStablePage(page);
-    
-    const patientLink = page.locator('a[href*="/patients/"]').first();
-    if (await patientLink.isVisible()) {
-      await patientLink.click();
-      await waitForStablePage(page);
-      
-      const eyeTestsTab = page.locator('button:has-text("Eye Tests"), button:has-text("Tests")').first();
-      if (await eyeTestsTab.isVisible()) {
-        await eyeTestsTab.click();
-        await waitForStablePage(page);
-        
-        // Look for comparison or chart view
-        const comparisonButton = page.locator('button').filter({ hasText: /compare|chart|graph/i }).first();
-        if (await comparisonButton.isVisible()) {
-          await comparisonButton.click();
-          await waitForStablePage(page, 1500);
-          
-          await captureManualScreenshot(page, 'eye-tests', '07-test-comparison', {
-            fullPage: true
-          });
-        }
-      }
+    // Test date (datetime-local)
+    const testDate = page.locator('input[name="test_date"]').first();
+    if (await testDate.isVisible()) {
+      const now = new Date();
+      now.setSeconds(0, 0);
+      await testDate.fill(now.toISOString().slice(0, 16));
     }
-  });
 
-  test('08 - Visual Field Test', async ({ page }) => {
-    await authenticatedPage(page);
-    
-    await page.goto('/patients');
-    await waitForStablePage(page);
-    
-    const patientLink = page.locator('a[href*="/patients/"]').first();
-    if (await patientLink.isVisible()) {
-      await patientLink.click();
-      await waitForStablePage(page);
-      
-      const eyeTestsTab = page.locator('button:has-text("Eye Tests"), button:has-text("Tests")').first();
-      if (await eyeTestsTab.isVisible()) {
-        await eyeTestsTab.click();
-        await waitForStablePage(page);
-        
-        const addTestButton = page.locator('button, a').filter({ hasText: /visual field|perimetry/i }).first();
-        if (await addTestButton.isVisible()) {
-          await addTestButton.click();
-          await waitForStablePage(page, 1500);
-          
-          await captureManualScreenshot(page, 'eye-tests', '08-visual-field-test', {
-            fullPage: true
-          });
-        }
-      }
+    // Eye side
+    const eyeSideSelect = page.locator('select[name="eye_side"]').first();
+    if (await eyeSideSelect.isVisible()) {
+      await eyeSideSelect.selectOption('both');
     }
-  });
 
-  test('09 - OCT Scan Form', async ({ page }) => {
-    await authenticatedPage(page);
-    
-    await page.goto('/patients');
-    await waitForStablePage(page);
-    
-    const patientLink = page.locator('a[href*="/patients/"]').first();
-    if (await patientLink.isVisible()) {
-      await patientLink.click();
-      await waitForStablePage(page);
-      
-      const eyeTestsTab = page.locator('button:has-text("Eye Tests"), button:has-text("Tests")').first();
-      if (await eyeTestsTab.isVisible()) {
-        await eyeTestsTab.click();
-        await waitForStablePage(page);
-        
-        const addTestButton = page.locator('button, a').filter({ hasText: /oct/i }).first();
-        if (await addTestButton.isVisible()) {
-          await addTestButton.click();
-          await waitForStablePage(page, 1500);
-          
-          await captureManualScreenshot(page, 'eye-tests', '09-oct-scan-form', {
-            fullPage: true
-          });
-        }
-      }
+    // Right eye unaided
+    const rightUnaided = page.locator('input[name="right_eye_unaided"]').first();
+    if (await rightUnaided.isVisible()) {
+      await rightUnaided.fill('6/6');
     }
-  });
 
-  test('10 - Test Results Detail View', async ({ page }) => {
-    await authenticatedPage(page);
-    
-    await page.goto('/patients');
-    await waitForStablePage(page);
-    
-    const patientLink = page.locator('a[href*="/patients/"]').first();
-    if (await patientLink.isVisible()) {
-      await patientLink.click();
-      await waitForStablePage(page);
-      
-      const eyeTestsTab = page.locator('button:has-text("Eye Tests"), button:has-text("Tests")').first();
-      if (await eyeTestsTab.isVisible()) {
-        await eyeTestsTab.click();
-        await waitForStablePage(page);
-        
-        // Click first test result
-        const testResult = page.locator('tr, .test-card, .test-item').nth(1);
-        if (await testResult.isVisible()) {
-          await testResult.click();
-          await waitForStablePage(page, 1500);
-          
-          await captureManualScreenshot(page, 'eye-tests', '10-test-detail-view', {
-            fullPage: true
-          });
-        }
-      }
+    // Left eye unaided
+    const leftUnaided = page.locator('input[name="left_eye_unaided"]').first();
+    if (await leftUnaided.isVisible()) {
+      await leftUnaided.fill('6/9');
     }
-  });
 
+    await step(page, 'eye-tests', '06-visual-acuity-form-filled');
+
+    // Accept any success alert
+    page.on('dialog', d => d.accept());
+
+    // Submit
+    await page.locator('button[type="submit"]').click();
+    await page.waitForLoadState('networkidle');
+    await step(page, 'eye-tests', '07-after-visual-acuity-submit');
+    console.log('API status:', apiStatus, 'body:', apiBody?.substring(0, 300));
+
+    // Should navigate away from the add form after success
+    await expect(page).not.toHaveURL(/visual-acuity\/add$/);
+  });
 });

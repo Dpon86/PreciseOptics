@@ -90,11 +90,13 @@ import {
   DiseaseSpecificReport,
   RevenueAnalysisReport,
   BatchTrackingReport,
+  PatientOutcomeForm,
   // New Advanced Analytics Reports
   ConditionPrevalenceReport,
   ConditionOutcomesReport,
   ProtocolAdherenceReport,
   ReferralSourceReport,
+  PatientOutcomesReport,
   // Audit
   AuditLogsPage,
   AddAuditLogPage,
@@ -732,6 +734,22 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <ReferralSourceReport />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports/patient-outcomes"
+            element={
+              <ProtectedRoute>
+                <PatientOutcomesReport />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/patients/outcome/add"
+            element={
+              <ProtectedRoute>
+                <PatientOutcomeForm />
               </ProtectedRoute>
             }
           />

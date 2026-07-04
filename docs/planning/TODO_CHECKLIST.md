@@ -1,3 +1,11 @@
+# ARCHIVED TODO CHECKLIST
+
+This file is archived and kept for historical context only.
+
+Use docs/MASTER_TODO.md as the single active TODO source.
+
+---
+
 # PreciseOptics - Feature Enhancement TO-DO Checklist
 
 ## 🎯 **QUICK REFERENCE TO-DO LIST**
@@ -252,8 +260,8 @@
 - [x] All tests passing (42/42 frontend, all backend tests) ✅
 - [x] Production settings configured (env-var driven via decouple) ✅
 - [x] Environment variables set — `.env.example` created ✅
-- [ ] Database backups configured
-- [ ] Monitoring setup
+- [x] Database backups configured ✅ (`Backend/scripts/backup_prod.sh`, `Backend/scripts/restore_prod.sh`, runbook cron)
+- [x] Monitoring setup ✅ baseline complete (health checks + Sentry integration wiring via `SENTRY_DSN`)
 
 ### Production Readiness
 - [x] Update `PRODUCTION_READINESS.md` ✅

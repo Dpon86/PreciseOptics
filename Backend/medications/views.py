@@ -82,7 +82,7 @@ class MedicationViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Filter medications based on parameters"""
         queryset = Medication.objects.select_related(
-            'manufacturer', 'category', 'created_by'
+            'manufacturer_fk', 'category', 'created_by'
         ).filter(approval_status=True)
         
         # Search by name or generic name

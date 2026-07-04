@@ -1,245 +1,104 @@
 import { test, expect } from '@playwright/test';
+import { login, openSidebar, clickSidebarLink, step } from './helpers.js';
 
-/**
- * Authentication and Login Tests
- * 
- * Purpose:
- * - Test login/logout functionality
- * - Capture screenshots for user manual
- * - Verify 2FA workflow
- */
+// ============================================================
+// Authentication & Dashboard Navigation E2E Tests
+// Every test starts from the login page, types credentials,
+// clicks the submit button, and drives the real UI from there.
+// ============================================================
 
-test.describe('Authentication Flow', () => {
+test.describe('Login Page', () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to login page
     await page.goto('/login');
+    await page.waitForLoadState('networkidle');
   });
 
-  test('should display login page correctly', async ({ page }) => {
-    // Wait for page to load
-    await page.waitForLoadState('networkidle');
-    
-    // Capture screenshot for user manual
-    await page.screenshot({
-      path: 'e2e/screenshots/user-manual/01-login-page.png',
-      fullPage: true,
-    });
-    
-    // Verify page elements
-    await expect(page.locator('h1, h2')).toContainText(/login|sign in/i);
-    await expect(page.locator('input[name="username"], input[type="text"]')).toBeVisible();
-    await expect(page.locator('input[name="password"], input[type="password"]')).toBeVisible();
+  test('shows username, password fields and submit button', async ({ page }) => {
+    await step(page, 'auth', '01-login-page');
+    await expect(page.locator('input[name="username"]')).toBeVisible();
+    await expect(page.locator('input[name="password"]')).toBeVisible();
     await expect(page.locator('button[type="submit"]')).toBeVisible();
   });
 
-  test('should show validation errors for empty fields', async ({ page }) => {
-    // Click login without entering credentials
+  test('shows error with wrong credentials', async ({ page }) => {
+    await step(page, 'auth', '02-login-blank');
+    await page.locator('input[name="username"]').fill('wronguser');
+    await page.locator('input[name="password"]').fill('wrongpass');
+    await step(page, 'auth', '03-login-wrong-credentials-filled');
     await page.locator('button[type="submit"]').click();
-    
-    // Wait for error messages
-    await page.waitForTimeout(500);
-    
-    // Capture screenshot
-    await page.screenshot({
-      path: 'e2e/screenshots/user-manual/02-login-validation-errors.png',
-      fullPage: true,
-    });
-  });
-
-  test('should navigate to password reset page', async ({ page }) => {
-    // Click forgot password link
-    const forgotPasswordLink = page.locator('a').filter({ hasText: /forgot.*password|reset.*password/i });
-    
-    if (await forgotPasswordLink.isVisible()) {
-      await forgotPasswordLink.click();
-      await page.waitForLoadState('networkidle');
-      
-      // Capture screenshot
-      await page.screenshot({
-        path: 'e2e/screenshots/user-manual/03-password-reset-page.png',
-        fullPage: true,
-      });
-      
-      await expect(page).toHaveURL(/reset|forgot/i);
-    }
-  });
-
-  test('should login with valid credentials', async ({ page }) => {
-    // Fill in login form
-    await page.fill('input[name="username"], input[type="text"]', 'testuser');
-    
-    // Capture screenshot of filled form
-    await page.screenshot({
-      path: 'e2e/screenshots/user-manual/04-login-form-filled.png',
-      fullPage: true,
-    });
-    
-    await page.fill('input[name="password"], input[type="password"]', 'testpassword');
-    
-    // Click login button
-    await page.locator('button[type="submit"]').click();
-    
-    // Wait for navigation or error
     await page.waitForTimeout(2000);
-    
-    // Capture result
-    await page.screenshot({
-      path: 'e2e/screenshots/user-manual/05-after-login-attempt.png',
-      fullPage: true,
-    });
+    await step(page, 'auth', '04-login-error-shown');
+    // Should stay on login page — not redirected to dashboard
+    await expect(page).toHaveURL(/login/);
+  });
+
+  test('successfully logs in with admin credentials and reaches dashboard', async ({ page }) => {
+    await page.locator('input[name="username"]').fill('admin');
+    await page.locator('input[name="password"]').fill('admin123');
+    await step(page, 'auth', '05-login-credentials-filled');
+    await page.locator('button[type="submit"]').click();
+    await page.waitForURL(url => !url.pathname.startsWith('/login'), { timeout: 15000 });
+    await page.waitForLoadState('networkidle');
+    await step(page, 'auth', '06-dashboard-after-login');
+    // Dashboard heading or sidebar should be present
+    await expect(page.locator('h1, h2, .sidebar, nav').first()).toBeVisible();
   });
 });
 
-test.describe('Dashboard Navigation', () => {
+test.describe('Dashboard Sidebar Navigation', () => {
   test.beforeEach(async ({ page }) => {
-    // For these tests, we need to be logged in
-    // This is a placeholder - you'll need to implement actual login
-    await page.goto('/');
+    // Log in via real UI for every test in this suite
+    await login(page);
   });
 
-  test('should display dashboard homepage', async ({ page }) => {
-    await page.waitForLoadState('networkidle');
-    
-    // Capture dashboard screenshot
-    await page.screenshot({
-      path: 'e2e/screenshots/user-manual/10-dashboard-homepage.png',
-      fullPage: true,
-    });
-    
-    // Verify key dashboard elements
-    await expect(page.locator('header, .header')).toBeVisible();
-    await expect(page.locator('nav, .sidebar, .navigation')).toBeVisible();
+  test('sidebar is visible after login', async ({ page }) => {
+    await step(page, 'auth', '07-dashboard-sidebar-visible');
+    const sidebar = page.locator('.sidebar, nav, [class*="sidebar"]').first();
+    await expect(sidebar).toBeVisible();
   });
 
-  test('should navigate through sidebar menu', async ({ page }) => {
-    await page.waitForLoadState('networkidle');
-    
-    // Capture initial sidebar
-    await page.screenshot({
-      path: 'e2e/screenshots/user-manual/11-sidebar-navigation.png',
-      fullPage: false,
-      clip: { x: 0, y: 0, width: 300, height: 800 },
-    });
-    
-    // Click Patients menu item
-    const patientsLink = page.locator('a, button').filter({ hasText: /^patients$/i });
-    if (await patientsLink.isVisible()) {
-      await patientsLink.click();
-      await page.waitForLoadState('networkidle');
-      
-      await page.screenshot({
-        path: 'e2e/screenshots/user-manual/12-patients-page.png',
-        fullPage: true,
-      });
-    }
-  });
-});
-
-test.describe('User Manual Screenshot Generation', () => {
-  /**
-   * This test suite is specifically for generating comprehensive
-   * screenshots for the user manual. It walks through common workflows
-   * and captures screens at each step.
-   */
-
-  test('Condition Management Workflow', async ({ page }) => {
-    await page.goto('/conditions');
-    await page.waitForLoadState('networkidle');
-    
-    // 1. Conditions list page
-    await page.screenshot({
-      path: 'e2e/screenshots/user-manual/conditions/01-conditions-list.png',
-      fullPage: true,
-    });
-    
-    // 2. Click add condition button (if visible)
-    const addButton = page.locator('button, a').filter({ hasText: /add.*condition|new.*condition/i });
-    if (await addButton.isVisible()) {
-      await addButton.click();
-      await page.waitForLoadState('networkidle');
-      
-      await page.screenshot({
-        path: 'e2e/screenshots/user-manual/conditions/02-add-condition-form.png',
-        fullPage: true,
-      });
-    }
+  test('navigate to Patients via sidebar "View Patients" link', async ({ page }) => {
+    await step(page, 'auth', '08-sidebar-before-patients-click');
+    await clickSidebarLink(page, 'View Patients');
+    await step(page, 'auth', '09-patients-page-loaded');
+    await expect(page).toHaveURL(/patients/);
+    await expect(page.locator('h1').filter({ hasText: /patients/i })).toBeVisible();
   });
 
-  test('Protocol Management Workflow', async ({ page }) => {
-    await page.goto('/protocols');
-    await page.waitForLoadState('networkidle');
-    
-    // 1. Protocols list page
-    await page.screenshot({
-      path: 'e2e/screenshots/user-manual/protocols/01-protocols-list.png',
-      fullPage: true,
-    });
-    
-    // 2. Protocol builder
-    const builderLink = page.locator('a, button').filter({ hasText: /protocol.*builder|create.*protocol/i });
-    if (await builderLink.isVisible()) {
-      await builderLink.click();
-      await page.waitForLoadState('networkidle');
-      
-      await page.screenshot({
-        path: 'e2e/screenshots/user-manual/protocols/02-protocol-builder.png',
-        fullPage: true,
-      });
-    }
+  test('navigate to Medications via sidebar "View All Medications" link', async ({ page }) => {
+    await clickSidebarLink(page, 'View All Medications');
+    await step(page, 'auth', '10-medications-page-loaded');
+    await expect(page).toHaveURL(/medications/);
+    await expect(page.locator('h1').filter({ hasText: /medications/i })).toBeVisible();
   });
 
-  test('Referrals Management Workflow', async ({ page }) => {
-    await page.goto('/referrals');
-    await page.waitForLoadState('networkidle');
-    
-    // 1. Referrals list page
-    await page.screenshot({
-      path: 'e2e/screenshots/user-manual/referrals/01-referrals-list.png',
-      fullPage: true,
-    });
-    
-    // 2. Create referral
-    const createButton = page.locator('button, a').filter({ hasText: /create.*referral|new.*referral/i });
-    if (await createButton.isVisible()) {
-      await createButton.click();
-      await page.waitForLoadState('networkidle');
-      
-      await page.screenshot({
-        path: 'e2e/screenshots/user-manual/referrals/02-create-referral-form.png',
-        fullPage: true,
-      });
-    }
+  test('navigate to Consultations via sidebar "View Consultations" link', async ({ page }) => {
+    await clickSidebarLink(page, 'View Consultations');
+    await step(page, 'auth', '11-consultations-page-loaded');
+    await expect(page).toHaveURL(/consultations/);
   });
 
-  test('Alert System Workflow', async ({ page }) => {
-    await page.goto('/alerts');
-    await page.waitForLoadState('networkidle');
-    
-    // 1. Alert center
-    await page.screenshot({
-      path: 'e2e/screenshots/user-manual/alerts/01-alert-center.png',
-      fullPage: true,
-    });
-    
-    // 2. Click alert badge in header
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-    
-    const alertBadge = page.locator('.alert-badge, [class*="alert"]').first();
-    if (await alertBadge.isVisible()) {
-      await page.screenshot({
-        path: 'e2e/screenshots/user-manual/alerts/02-header-alert-badge.png',
-        fullPage: false,
-        clip: { x: 0, y: 0, width: 1280, height: 100 },
-      });
-      
-      await alertBadge.click();
-      await page.waitForTimeout(1000);
-      
-      await page.screenshot({
-        path: 'e2e/screenshots/user-manual/alerts/03-alert-dropdown.png',
-        fullPage: true,
-      });
-    }
+  test('navigate to Eye Tests via sidebar "View Eye Tests" link', async ({ page }) => {
+    await clickSidebarLink(page, 'View Eye Tests');
+    await step(page, 'auth', '12-eye-tests-page-loaded');
+    await expect(page).toHaveURL(/eye-tests/);
+  });
+
+  test('navigate to Treatments via sidebar "View Treatments" link', async ({ page }) => {
+    await clickSidebarLink(page, 'View Treatments');
+    await step(page, 'auth', '13-treatments-page-loaded');
+    await expect(page).toHaveURL(/treatments/);
+  });
+
+  test('log out returns to login page', async ({ page }) => {
+    await step(page, 'auth', '14-dashboard-before-logout');
+    const logoutBtn = page.locator('button, a').filter({ hasText: /logout|sign out/i }).first();
+    await logoutBtn.waitFor({ state: 'visible', timeout: 8000 });
+    await logoutBtn.click();
+    await page.waitForURL(url => url.pathname.includes('/login'), { timeout: 10000 });
+    await step(page, 'auth', '15-login-page-after-logout');
+    await expect(page.locator('input[name="username"]')).toBeVisible();
   });
 });
+
+

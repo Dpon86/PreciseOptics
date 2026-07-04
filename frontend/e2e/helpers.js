@@ -1,4 +1,91 @@
 import { test as base } from '@playwright/test';
+import { TEST_PATIENT, TEST_CONSULTATION, TEST_PRESCRIPTION, TEST_EYE_TEST } from './test-data.js';
+export { TEST_PATIENT, TEST_CONSULTATION, TEST_PRESCRIPTION, TEST_EYE_TEST };
+
+// Stable admin token - tied to admin user in db.sqlite3
+const ADMIN_TOKEN = '75202b24a1b49dd388c18bdd45bc698d692a0ea7';
+
+/**
+ * Inject auth token into sessionStorage BEFORE the page loads.
+ * Call this once per test, before any page.goto().
+ * addInitScript runs on every navigation for the lifetime of the page.
+ */
+export async function injectAuthToken(page) {
+  await page.addInitScript(token => {
+    window.sessionStorage.setItem('authToken', token);
+  }, ADMIN_TOKEN);
+  // Mock the auth-check endpoint so rate-limiting never causes a login redirect
+  await page.route('**/api/patients/?limit=1', (route) => {
+    route.fulfill({ status: 200, contentType: 'application/json',
+      body: JSON.stringify({ results: [], count: 0 }) });
+  });
+}
+
+/**
+ * Log in via the real login form UI (username + password).
+ * Use this for true end-to-end tests that must start from the login page.
+ * After this resolves the page is on '/' and authenticated.
+ */
+export async function login(page) {
+  // Mock the auth-check endpoint to prevent rate-limit-induced login redirects
+  await page.route('**/api/patients/?limit=1', (route) => {
+    route.fulfill({ status: 200, contentType: 'application/json',
+      body: JSON.stringify({ results: [], count: 0 }) });
+  });
+  await page.goto('/login');
+  await page.waitForLoadState('networkidle');
+  await page.locator('input[name="username"]').fill('admin');
+  await page.locator('input[name="password"]').fill('admin123');
+  await page.locator('button[type="submit"]').click();
+  // Wait until we leave the login page (redirected to dashboard)
+  await page.waitForURL(url => !url.pathname.startsWith('/login'), { timeout: 15000 });
+  await page.waitForLoadState('networkidle');
+}
+
+/**
+ * Open the sidebar. Tries a hamburger toggle first; falls back to assuming it
+ * is already visible (desktop layout keeps sidebar open by default).
+ */
+export async function openSidebar(page) {
+  const toggle = page.locator('button').filter({ hasText: /menu|☰/i })
+    .or(page.locator('[class*="hamburger"], [class*="toggle"], [aria-label*="menu"]'))
+    .first();
+  if (await toggle.isVisible({ timeout: 2000 }).catch(() => false)) {
+    await toggle.click();
+    await page.waitForTimeout(400);
+  }
+}
+
+/**
+ * Click a sidebar link by its visible label text.
+ */
+export async function clickSidebarLink(page, label) {
+  await openSidebar(page);
+  const link = page.locator('.sidebar a, nav a, [class*="sidebar"] a')
+    .filter({ hasText: label })
+    .first();
+  await link.waitFor({ state: 'visible', timeout: 8000 });
+  await link.click();
+  await page.waitForLoadState('networkidle');
+}
+
+/**
+ * Capture a how-to-guide step screenshot.
+ * Saves to e2e/screenshots/how-to/<section>/<stepNumber>-<description>.png
+ *
+ * Usage:
+ *   await step(page, 'auth', '01-login-page');
+ *
+ * @param {Page}   page        - Playwright page object
+ * @param {string} section     - Guide section name, e.g. 'auth', 'patients'
+ * @param {string} description - Step description (will be used as filename)
+ */
+export async function step(page, section, description) {
+  const sanitised = description.replace(/[^a-z0-9_-]/gi, '-').toLowerCase();
+  const path = `e2e/screenshots/how-to/${section}/${sanitised}.png`;
+  await page.screenshot({ path, fullPage: true });
+  console.log(`📸 Step: ${section}/${sanitised}.png`);
+}
 
 /**
  * Authenticated Test Helpers
@@ -11,6 +98,11 @@ import { test as base } from '@playwright/test';
 export const test = base.extend({
   // Authenticated page fixture
   authenticatedPage: async ({ page }, use) => {
+    // Mock the auth-check endpoint to prevent rate-limit-induced login redirects
+    await page.route('**/api/patients/?limit=1', (route) => {
+      route.fulfill({ status: 200, contentType: 'application/json',
+        body: JSON.stringify({ results: [], count: 0 }) });
+    });
     // Navigate to login page
     await page.goto('/login', { waitUntil: 'networkidle' });
     await page.waitForTimeout(2000); // Wait for React app to fully mount
@@ -67,6 +159,11 @@ export { expect } from '@playwright/test';
  * @param {Page} page - Playwright page object
  */
 export async function authenticatedPage(page) {
+  // Mock the auth-check endpoint to prevent rate-limit-induced login redirects
+  await page.route('**/api/patients/?limit=1', (route) => {
+    route.fulfill({ status: 200, contentType: 'application/json',
+      body: JSON.stringify({ results: [], count: 0 }) });
+  });
   // Navigate to login page
   await page.goto('/login', { waitUntil: 'networkidle' });
   await page.waitForTimeout(2000); // Wait for React app to fully mount
@@ -197,6 +294,54 @@ export async function fillFormWithScreenshots(page, formData, section) {
     );
     step++;
   }
+}
+
+/**
+ * Navigate directly to the E2E test patient's detail page.
+ * Injects auth token so no login flow is needed.
+ */
+export async function navigateToTestPatient(page) {
+  await injectAuthToken(page);
+  await page.goto(`/patients/${TEST_PATIENT.id}`);
+  await waitForStablePage(page);
+}
+
+/**
+ * Navigate directly to the E2E test consultation detail page.
+ * Injects auth token so no login flow is needed.
+ */
+export async function navigateToTestConsultation(page) {
+  await injectAuthToken(page);
+  await page.goto(`/consultations/${TEST_CONSULTATION.id}`);
+  await waitForStablePage(page);
+}
+
+/**
+ * Navigate to patients list and click the test patient (Sarah White).
+ * Injects auth token so no login flow is needed.
+ */
+export async function selectTestPatientFromList(page) {
+  await injectAuthToken(page);
+  await page.goto('/patients');
+  await waitForStablePage(page);
+
+  // Try searching for the patient by name
+  const searchInput = page.locator('input[type="text"], input[type="search"]').first();
+  if (await searchInput.isVisible()) {
+    await searchInput.fill(TEST_PATIENT.searchTerm);
+    await page.waitForTimeout(600);
+    await waitForStablePage(page);
+  }
+
+  // Click the test patient link
+  const patientLink = page.locator(`a[href*="${TEST_PATIENT.id}"]`).first();
+  if (await patientLink.isVisible()) {
+    await patientLink.click();
+  } else {
+    // Direct navigation fallback
+    await page.goto(`/patients/${TEST_PATIENT.id}`);
+  }
+  await waitForStablePage(page);
 }
 
 /**

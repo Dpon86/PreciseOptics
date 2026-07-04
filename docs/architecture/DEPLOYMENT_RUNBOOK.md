@@ -290,35 +290,82 @@ git checkout <previous-hash>    # check out previous version
 ## 8. Backup Procedure
 
 ```bash
+# Make scripts executable once
+chmod +x /opt/preciseoptics/Backend/scripts/backup_prod.sh
+chmod +x /opt/preciseoptics/Backend/scripts/restore_prod.sh
+
 # Automated daily backup cron (add to root crontab)
 # crontab -e
-0 2 * * * /opt/preciseoptics/scripts/backup.sh >> /var/log/preciseoptics_backup.log 2>&1
+0 2 * * * cd /opt/preciseoptics/Backend && ./scripts/backup_prod.sh >> /var/log/preciseoptics_backup.log 2>&1
 ```
 
-`/opt/preciseoptics/scripts/backup.sh`:
+Backup behavior is configured via `.env`:
+
+```env
+BACKUP_DIR=/backups/preciseoptics
+BACKUP_RETENTION_DAYS=2555
+BACKUP_ENCRYPT=true
+BACKUP_ENCRYPTION_PASSPHRASE=<store in secrets manager>
+```
+
+The backup script includes:
+- Database dump for PostgreSQL/MySQL/SQLite
+- `media/` and `logs/` archive
+- SHA-256 checksum file
+- Optional AES-256 encryption
+- Retention cleanup
+
+Manual backup:
 
 ```bash
-#!/bin/bash
-DATE=$(date +%Y-%m-%d)
-BACKUP_DIR=/backups/preciseoptics
+cd /opt/preciseoptics/Backend
+./scripts/backup_prod.sh
+```
 
-mkdir -p $BACKUP_DIR
+Manual restore (destructive, requires `--force`):
 
-# Database dump
-pg_dump -U precise_optics_user precise_optics_db | gzip > $BACKUP_DIR/db_$DATE.sql.gz
-
-# Media files
-tar -czf $BACKUP_DIR/media_$DATE.tar.gz /opt/preciseoptics/Backend/media/
-
-# Remove backups older than 30 days
-find $BACKUP_DIR -type f -mtime +30 -delete
-
-echo "Backup completed: $DATE"
+```bash
+cd /opt/preciseoptics/Backend
+./scripts/restore_prod.sh --backup /backups/preciseoptics/preciseoptics_backup_YYYYMMDD_HHMMSS.tar.gz.enc --force
 ```
 
 ---
 
-## 9. Monitoring Quick Commands
+## 9. Disaster Recovery Plan
+
+### Recovery Objectives
+
+- **RTO:** 4 hours
+- **RPO:** 24 hours
+
+### Recovery Steps
+
+```bash
+# 1) Provision replacement host / database
+# 2) Deploy latest known-good app release
+cd /opt/preciseoptics
+git checkout <known-good-tag-or-commit>
+
+# 3) Restore from the latest valid backup
+cd /opt/preciseoptics/Backend
+./scripts/restore_prod.sh --backup /backups/preciseoptics/<backup-file>.enc --force
+
+# 4) Restart services
+sudo systemctl restart preciseoptics
+sudo systemctl reload nginx
+```
+
+### Quarterly DR Drill Checklist
+
+- Restore latest backup to staging
+- Validate DB integrity (row counts, spot-check critical patient records)
+- Validate file recovery (`media/` documents and images)
+- Run smoke tests (login, patient list, report load)
+- Record drill duration and compare to RTO target
+
+---
+
+## 10. Monitoring Quick Commands
 
 ```bash
 # Check service status
@@ -339,7 +386,7 @@ sudo -u postgres psql -c "SELECT count(*) FROM pg_stat_activity WHERE datname='p
 
 ---
 
-## 10. Critical Production Checks Before Go-Live
+## 11. Critical Production Checks Before Go-Live
 
 - [ ] `DEBUG=False` confirmed in `.env`
 - [ ] `SECRET_KEY` is a newly generated value (not the insecure default)
@@ -352,6 +399,127 @@ sudo -u postgres psql -c "SELECT count(*) FROM pg_stat_activity WHERE datname='p
 - [ ] Health check endpoint returning 200
 - [ ] Superuser account created with strong password
 - [ ] Frontend `.env.production` pointing to HTTPS API URL
+
+---
+
+## 12. SQLite to PostgreSQL Cutover Checklist (Exact Commands)
+
+> Run on the production host from `/opt/preciseoptics/Backend`.
+
+For staging rehearsal, you can use the automation script:
+
+```bash
+cd /opt/preciseoptics/Backend
+chmod +x ./scripts/rehearse_sqlite_to_postgres.sh
+./scripts/rehearse_sqlite_to_postgres.sh --sqlite-file ./db.sqlite3 --force
+```
+
+### 12.1 Prepare Environment
+
+```bash
+cd /opt/preciseoptics/Backend
+cp .env.production.template .env
+nano .env
+```
+
+Required values in `.env` before continuing:
+- `ENVIRONMENT=production`
+- `DB_ENGINE=django.db.backends.postgresql`
+- `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`
+- `FRONTEND_URL`, `CORS_ALLOWED_ORIGINS`
+
+### 12.2 Install Dependencies
+
+```bash
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+### 12.3 Put Application Into Maintenance Mode
+
+```bash
+sudo systemctl stop preciseoptics
+```
+
+### 12.4 Snapshot Existing SQLite Data
+
+```bash
+cd /opt/preciseoptics/Backend
+python manage.py dumpdata \
+    --exclude contenttypes \
+    --exclude auth.permission \
+    --exclude admin.logentry \
+    --indent 2 > /tmp/preciseoptics_sqlite_export.json
+```
+
+### 12.5 Migrate Schema on PostgreSQL
+
+```bash
+python manage.py migrate
+```
+
+### 12.6 Load Data Into PostgreSQL
+
+```bash
+python manage.py loaddata /tmp/preciseoptics_sqlite_export.json
+```
+
+### 12.7 Collect Static + Smoke Check
+
+```bash
+python manage.py collectstatic --noinput
+python manage.py check
+python manage.py shell -c "from django.contrib.auth import get_user_model; print('users=', get_user_model().objects.count())"
+```
+
+### 12.8 Bring Service Back Online
+
+```bash
+sudo systemctl start preciseoptics
+sudo systemctl status preciseoptics --no-pager
+```
+
+### 12.9 Post-Cutover API Verification
+
+```bash
+curl -sS -o /dev/null -w "%{http_code}\n" https://your-domain.com/api/health/
+curl -sS -o /dev/null -w "%{http_code}\n" https://your-domain.com/api/health/db/
+```
+
+---
+
+## 13. First Backup + First Restore Drill (Exact Commands)
+
+### 13.1 Create First Encrypted Backup
+
+```bash
+cd /opt/preciseoptics/Backend
+chmod +x ./scripts/backup_prod.sh ./scripts/restore_prod.sh
+./scripts/backup_prod.sh
+ls -lah ${BACKUP_DIR:-/backups/preciseoptics}
+```
+
+### 13.2 Restore Drill in Staging (Required)
+
+```bash
+# Example only: use a staging host/database
+cd /opt/preciseoptics/Backend
+./scripts/restore_prod.sh --backup /backups/preciseoptics/preciseoptics_backup_YYYYMMDD_HHMMSS.tar.gz.enc --force
+python manage.py check
+```
+
+### 13.3 Verify Critical Records After Restore
+
+```bash
+python manage.py shell -c "from patients.models import Patient; from consultations.models import Consultation; print('patients=', Patient.objects.count(), 'consultations=', Consultation.objects.count())"
+```
+
+### 13.4 Record Drill Outcome
+
+- Start time / end time
+- Total recovery duration (must be <= RTO)
+- Data age at restore point (must be <= RPO)
+- Validation notes and any remediation actions
 
 ---
 

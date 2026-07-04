@@ -60,6 +60,7 @@ class MedicationSerializer(serializers.ModelSerializer):
             'maximum_daily_dose', 'storage_temperature', 'shelf_life_months',
             'special_handling', 'manufacturer', 'manufacturer_fk', 'manufacturer_name',
             'batch_number', 'expiry_date', 'approval_status',
+            'current_stock', 'minimum_stock_level', 'unit_price',
             'created_at', 'updated_at'
         ]
         read_only_fields = [

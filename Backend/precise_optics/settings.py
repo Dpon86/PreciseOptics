@@ -2,6 +2,7 @@
 Django settings for precise_optics project - PreciseOptics Eye Hospital Management System
 """
 
+import logging
 import os
 from pathlib import Path
 from decouple import config
@@ -19,6 +20,9 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 # In production, set ALLOWED_HOSTS in .env to the real domain(s) only.
 # Never use '*' in production — it enables host-header injection attacks.
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=lambda v: [s.strip() for s in v.split(',')])
+
+# Environment name: development | production
+ENVIRONMENT = config('ENVIRONMENT', default='development')
 
 # Application definition
 INSTALLED_APPS = [
@@ -49,6 +53,7 @@ INSTALLED_APPS = [
     'conditions',  # Medical conditions tracking (AMD, RVO, Glaucoma, etc.)
     'protocols',  # Treatment protocols and scheduling
     'referrals',  # Referral management to/from specialists
+    'patient_outcomes',  # Patient Reported Outcome Measures (PROMs)
 ]
 
 MIDDLEWARE = [
@@ -92,6 +97,29 @@ WSGI_APPLICATION = 'precise_optics.wsgi.application'
 DB_ENGINE = config('DB_ENGINE', default='django.db.backends.sqlite3')
 DB_NAME = config('DB_NAME', default='db.sqlite3')
 
+# Persistent DB connections improve production throughput and reduce connect churn.
+# For SQLite keep this at 0; for production DBs default to 300 seconds.
+DB_CONN_MAX_AGE = config(
+    'DB_CONN_MAX_AGE',
+    default=0 if 'sqlite3' in DB_ENGINE else 300,
+    cast=int,
+)
+DB_CONN_HEALTH_CHECKS = config('DB_CONN_HEALTH_CHECKS', default=True, cast=bool)
+
+db_options = {}
+if 'mysql' in DB_ENGINE:
+    db_options = {
+        'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        'charset': 'utf8mb4',
+    }
+if 'postgresql' in DB_ENGINE:
+    db_options = {
+        'sslmode': config(
+            'DB_SSLMODE',
+            default='require' if ENVIRONMENT == 'production' else 'prefer',
+        ),
+    }
+
 DATABASES = {
     'default': {
         'ENGINE': DB_ENGINE,
@@ -100,9 +128,9 @@ DATABASES = {
         'PASSWORD': config('DB_PASSWORD', default=''),
         'HOST': config('DB_HOST', default=''),
         'PORT': config('DB_PORT', default=''),
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'" if 'mysql' in DB_ENGINE else {},
-        } if 'mysql' in DB_ENGINE else {},
+        'OPTIONS': db_options,
+        'CONN_MAX_AGE': DB_CONN_MAX_AGE,
+        'CONN_HEALTH_CHECKS': DB_CONN_HEALTH_CHECKS,
     }
 }
 
@@ -370,7 +398,6 @@ os.makedirs(BASE_DIR / 'logs', exist_ok=True)
 os.makedirs(BASE_DIR / 'media', exist_ok=True)
 
 # Security settings for production
-ENVIRONMENT = config('ENVIRONMENT', default='development')
 
 # Guard: refuse to start with SQLite outside of development — SQLite has no
 # per-user access control, no encryption at rest, and no safe concurrent writes.
@@ -397,6 +424,30 @@ if ENVIRONMENT == 'production':
     SECURE_BROWSER_XSS_FILTER = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+
+# Error tracking (Sentry)
+SENTRY_DSN = config('SENTRY_DSN', default='')
+if SENTRY_DSN:
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.django import DjangoIntegration
+        from sentry_sdk.integrations.logging import LoggingIntegration
+
+        sentry_sdk.init(
+            dsn=SENTRY_DSN,
+            environment=ENVIRONMENT,
+            release=config('APP_RELEASE', default='precise-optics-dev'),
+            integrations=[
+                DjangoIntegration(),
+                LoggingIntegration(level=None, event_level=logging.ERROR),
+            ],
+            traces_sample_rate=config('SENTRY_TRACES_SAMPLE_RATE', default=0.1, cast=float),
+            profiles_sample_rate=config('SENTRY_PROFILES_SAMPLE_RATE', default=0.0, cast=float),
+            send_default_pii=False,
+        )
+    except Exception:
+        # Never block startup if Sentry is misconfigured; rely on local logs.
+        pass
 
 # File upload settings
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB

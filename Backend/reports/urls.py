@@ -5,6 +5,7 @@ from django.urls import path
 from . import views
 from . import comprehensive_api
 from . import treatment_effectiveness_api
+from .views.outcome_reports import condition_medication_outcomes
 
 
 
@@ -26,6 +27,9 @@ urlpatterns = [
     path('api/reports/batch-tracking/', views.batch_tracking_report, name='batch-tracking-report'),
     path('api/reports/followup-alerts/', views.followup_alerts, name='followup-alerts'),
     path('api/reports/medication-patients/', views.medication_patients_report, name='medication-patients-report'),
+
+    # Condition → Medication → Outcome correlation (clinical + PROs)
+    path('api/reports/condition-medication-outcomes/', condition_medication_outcomes, name='condition-medication-outcomes'),
 
     # Comprehensive data APIs
     path('api/data/all-models/', comprehensive_api.all_models_data, name='all-models-data'),

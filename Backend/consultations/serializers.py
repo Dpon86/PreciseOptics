@@ -75,6 +75,7 @@ class ConsultationSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'patient_name', 'doctor_name', 'duration_minutes', 
                            'vital_signs', 'documents', 'images', 'created_at', 'updated_at']
+        extra_kwargs = {'visit': {'required': False, 'allow_null': True}}
     
     def get_duration_minutes(self, obj):
         """Calculate consultation duration in minutes"""
@@ -95,3 +96,4 @@ class ConsultationCreateSerializer(serializers.ModelSerializer):
             'scheduled_time', 'chief_complaint', 'history_of_present_illness',
             'past_ocular_history', 'past_medical_history', 'allergies', 'current_medications'
         ]
+        extra_kwargs = {'visit': {'required': False, 'allow_null': True}}

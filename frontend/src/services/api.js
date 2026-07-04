@@ -471,6 +471,22 @@ export const apiService = {
   // Referral Statistics
   getReferralStatistics: () =>
     axios.get('/api/referrals/statistics/'),
+
+  // Patient Reported Outcome Measures (PROMs)
+  getPatientOutcomes: (params = {}) =>
+    axios.get('/api/patient-outcomes/', { params }),
+  getPatientOutcomesForPatient: (patientId) =>
+    axios.get(`/api/patient-outcomes/for-patient/${patientId}/`),
+  createPatientOutcome: (data) =>
+    axios.post('/api/patient-outcomes/', data),
+  updatePatientOutcome: (id, data) =>
+    axios.put(`/api/patient-outcomes/${id}/`, data),
+  getPatientOutcome: (id) =>
+    axios.get(`/api/patient-outcomes/${id}/`),
+
+  // Condition → Medication → Outcomes report (clinical + PROs)
+  getConditionMedicationOutcomes: (params = {}) =>
+    axios.get('/api/reports/condition-medication-outcomes/', { params }),
 };
 
 export default apiService;

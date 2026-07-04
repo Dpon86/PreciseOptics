@@ -94,7 +94,7 @@ const AddConsultationPage = () => {
       if (currentUserStaff) {
         setFormData(prev => ({
           ...prev,
-          consulting_doctor: currentUserStaff.id
+          consulting_doctor: currentUserStaff.user
         }));
       }
     }
@@ -337,7 +337,7 @@ const AddConsultationPage = () => {
                 <option value="">Select Staff Member</option>
                 {doctors.length > 0 ? (
                   doctors.map(doctor => (
-                    <option key={doctor.id} value={doctor.id}>
+                    <option key={doctor.id} value={doctor.user}>
                       {doctor.user_details?.user_type === 'doctor' ? 'Dr.' : 'Nurse'} {doctor.user_details?.first_name} {doctor.user_details?.last_name} - {doctor.specialization} ({doctor.department})
                     </option>
                   ))

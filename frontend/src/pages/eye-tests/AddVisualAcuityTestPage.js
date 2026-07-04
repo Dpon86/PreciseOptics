@@ -67,6 +67,13 @@ const AddVisualAcuityTestPage = () => {
     { value: 'incomplete', label: 'Incomplete' }
   ];
 
+  // Sync patient field when selectedPatient loads asynchronously
+  useEffect(() => {
+    if (selectedPatient?.id && !formData.patient) {
+      setFormData(prev => ({ ...prev, patient: selectedPatient.id }));
+    }
+  }, [selectedPatient]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     // Redirect to home if accessing patient route without selected patient
     if (patientId && !selectedPatient) {
@@ -108,7 +115,11 @@ const AddVisualAcuityTestPage = () => {
     setError('');
     
     try {
-      const response = await api.createVisualAcuityTest(formData);
+      const dataToSubmit = { ...formData };
+      // Send null for empty date fields to avoid format validation errors
+      if (!dataToSubmit.follow_up_date) dataToSubmit.follow_up_date = null;
+      if (!dataToSubmit.consultation) dataToSubmit.consultation = null;
+      const response = await api.createVisualAcuityTest(dataToSubmit);
       
       if (response.status === 201) {
         alert('Visual Acuity Test created successfully!');
@@ -199,10 +210,10 @@ const AddVisualAcuityTestPage = () => {
               >
                 <option value="">Select Staff Member</option>
                 {staff.map(member => (
-                  <option key={member.id} value={member.id}>
-                    {member.first_name && member.last_name 
-                      ? `${member.first_name} ${member.last_name}${member.user_type ? ` (${member.user_type})` : ''}`
-                      : member.username || `Staff ID: ${member.id}`
+                  <option key={member.id} value={member.user}>
+                    {member.user_details?.first_name && member.user_details?.last_name 
+                      ? `${member.user_details.first_name} ${member.user_details.last_name}${member.user_details.user_type ? ` (${member.user_details.user_type})` : ''}`
+                      : member.user_details?.username || `Staff ID: ${member.id}`
                     }
                   </option>
                 ))}

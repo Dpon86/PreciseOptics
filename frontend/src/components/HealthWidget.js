@@ -18,8 +18,17 @@ const HealthWidget = ({ compact = false }) => {
             setLoading(true);
             setError(null);
             
-            // Fetch detailed health check (no auth required)
-            const response = await fetch(`${API_BASE_URL}/health/detailed/`);
+            // Include auth token so the endpoint doesn't return 401
+            const token = sessionStorage.getItem('authToken');
+            const headers = token ? { Authorization: `Token ${token}` } : {};
+
+            // Fetch detailed health check
+            const response = await fetch(`${API_BASE_URL}/health/detailed/`, { headers });
+
+            if (!response.ok) {
+                throw new Error(`Health check returned ${response.status}`);
+            }
+
             const data = await response.json();
             
             setHealthData(data);
@@ -120,7 +129,7 @@ const HealthWidget = ({ compact = false }) => {
                 </span>
                 <div className="status-info">
                     <div className="status-title">
-                        Overall Status: <strong className={overallColor}>{status.toUpperCase()}</strong>
+                        Overall Status: <strong className={overallColor}>{status ? status.toUpperCase() : 'UNKNOWN'}</strong>
                     </div>
                     {lastUpdate && (
                         <div className="last-update">

@@ -36,8 +36,8 @@ export default defineConfig({
     baseURL: 'http://localhost:3000',
     
     // Browser context options
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
+    trace: 'retain-on-failure',
+    screenshot: 'on',
     video: 'retain-on-failure',
     
     // Viewport size (standard desktop)

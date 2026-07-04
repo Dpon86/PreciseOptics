@@ -3,8 +3,8 @@
 ## Components Requiring Production Updates
 
 ### Database Configuration
-- [ ] **CRITICAL**: SQLite currently used - migrate to PostgreSQL/MySQL for production
-- [ ] **HIGH**: Database connection pooling not configured
+- [x] **COMPLETED**: SQLite blocked in production via startup guard; production DB must be PostgreSQL/MySQL
+- [x] **COMPLETED**: Database persistent connections configured (`CONN_MAX_AGE`, `CONN_HEALTH_CHECKS`)
 - [ ] **MEDIUM**: Database backup automation not implemented
 - [ ] **MEDIUM**: Database indexing optimization for audit queries needed
 
@@ -37,7 +37,7 @@
 
 ### Monitoring & Observability
 - [ ] **CRITICAL**: Health check endpoints not implemented
-- [ ] **CRITICAL**: Error tracking and alerting system missing
+- [x] **COMPLETED**: Error tracking integration configured (Sentry via `SENTRY_DSN` and sampling settings)
 - [ ] **HIGH**: Application Performance Monitoring (APM) not configured
 - [ ] **HIGH**: Database performance monitoring missing
 - [ ] **MEDIUM**: User activity monitoring needs enhancement
@@ -59,8 +59,8 @@
 - [ ] **MEDIUM**: Medical record retention policies not automated
 
 ### Backup & Disaster Recovery
-- [ ] **CRITICAL**: Automated backup system not implemented
-- [ ] **CRITICAL**: Disaster recovery plan not documented
+- [x] **COMPLETED**: Automated backup/restore scripts added (`Backend/scripts/backup_prod.sh`, `Backend/scripts/restore_prod.sh`)
+- [x] **COMPLETED**: Disaster recovery plan documented with RTO/RPO and restore drill workflow
 - [ ] **HIGH**: Point-in-time recovery capability missing
 - [ ] **HIGH**: Backup encryption not configured
 - [ ] **MEDIUM**: Multi-region deployment for redundancy not set up
@@ -75,6 +75,10 @@
 ## Completed Production Items
 - [x] **COMPLETED**: Report API endpoints secured — all `AllowAny` replaced with `IsAuthenticated` (views.py, treatment_effectiveness_api.py, comprehensive_api.py)
 - [x] **COMPLETED**: Backend `.env.example` created — full template for all env vars with production/dev variants
+- [x] **COMPLETED**: Production DB hardening — SQLite disallowed in production and DB connection reuse enabled
+- [x] **COMPLETED**: Error tracking setup — Sentry integration added in Django settings and env template
+- [x] **COMPLETED**: Backup/restore automation — production scripts with checksum and optional encryption added
+- [x] **COMPLETED**: DR documentation updated — explicit RTO/RPO and drill process in deployment runbook
 - [x] **COMPLETED**: Deployment Runbook created — `docs/architecture/DEPLOYMENT_RUNBOOK.md`
 - [x] **COMPLETED**: API documentation for Conditions, Protocols, Referrals modules added to BACKEND_DETAILED_REFERENCE.md
 - [x] **COMPLETED**: Frontend unit tests — 42 tests across 6 suites, all passing
@@ -121,6 +125,7 @@
 
 ## Update Log
 - **2025-10-09**: Initial production readiness assessment completed
+- **2026-05-10**: Added production DB hardening, Sentry error tracking integration, backup/restore scripts, and DR runbook updates
 - **Date**: Next assessment scheduled
 
 ---

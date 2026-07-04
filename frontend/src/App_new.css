@@ -162,8 +162,8 @@ body {
 
 /* Home Page */
 .home-container {
-  text-align: center;
-  padding: 2rem;
+  text-align: left;
+  padding: 0.5rem 0;
 }
 
 .home-title {

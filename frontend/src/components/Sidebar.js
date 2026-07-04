@@ -82,9 +82,17 @@ const Sidebar = ({ isOpen, onClose }) => {
       ]
     },
     {
+      category: 'Patient Reported Outcomes',
+      items: [
+        { path: '/patients/outcome/add', label: 'Record Patient Outcome', icon: '📋' },
+        { path: '/reports/patient-outcomes', label: 'Outcomes & Medication Report', icon: '🎯' },
+      ]
+    },
+    {
       category: 'Reports & Analytics',
       items: [
         { path: '/reports/treatment-effectiveness', label: 'Treatment & Medication Effectiveness', icon: '📈' },
+        { path: '/reports/patient-outcomes', label: 'Patient Outcomes & Medication Report', icon: '🎯' },
         { path: '/reports/patient-medications', label: 'Patient Medications Report', icon: '📊' },
         { path: '/reports/drug-audit', label: 'Drug Audit Report', icon: '🔍' },
         { path: '/reports/patient-visits', label: 'Patient Visits Report', icon: '📈' },

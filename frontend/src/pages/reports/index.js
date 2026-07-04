@@ -15,3 +15,4 @@ export { default as ConditionPrevalenceReport } from './ConditionPrevalenceRepor
 export { default as ConditionOutcomesReport } from './ConditionOutcomesReport';
 export { default as ProtocolAdherenceReport } from './ProtocolAdherenceReport';
 export { default as ReferralSourceReport } from './ReferralSourceReport';
+export { default as PatientOutcomesReport } from './PatientOutcomesReport';

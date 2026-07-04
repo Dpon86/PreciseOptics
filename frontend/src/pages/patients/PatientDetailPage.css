@@ -615,3 +615,131 @@
     padding: 0;
   }
 }
+
+/* ── New tab elements ─────────────────────────────────────────────────────── */
+.tab-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.tab-panel-header h3 { margin: 0; }
+.tab-loading { padding: 20px; color: #9ca3af; font-style: italic; }
+.tab-error   { padding: 14px; background: #fef2f2; color: #b91c1c; border-radius: 8px; margin-bottom: 12px; }
+.empty-state { text-align: center; padding: 40px 20px; color: #6b7280; background: #f9fafb; border-radius: 10px; border: 1px dashed #d1d5db; }
+.empty-state .btn { margin-top: 14px; }
+
+/* ── Progress bar ── */
+.pbar-track { background: #e5e7eb; border-radius: 999px; height: 8px; overflow: hidden; margin: 4px 0 6px; }
+.pbar-fill  { height: 100%; border-radius: 999px; transition: width 0.4s; }
+
+/* ── Conditions ── */
+.conditions-list { display: flex; flex-direction: column; gap: 14px; }
+.condition-row {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #3B82F6;
+  border-radius: 8px;
+  padding: 16px;
+}
+.condition-row--overdue { border-left-color: #EF4444; background: #fff9f9; }
+.condition-row-top  { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
+.condition-name     { display: flex; align-items: center; gap: 8px; font-size: 1rem; }
+.condition-icon     { font-size: 1.1rem; }
+.condition-category { font-size: 0.78rem; color: #9ca3af; text-transform: capitalize; }
+.condition-badges   { display: flex; gap: 6px; flex-wrap: wrap; }
+.condition-row-detail { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.85rem; color: #6b7280; margin-bottom: 8px; }
+.text-danger  { color: #EF4444 !important; font-weight: 600; }
+.text-warning { color: #F59E0B !important; }
+.condition-plan { font-size: 0.88rem; color: #374151; background: #f0f4f8; padding: 8px 12px; border-radius: 6px; margin-bottom: 10px; }
+.condition-row-actions { display: flex; gap: 8px; }
+
+/* ── Protocols ── */
+.protocol-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.protocol-card--active { border-top: 3px solid #10B981; }
+.protocol-card-header  { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.protocol-name  { font-size: 1.05rem; font-weight: 700; color: #1e3a5f; margin: 0 0 2px; }
+.protocol-code  { font-size: 0.8rem; color: #9ca3af; }
+.protocol-progress { margin-bottom: 10px; }
+.protocol-progress-label { display: flex; justify-content: space-between; font-size: 0.82rem; color: #6b7280; margin-bottom: 4px; }
+.protocol-dates { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.83rem; color: #6b7280; margin-bottom: 12px; }
+
+/* ── Next Step Banner ── */
+.next-step-banner {
+  background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
+  border: 1px solid #bfdbfe;
+  border-left: 4px solid #3B82F6;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+.next-step-badge { font-size: 0.78rem; font-weight: 700; color: #1d4ed8; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+.next-step-detail strong { font-size: 1rem; color: #1e3a5f; }
+.next-step-desc   { font-size: 0.87rem; color: #6b7280; margin: 4px 0 0; }
+.next-step-action { font-size: 0.87rem; color: #374151; margin: 4px 0 0; }
+.next-step-meds   { font-size: 0.87rem; color: #065f46; background: #ecfdf5; display: inline-block; padding: 2px 8px; border-radius: 4px; margin: 4px 0 0; }
+
+.upcoming-steps { font-size: 0.87rem; margin-bottom: 12px; }
+.upcoming-steps ol { margin: 6px 0 0 16px; padding: 0; }
+.upcoming-steps li { padding: 2px 0; color: #374151; }
+.upcoming-steps li.step-next { font-weight: 700; color: #1d4ed8; }
+.step-date { color: #9ca3af; font-weight: 400; }
+.protocol-card-actions { display: flex; gap: 8px; }
+
+/* ── Outcomes ── */
+.outcomes-summary {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+.outcomes-summary h4 { margin: 0 0 12px; font-size: 0.95rem; color: #374151; }
+.outcomes-scores-row { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 12px; }
+.outcome-score-item  { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 80px; }
+.outcome-score-label { font-size: 0.75rem; color: #9ca3af; text-align: center; }
+
+.score-pill { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.82rem; font-weight: 700; }
+.score-pill--good { background: #ecfdf5; color: #065f46; }
+.score-pill--mid  { background: #fffbeb; color: #92400e; }
+.score-pill--bad  { background: #fef2f2; color: #991b1b; }
+.score-pill--na   { background: #f3f4f6; color: #9ca3af; }
+
+.sat-icon { font-size: 1.3rem; line-height: 1; }
+.sat-great { color: #059669; }
+.sat-good  { color: #10B981; }
+.sat-mid   { color: #F59E0B; }
+.sat-poor  { color: #EF4444; }
+.sat-bad   { color: #B91C1C; }
+
+.side-effect-alert {
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  margin-bottom: 8px;
+}
+.side-effect-alert--mild     { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+.side-effect-alert--moderate { background: #fef3c7; color: #78350f; border: 1px solid #fcd34d; }
+.side-effect-alert--severe   { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
+
+.patient-comment {
+  font-style: italic;
+  color: #6b7280;
+  font-size: 0.9rem;
+  padding: 8px 0;
+  border-top: 1px solid #f3f4f6;
+  margin-top: 8px;
+}
+
+.outcomes-history h4 { font-size: 0.95rem; color: #374151; margin-bottom: 10px; }
+.outcomes-table-scroll { overflow-x: auto; }
+.outcomes-table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+.outcomes-table th { background: #f3f4f6; padding: 8px 10px; text-align: left; font-weight: 600; color: #374151; white-space: nowrap; }
+.outcomes-table td { padding: 8px 10px; border-bottom: 1px solid #f3f4f6; }
+.outcomes-table tr:hover td { background: #fafafa; }

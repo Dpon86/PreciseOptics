@@ -417,6 +417,8 @@ export const apiService = {
     axios.get('/api/conditions/', { params }),
   getPatientConditions: (params = {}) =>
     axios.get('/api/conditions/patient-conditions/', { params }),
+  getPatientConditionsByPatient: (patientId) =>
+    axios.get(`/api/conditions/patient/${patientId}/conditions/`),
   getConditionStatistics: () =>
     axios.get('/api/conditions/statistics/'),
   getConditionPrevalence: () =>
@@ -439,6 +441,10 @@ export const apiService = {
     axios.get('/api/protocols/steps/', { params: { protocol: protocolId } }),
   getPatientProtocol: (id) =>
     axios.get(`/api/protocols/patient-protocols/${id}/`),
+  getPatientProtocols: (params = {}) =>
+    axios.get('/api/protocols/patient-protocols/', { params }),
+  getPatientProtocolsByPatient: (patientId) =>
+    axios.get(`/api/protocols/patient/${patientId}/protocols/`),
   getPatientProtocolSchedule: (id) =>
     axios.get(`/api/protocols/patient-protocols/${id}/schedule/`),
   getProtocolStatistics: () =>

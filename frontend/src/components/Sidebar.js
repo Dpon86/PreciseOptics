@@ -82,6 +82,16 @@ const Sidebar = ({ isOpen, onClose }) => {
       ]
     },
     {
+      category: 'Appointments',
+      items: [
+        { path: '/appointments', label: 'Appointment Schedule', icon: '📅' },
+        { path: '/appointments/schedule', label: 'Schedule Appointment', icon: '➕' },
+        { path: '/alerts', label: 'Alert Centre', icon: '🚨' },
+        { path: '/alerts/return-due', label: 'Return Due', icon: '🔁' },
+        { path: '/alerts/followup', label: 'Follow-up Alerts', icon: '📆' },
+      ]
+    },
+    {
       category: 'Patient Reported Outcomes',
       items: [
         { path: '/patients/outcome/add', label: 'Record Patient Outcome', icon: '📋' },
@@ -105,14 +115,6 @@ const Sidebar = ({ isOpen, onClose }) => {
         { path: '/reports/referral-sources', label: 'Referral Source Analysis', icon: '🔄' },
         { path: '/reports/batch-tracking', label: 'Batch Number Tracking', icon: '📦' },
         { path: '/reports/revenue-analysis', label: 'Revenue Analysis', icon: '💷' }
-      ]
-    },
-    {
-      category: 'Alerts',
-      items: [
-        { path: '/alerts', label: 'Alert Center', icon: '🔔' },
-        { path: '/alerts/return-due', label: 'Return Due', icon: '🔁' },
-        { path: '/alerts/followup', label: 'Follow-up Alerts', icon: '📅' }
       ]
     },
     {

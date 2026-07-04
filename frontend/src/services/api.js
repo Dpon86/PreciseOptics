@@ -478,6 +478,22 @@ export const apiService = {
   getReferralStatistics: () =>
     axios.get('/api/referrals/statistics/'),
 
+  // Patient Visits / Appointments
+  getVisits: (params = {}) =>
+    axios.get('/api/visits/', { params }),
+  getVisit: (id) =>
+    axios.get(`/api/visits/${id}/`),
+  createVisit: (data) =>
+    axios.post('/api/visits/', data),
+  updateVisit: (id, data) =>
+    axios.patch(`/api/visits/${id}/`, data),
+  checkInVisit: (id) =>
+    axios.post(`/api/visits/${id}/check_in/`),
+  getTodaySchedule: () =>
+    axios.get('/api/visits/today_schedule/'),
+  getPatientUpcomingAppointments: (patientId) =>
+    axios.get(`/api/patients/${patientId}/upcoming_appointments/`),
+
   // Patient Reported Outcome Measures (PROMs)
   getPatientOutcomes: (params = {}) =>
     axios.get('/api/patient-outcomes/', { params }),

@@ -91,6 +91,9 @@ import {
   RevenueAnalysisReport,
   BatchTrackingReport,
   PatientOutcomeForm,
+  // Appointments
+  AppointmentsPage,
+  ScheduleAppointmentPage,
   // New Advanced Analytics Reports
   ConditionPrevalenceReport,
   ConditionOutcomesReport,
@@ -750,6 +753,22 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <PatientOutcomeForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/appointments"
+            element={
+              <ProtectedRoute>
+                <AppointmentsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/appointments/schedule"
+            element={
+              <ProtectedRoute>
+                <ScheduleAppointmentPage />
               </ProtectedRoute>
             }
           />

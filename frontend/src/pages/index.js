@@ -29,6 +29,9 @@ export * from './referrals';
 // Alerts Management
 export * from './alerts';
 
+// Appointments & Visit Scheduling
+export * from './appointments';
+
 // Treatment Management
 export * from './treatments';
 

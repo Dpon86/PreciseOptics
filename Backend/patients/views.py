@@ -90,21 +90,36 @@ class PatientVisitViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Filter visits based on parameters"""
         queryset = PatientVisit.objects.select_related('patient', 'primary_doctor')
-        
+
+        # Filter by patient
+        patient_id = self.request.query_params.get('patient', None)
+        if patient_id:
+            queryset = queryset.filter(patient_id=patient_id)
+
+        # Filter by status
+        status_param = self.request.query_params.get('status', None)
+        if status_param:
+            queryset = queryset.filter(status=status_param)
+
+        # Filter by visit type
+        visit_type = self.request.query_params.get('visit_type', None)
+        if visit_type:
+            queryset = queryset.filter(visit_type=visit_type)
+
         # Filter by date range
         date_from = self.request.query_params.get('date_from', None)
         date_to = self.request.query_params.get('date_to', None)
-        
+
         if date_from:
             queryset = queryset.filter(scheduled_date__date__gte=date_from)
         if date_to:
             queryset = queryset.filter(scheduled_date__date__lte=date_to)
-        
+
         # Filter by doctor
         doctor_id = self.request.query_params.get('doctor', None)
         if doctor_id:
             queryset = queryset.filter(primary_doctor_id=doctor_id)
-        
+
         return queryset.order_by('-scheduled_date')
     
     @action(detail=True, methods=['post'])

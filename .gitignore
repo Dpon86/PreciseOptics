@@ -82,3 +82,6 @@ frontend/playwright-report/
 frontend/pw-results.txt
 frontend/e2e/screenshots/
 frontend/e2e/*.png
+test-results/
+e2e/screenshots/
+playwright-report/

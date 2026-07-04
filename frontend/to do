@@ -1,28 +1,226 @@
-Necessities 
+=========================================================
+PRECISEOPTICS – PRIORITISED DEVELOPMENT TODO
+Updated: July 2026 (based on Clinical Systems Review)
+=========================================================
 
-Please add a completely separate disease implementation and have this filter on the reports or have a separate report for these conditions 
-Macular degeneration, 
-Diabetic, 
-RVO retinal vein occlusion 
-glaucoma
-cataracts - post treatment 
+STATUS KEY:  ✅ Done  🔴 Blocked (needs external API)  [ ] Not started  [~] In progress
 
-Protocols for AMD - Anything from consent to the drugs
-Drug loading dose or 
-Flow charts for any protocols 
-Have a protocol that when selected for a patient it says when and what to use. 
+=========================================================
+PHASE 1 – BEFORE CLINICAL GO-LIVE (Critical)
+=========================================================
 
+ANTI-VEGF & INJECTION TRACKING
+[ ] 1.1  Backend: IntravitrealInjectionRecord model
+         - Drug, batch number, eye (L/R), injection number
+         - Phase: loading / maintenance / treat-and-extend
+         - Days since last injection (auto-calculated)
+         - Pre-injection VA (R+L), post-injection VA (30 min after)
+         - Pre/post IOP
+         - Treating clinician
+         - Consent reference (FK to PatientConsent)
+         - Adverse event flag + description
+         - Links to PatientVisit, PatientCondition
+[ ] 1.2  Backend: migration for IntravitrealInjectionRecord
+[ ] 1.3  Frontend: Record Injection screen
+         - Quick-entry form accessible from patient detail page
+         - Pre-fills patient, visit, last injection date from history
+         - VA fields with Snellen/LogMAR toggle
+[ ] 1.4  Frontend: Injection Timeline page per patient
+         - Chronological list of all injections
+         - Shows injection number, interval, VA trend, batch
+         - Flags: overdue (red), due soon (amber), up to date (green)
+[ ] 1.5  Backend: Injection audit report
+         - Filter by drug name, batch number, date range
+         - Answer: "Which patients received batch X?"
 
-alert for missed appointments or late appointments alerts 
+BATCH NUMBER AT POINT OF ADMINISTRATION
+[ ] 1.6  Backend: Add batch_number_administered + expiry_date_administered
+         to MedicationAdministration model
+[ ] 1.7  Backend: migration
+[ ] 1.8  Frontend: Drug Administration screen
+         - Expose MedicationAdministration API (currently backend-only)
+         - Pre-fills batch from stock record, allows override
+         - Required fields: patient, medication, route, dose, eye side,
+           batch number, administered by, time
+[ ] 1.9  Reports: update Batch Tracking report to query
+         MedicationAdministration.batch_number_administered (not stock)
 
-Nice to have 
-Save scans from visits but also from community scans take the scans from them already with referrals inputs only report on the images from the community- looks at what these will save. 
-Link to the patient. 
-High street opticians - referrals from these and then talk back
+DIGITAL CONSENT CAPTURE
+[ ] 1.10 Backend: PatientConsent model
+         - Patient FK, ConsentForm FK
+         - signed_date, witnessed_by (staff FK)
+         - visit FK (optional), patient_protocol FK (optional)
+         - migration
+[ ] 1.11 Frontend: Record Consent screen
+         - Accessible from patient detail / injection workflow
+         - Select consent form, enter date, witnessing clinician
+[ ] 1.12 Frontend: Consent history tab or section on patient detail page
 
-NB
-API for diary
-Inventory is not needed BUT it would be useful to have batch numbers so if it could 
-Only computers not needed for React native. 
+NHS NUMBER VALIDATION
+[ ] 1.13 Backend: Add NHS Modulus 11 check digit validator to Patient model
+[ ] 1.14 Frontend: Add inline validation warning on AddPatientPage and
+         EditPatientPage when NHS number format is invalid
 
+DUPLICATE PATIENT DETECTION
+[ ] 1.15 Backend: Add duplicate-check API endpoint (name + DOB similarity)
+[ ] 1.16 Frontend: Warning on AddPatientPage if near-duplicate found
+
+PRESCRIPTION / VISIT LINK FIX
+[ ] 1.17 Backend: Make Prescription.visit nullable (migration required)
+         So repeat prescriptions can be raised without a booked visit
+
+=========================================================
+PHASE 2 – SHORT TERM (within 3 months)
+=========================================================
+
+LOADING DOSE / TREAT-AND-EXTEND COUNTER
+[ ] 2.1  Frontend: AMD/RVO Injection Summary widget on patient detail page
+         - "Loading injections: 3/3 ✅ | Last injection: 47 days ago"
+         - "Next due: in 5 weeks (treat-and-extend 8-week interval)"
+         - Pulls from IntravitrealInjectionRecord (Phase 1)
+[ ] 2.2  Backend: API endpoint to return injection summary stats per patient
+         (injection count by phase, last date, next due date, interval trend)
+
+IOP TRENDING CHART
+[ ] 2.3  Frontend: IOP Trend page per patient
+         - Line chart of IOP values over time (R + L separate lines)
+         - Overlay: medication changes (when anti-glaucoma drug started/stopped)
+         - Target IOP marker (set by clinician)
+         - Accessible from patient detail page → Conditions tab (Glaucoma)
+
+CLINIC LETTER / DISCHARGE SUMMARY
+[ ] 2.4  Backend: ClinicLetter model (or PDF generation endpoint)
+         - Auto-populates: patient, diagnosis, drug given, dose, batch,
+           next appointment, clinician name
+[ ] 2.5  Frontend: Generate Letter button on consultation detail page
+         - Preview and print/download as PDF
+         - Mark as sent (to GP / to referring optician)
+
+DRUG ADMINISTRATION FRONTEND SCREEN
+[ ] 2.6  (Covered in 1.8 above — see Phase 1)
+
+OUTBOUND NOTIFICATIONS (Email/SMS)
+[ ] 2.7  Backend: Add Django email backend config (SMTP)
+[ ] 2.8  Backend: Celery task — send email to coordinator when alert fires
+[ ] 2.9  Backend: Celery task — send 48h/24h appointment reminder email
+         to patient (requires patient.email)
+[ ] 2.10 Backend (later): Twilio SMS for patients without email
+
+VISUAL FIELD PROGRESSION
+[ ] 2.11 Frontend: Visual Field Trend chart per patient
+         - Mean Deviation (MD) over time (Humphrey-style trend)
+         - Accessible from patient detail → Conditions tab (Glaucoma)
+
+SUBJECT ACCESS REQUEST (SAR / GDPR)
+[ ] 2.12 Backend: SAR export endpoint — compiles all patient data
+         (demographics, consultations, tests, prescriptions, medications,
+         referrals, outcomes, audit logs) into JSON or PDF
+[ ] 2.13 Frontend: "Generate SAR Export" button on patient detail page
+
+MISSING EYE TEST FRONTEND FORMS
+[ ] 2.14 Frontend: AddGlaucomaAssessmentPage
+[ ] 2.15 Frontend: AddDiabeticRetinopathyScreeningPage
+[ ] 2.16 Frontend: AddCataractAssessmentPage
+         (includes BCVA, IOP, PCO grading, YAG outcome)
+[ ] 2.17 Frontend: AddRetinalAssessmentPage
+[ ] 2.18 Register new forms in App.js + Sidebar
+
+=========================================================
+PHASE 3 – MEDIUM TERM (3–6 months)
+=========================================================
+
+CLINIC SESSION / THEATRE LIST MANAGEMENT
+[ ] 3.1  Backend: ClinicSession model
+         - Consultant, clinic type (AMD, Glaucoma, Cataract, etc.)
+         - Day of week, start time, end time, room/location
+         - Max appointments per session
+[ ] 3.2  Backend: Link PatientVisit to ClinicSession
+[ ] 3.3  Frontend: Clinic Sessions management page
+[ ] 3.4  Frontend: Update AppointmentsPage to group by clinic session
+[ ] 3.5  Frontend: Overbooking warning when scheduling into full session
+
+CALENDAR / DIARY VIEW
+[ ] 3.6  Frontend: Week/month calendar view at /appointments/calendar
+         - Colour-coded by clinic type
+         - Click day/slot to schedule appointment
+         - Today highlighted, past appointments greyed
+
+DICOM / OCT IMAGE UPLOAD
+[ ] 3.7  Backend: Add image_file FileField to OCTScan and
+         FluoresceinAngiography models (with size/type validation)
+[ ] 3.8  Backend: migration
+[ ] 3.9  Frontend: Image upload on OCT/FA forms
+[ ] 3.10 Frontend: Lightweight image viewer on test detail page
+
+DRUG INTERACTION CHECKING
+[ ] 3.11 Backend: BNF API integration (or open drug database)
+         - Check new prescription against current medications + known allergies
+         - Return warnings list
+[ ] 3.12 Frontend: Interaction warning banner on AddPrescriptionPage
+
+VA SCORE VALIDATION
+[ ] 3.13 Backend: Add serializer validation — LogMAR values must be
+         between -0.3 and 3.0; Snellen fractions validated by format
+[ ] 3.14 Frontend: Inline format hints on VA entry fields
+
+=========================================================
+PHASE 4 – PENDING EXTERNAL APIs (On Hold)
+=========================================================
+
+NHS SPINE / PDS INTEGRATION
+🔴 4.1  NHS PDS FHIR R4 — verify NHS number against Spine
+🔴 4.2  SCR API — pull current medications and allergies on registration
+🔴 4.3  NHS ERS (e-Referral) — receive GP referrals electronically
+
+COMMUNITY OPTICIAN REFERRAL PORTAL
+🔴 4.4  Secure API endpoint for community opticians to POST referrals
+         (data structure already in Referral model — just needs auth layer)
+🔴 4.5  Automated outcome letter back to referring optician on discharge
+🔴 4.6  Two-way message threading on ReferralResponse
+
+DIABETIC EYE SCREENING (DESP)
+🔴 4.7  DESP data feed — import screening grades (R0/R1/R2/R3/M1)
+         and link to DiabeticRetinopathyScreening model
+
+NHS EPRESCRIBING (EPS)
+🔴 4.8  EPS link — electronically send drop prescriptions to pharmacies
+
+=========================================================
+NICE TO HAVE (Low Priority / Future Sprints)
+=========================================================
+
+[ ] 5.1  Patient portal (patient can complete PRO questionnaire themselves,
+         confirm/cancel appointments, view clinic letters)
+[ ] 5.2  Waiting list / RTT pathway tracking (18-week standard)
+[ ] 5.3  Theatre list with surgeon, anaesthetist, equipment requirements
+[ ] 5.4  Post-op cataract day 1 / week 1 / 4–6 week review workflow
+[ ] 5.5  Visual acuity Snellen→LogMAR conversion helper on forms
+[ ] 5.6  Protocol step dates auto-calculated from start date on assignment
+[ ] 5.7  NHS EPS link for glaucoma drop repeats
+[ ] 5.8  Automated compliance report generation (monthly/quarterly PDF)
+[ ] 5.9  Dashboard home page showing: today's clinic list, active alerts,
+         overdue assessments, upcoming injection intervals
+
+=========================================================
+ALREADY COMPLETED ✅
+=========================================================
+✅ Patient records, search, detail, edit
+✅ Disease / condition tracking (AMD, RVO, Glaucoma, DR, Cataracts)
+✅ Disease-specific reports + condition outcomes report
+✅ 8 eye test frontend forms (VA, refraction, tonometry, slit lamp,
+   ophthalmoscopy, visual field, OCT, fluorescein angiography)
+✅ Medication catalogue + prescriptions + drug allergies + recall centre
+✅ Treatment protocols with patient assignment + next-step display
+✅ Protocol Builder
+✅ Consent form model (backend)
+✅ Audit trail (AuditLog, PatientAccessLog, MedicationAudit, etc.)
+✅ Patient Reported Outcomes (PROMs) questionnaire + report
+✅ Condition–Medication–Outcome correlation report
+✅ 13 reports (drug audit, treatment effectiveness, batch tracking, etc.)
+✅ Appointment scheduling + check-in + no-show
+✅ Missed/late appointment alert system
+✅ Referrals (incoming + outgoing) + referral source management
+✅ Role-based access, 2FA, token authentication
+✅ Patient detail page: Conditions tab, Protocols tab, Outcomes tab
+✅ E2E test suite (79 tests, all passing on Chromium)
 

@@ -75,3 +75,10 @@ Thumbs.db
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Playwright E2E – generated output (screenshots, videos, traces, reports)
+frontend/test-results/
+frontend/playwright-report/
+frontend/pw-results.txt
+frontend/e2e/screenshots/
+frontend/e2e/*.png

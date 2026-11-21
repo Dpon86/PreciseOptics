@@ -7,11 +7,12 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from django.db import models
-from .models import Patient, PatientVisit, AppointmentAlert, AlertConfiguration
+from .models import Patient, PatientVisit, AppointmentAlert, AlertConfiguration, ClinicSession
 from .serializers import (
     PatientSerializer, PatientVisitSerializer, PatientCreateSerializer,
     AppointmentAlertSerializer, AppointmentAlertListSerializer,
-    AppointmentAlertCreateSerializer, AlertConfigurationSerializer
+    AppointmentAlertCreateSerializer, AlertConfigurationSerializer,
+    ClinicSessionSerializer, ClinicSessionListSerializer, ClinicSessionCapacitySerializer,
 )
 from .alert_service import AlertService
 from audit.utils import PatientAccessLoggingMixin
@@ -77,6 +78,42 @@ class PatientViewSet(PatientAccessLoggingMixin, viewsets.ModelViewSet):
             'status': visit.get_status_display(),
             'doctor': visit.primary_doctor.get_full_name() if visit.primary_doctor else None
         } for visit in upcoming_visits])
+
+    @action(detail=False, methods=['get'])
+    def check_duplicate(self, request):
+        """Check for potential duplicate patients by name + DOB similarity."""
+        first_name = request.query_params.get('first_name', '').strip()
+        last_name = request.query_params.get('last_name', '').strip()
+        date_of_birth = request.query_params.get('date_of_birth', '').strip()
+
+        if not first_name or not last_name or not date_of_birth:
+            return Response(
+                {'error': 'first_name, last_name, and date_of_birth are required.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Find patients with matching DOB and similar names
+        potential = Patient.objects.filter(
+            is_active=True,
+            date_of_birth=date_of_birth
+        ).filter(
+            models.Q(first_name__iexact=first_name) &
+            models.Q(last_name__iexact=last_name)
+        )
+
+        results = [{
+            'id': str(p.id),
+            'first_name': p.first_name,
+            'last_name': p.last_name,
+            'date_of_birth': str(p.date_of_birth),
+            'nhs_number': p.nhs_number or '',
+            'patient_id': p.patient_id,
+        } for p in potential]
+
+        return Response({
+            'potential_duplicates': results,
+            'count': len(results),
+        })
 
 
 class PatientVisitViewSet(viewsets.ModelViewSet):
@@ -341,5 +378,100 @@ class AlertConfigurationViewSet(viewsets.ModelViewSet):
             'message': 'Configuration activated successfully',
             'config': AlertConfigurationSerializer(config).data
         })
+
+
+class ClinicSessionViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing clinic sessions.
+
+    Supports filtering by clinic_type, day_of_week, and is_active.
+    Provides a /capacity/ action that returns real-time slot availability for a given date.
+    """
+
+    queryset = ClinicSession.objects.select_related('consultant', 'created_by').order_by('day_of_week', 'start_time')
+    permission_classes = [IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return ClinicSessionListSerializer
+        return ClinicSessionSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        clinic_type = self.request.query_params.get('clinic_type')
+        day_of_week = self.request.query_params.get('day_of_week')
+        is_active = self.request.query_params.get('is_active')
+
+        if clinic_type:
+            qs = qs.filter(clinic_type=clinic_type)
+        if day_of_week is not None:
+            qs = qs.filter(day_of_week=day_of_week)
+        if is_active is not None:
+            qs = qs.filter(is_active=is_active.lower() in ('true', '1', 'yes'))
+
+        return qs
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    @action(detail=True, methods=['get'], url_path='capacity')
+    def capacity(self, request, pk=None):
+        """
+        Return slot availability for this session on a specific date.
+
+        Query parameter:
+            date (YYYY-MM-DD) — required
+
+        Response:
+            {
+                "date": "2026-08-04",
+                "max_appointments": 20,
+                "booked": 7,
+                "available": 13,
+                "is_full": false
+            }
+        """
+        session = self.get_object()
+        date_str = request.query_params.get('date')
+        if not date_str:
+            return Response({'error': 'Query parameter "date" (YYYY-MM-DD) is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        from datetime import date as date_type
+        try:
+            check_date = date_type.fromisoformat(date_str)
+        except ValueError:
+            return Response({'error': 'Invalid date format. Use YYYY-MM-DD.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        booked = session.booked_count_on_date(check_date)
+        data = {
+            'date': check_date,
+            'max_appointments': session.max_appointments,
+            'booked': booked,
+            'available': session.available_slots_on_date(check_date),
+            'is_full': session.is_full_on_date(check_date),
+        }
+        serializer = ClinicSessionCapacitySerializer(data)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path='by-day')
+    def by_day(self, request):
+        """
+        Return active clinic sessions grouped by day of week.
+
+        Useful for rendering a weekly schedule overview.
+        """
+        days = {}
+        for session in self.get_queryset().filter(is_active=True):
+            day_label = session.get_day_of_week_display()
+            days.setdefault(day_label, []).append(ClinicSessionListSerializer(session).data)
+
+        ordered = {
+            label: days[label]
+            for label in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+            if label in days
+        }
+        return Response(ordered)
+
 
 

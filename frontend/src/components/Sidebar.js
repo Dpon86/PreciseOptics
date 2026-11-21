@@ -31,7 +31,12 @@ const Sidebar = ({ isOpen, onClose }) => {
       category: 'Eye Tests',
       items: [
         { path: '/eye-tests', label: 'View Eye Tests', icon: '👁️' },
-        { path: '/eye-tests/visual-acuity/add', label: 'Visual Acuity Test', icon: '🔍' }
+        { path: '/eye-tests/visual-acuity/add', label: 'Visual Acuity Test', icon: '🔍' },
+        { path: '/eye-tests/tonometry/add', label: 'Tonometry (IOP)', icon: '📏' },
+        { path: '/eye-tests/glaucoma/add', label: 'Glaucoma Assessment', icon: '👁️' },
+        { path: '/eye-tests/cataract/add', label: 'Cataract Assessment', icon: '🔬' },
+        { path: '/eye-tests/diabetic-retinopathy/add', label: 'Diabetic Screening', icon: '🩺' },
+        { path: '/eye-tests/retinal/add', label: 'Retinal Assessment', icon: '👀' },
       ]
     },
     {
@@ -50,6 +55,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         { path: '/protocols', label: 'View All Protocols', icon: '📋' },
         { path: '/protocols/builder', label: 'Protocol Builder', icon: '🏗️' },
         { path: '/protocols/add', label: 'Create Protocol', icon: '➕' },
+        { path: '/consents/record', label: 'Record Consent', icon: '✍️' },
         { path: '/reports/protocol-adherence', label: 'Protocol Adherence', icon: '✅' }
       ]
     },
@@ -63,10 +69,12 @@ const Sidebar = ({ isOpen, onClose }) => {
       ]
     },
     {
-      category: 'Treatments',
+      category: 'Treatments & Injections',
       items: [
         { path: '/treatments', label: 'View Treatments', icon: '💉' },
-        { path: '/patients', label: 'Add Treatment (Select Patient)', icon: '➕' }
+        { path: '/patients', label: 'Add Treatment (Select Patient)', icon: '➕' },
+        { path: '/injections/record', label: 'Record Injection', icon: '💉' },
+        { path: '/patients', label: 'Injection Timeline (Select Patient)', icon: '📋' }
       ]
     },
     {
@@ -75,6 +83,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         { path: '/medications', label: 'View All Medications', icon: '💊' },
         { path: '/medications/add', label: 'Add New Medication', icon: '➕' },
         { path: '/prescriptions/add', label: 'Add Prescription', icon: '📝' },
+        { path: '/medications/administer', label: 'Administer Drug', icon: '💉' },
         { path: '/manufacturers/add', label: 'Add Manufacturer', icon: '🏭' },
         { path: '/medication-categories/add', label: 'Add Category', icon: '📂' },
         { path: '/medications/recalls', label: 'Medication Recall Centre', icon: '⚠️' },
@@ -85,7 +94,9 @@ const Sidebar = ({ isOpen, onClose }) => {
       category: 'Appointments',
       items: [
         { path: '/appointments', label: 'Appointment Schedule', icon: '📅' },
+        { path: '/appointments/calendar', label: 'Calendar View', icon: '🗓️' },
         { path: '/appointments/schedule', label: 'Schedule Appointment', icon: '➕' },
+        { path: '/appointments/sessions', label: 'Clinic Sessions', icon: '🏥' },
         { path: '/alerts', label: 'Alert Centre', icon: '🚨' },
         { path: '/alerts/return-due', label: 'Return Due', icon: '🔁' },
         { path: '/alerts/followup', label: 'Follow-up Alerts', icon: '📆' },

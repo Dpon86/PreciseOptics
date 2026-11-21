@@ -485,3 +485,25 @@
     flex-direction: column;
   }
 }
+
+/* Suggested Next Step */
+.suggested-next-step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  background: #e6f7ff;
+  border-left: 4px solid #1890ff;
+  border-radius: 6px;
+}
+
+.suggested-label {
+  font-weight: 700;
+  color: #096dd9;
+  font-size: 0.85rem;
+}
+
+.suggested-title {
+  color: #333;
+  font-size: 0.95rem;
+}

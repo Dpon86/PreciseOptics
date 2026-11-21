@@ -24,6 +24,8 @@ import {
   TreatmentsPage,
   TreatmentHistoryPage,
   TreatmentDetailPage,
+  RecordInjectionPage,
+  InjectionTimelinePage,
   // Consultation Management
   ConsultationsPage,
   AddConsultationPage,
@@ -39,6 +41,10 @@ import {
   AddVisualFieldTestPage,
   AddOCTScanPage,
   AddFluoresceinAngiographyPage,
+  AddGlaucomaAssessmentPage,
+  AddDiabeticRetinopathyScreeningPage,
+  AddCataractAssessmentPage,
+  AddRetinalAssessmentPage,
   // Medication Management
   MedicationsPage,
   MedicationDetailPage,
@@ -50,6 +56,7 @@ import {
   AddManufacturerPage,
   AddMedicationCategoryPage,
   RecallCenter,
+  DrugAdministrationPage,
   // Protocols Management
   ProtocolsPage,
   AddProtocolPage,
@@ -61,6 +68,7 @@ import {
   ProtocolSchedulePage,
   CompleteProtocolStepPage,
   ConsentFormsPage,
+  RecordConsentPage,
   // Conditions Management
   ConditionsPage,
   PatientConditionsPage,
@@ -90,10 +98,14 @@ import {
   DiseaseSpecificReport,
   RevenueAnalysisReport,
   BatchTrackingReport,
+  IopTrendPage,
+  VfTrendPage,
   PatientOutcomeForm,
   // Appointments
   AppointmentsPage,
   ScheduleAppointmentPage,
+  ClinicSessionsPage,
+  AppointmentCalendarPage,
   // New Advanced Analytics Reports
   ConditionPrevalenceReport,
   ConditionOutcomesReport,
@@ -347,6 +359,47 @@ function AppContent() {
               </ProtectedRoute>
             } 
           />
+          {/* Injection Tracking Routes */}
+          <Route 
+            path="/injections/record" 
+            element={
+              <ProtectedRoute>
+                <RecordInjectionPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/patient/:patientId/injections" 
+            element={
+              <ProtectedRoute>
+                <InjectionTimelinePage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/patient/:patientId/iop-trend" 
+            element={
+              <ProtectedRoute>
+                <IopTrendPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/patient/:patientId/vf-trend" 
+            element={
+              <ProtectedRoute>
+                <VfTrendPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/injections" 
+            element={
+              <ProtectedRoute>
+                <InjectionTimelinePage />
+              </ProtectedRoute>
+            } 
+          />
           <Route 
             path="/consultations" 
             element={
@@ -452,6 +505,38 @@ function AppContent() {
             } 
           />
           <Route 
+            path="/eye-tests/glaucoma/add" 
+            element={
+              <ProtectedRoute>
+                <AddGlaucomaAssessmentPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/eye-tests/diabetic-retinopathy/add" 
+            element={
+              <ProtectedRoute>
+                <AddDiabeticRetinopathyScreeningPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/eye-tests/cataract/add" 
+            element={
+              <ProtectedRoute>
+                <AddCataractAssessmentPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/eye-tests/retinal/add" 
+            element={
+              <ProtectedRoute>
+                <AddRetinalAssessmentPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/medications" 
             element={
               <ProtectedRoute>
@@ -504,6 +589,22 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <RecallCenter />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/medications/administer"
+            element={
+              <ProtectedRoute>
+                <DrugAdministrationPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/patient/:patientId/medications/administer"
+            element={
+              <ProtectedRoute>
+                <DrugAdministrationPage />
               </ProtectedRoute>
             }
           />
@@ -772,6 +873,22 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/appointments/sessions"
+            element={
+              <ProtectedRoute>
+                <ClinicSessionsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/appointments/calendar"
+            element={
+              <ProtectedRoute>
+                <AppointmentCalendarPage />
+              </ProtectedRoute>
+            }
+          />
           <Route 
             path="/medicines/add" 
             element={
@@ -891,6 +1008,22 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <ConsentFormsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/consents/record" 
+            element={
+              <ProtectedRoute>
+                <RecordConsentPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/patient/:patientId/consents/record" 
+            element={
+              <ProtectedRoute>
+                <RecordConsentPage />
               </ProtectedRoute>
             } 
           />

@@ -11,7 +11,7 @@ const ProtocolSchedulePage = () => {
   const [steps, setSteps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [viewMode, setViewMode] = useState('timeline'); // 'timeline' or 'list'
+  const [viewMode, setViewMode] = useState('timeline'); // 'timeline', 'list', or 'medications'
   const [filterStatus, setFilterStatus] = useState('all');
 
   useEffect(() => {
@@ -132,6 +132,34 @@ const ProtocolSchedulePage = () => {
     return steps.filter(step => step.status === filterStatus);
   };
 
+  const getMedicationLabel = (med) => {
+    if (!med || !med.medication_details) return '';
+    const name = med.medication_details.name || med.medication_details.generic_name;
+    const dose = med.dosage_amount && med.dosage_unit ? `${med.dosage_amount} ${med.dosage_unit}` : '';
+    const route = med.route_display || '';
+    const eye = med.eye_side_display || '';
+    return [name, dose, route, eye].filter(Boolean).join(' · ');
+  };
+
+  const flattenScheduleItems = (key) => {
+    const rows = [];
+    steps.forEach((step) => {
+      (step[key] || []).forEach((item) => {
+        rows.push({
+          ...item,
+          step_number: step.step_number,
+          step_title: step.step_title,
+          scheduled_date: step.scheduled_date,
+        });
+      });
+    });
+    return rows.sort((a, b) => new Date(a.scheduled_date) - new Date(b.scheduled_date));
+  };
+
+  const medicationSchedule = () => flattenScheduleItems('medications');
+  const treatmentSchedule = () => flattenScheduleItems('treatments');
+  const testSchedule = () => flattenScheduleItems('tests');
+
   if (loading) {
     return (
       <div className="protocol-schedule-page">
@@ -193,6 +221,12 @@ const ProtocolSchedulePage = () => {
               onClick={() => setViewMode('list')}
             >
               📋 List
+            </button>
+            <button
+              className={viewMode === 'medications' ? 'active' : ''}
+              onClick={() => setViewMode('medications')}
+            >
+              💊 Medications
             </button>
           </div>
         </div>
@@ -262,7 +296,7 @@ const ProtocolSchedulePage = () => {
       </div>
 
       {/* Timeline or List View */}
-      {viewMode === 'timeline' ? (
+      {viewMode === 'timeline' && (
         <div className="timeline-view">
           {filteredSteps().map((step, index) => (
             <div
@@ -305,6 +339,19 @@ const ProtocolSchedulePage = () => {
                   )}
                 </div>
 
+                {step.medications && step.medications.length > 0 && (
+                  <div className="step-medications">
+                    <strong>Medications:</strong>
+                    <div className="medication-chips">
+                      {step.medications.map((med) => (
+                        <span key={med.id} className="medication-chip">
+                          {getMedicationLabel(med)}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="step-actions">
                   {step.status === 'scheduled' && (
                     <>
@@ -336,7 +383,9 @@ const ProtocolSchedulePage = () => {
             </div>
           ))}
         </div>
-      ) : (
+      )}
+
+      {viewMode === 'list' && (
         <div className="list-view">
           <table className="steps-table">
             <thead>
@@ -390,7 +439,105 @@ const ProtocolSchedulePage = () => {
         </div>
       )}
 
-      {filteredSteps().length === 0 && (
+      {viewMode === 'medications' && (
+        <div className="medication-schedule-view">
+          <div className="med-schedule-section">
+            <h3>💊 Medication Schedule</h3>
+            {medicationSchedule().length === 0 ? (
+              <p className="no-steps">No medications scheduled in this protocol.</p>
+            ) : (
+              <table className="steps-table med-schedule-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Step</th>
+                    <th>Medication</th>
+                    <th>Dose</th>
+                    <th>Route</th>
+                    <th>Frequency</th>
+                    <th>Eye</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {medicationSchedule().map((med) => (
+                    <tr key={`med-${med.step_number}-${med.id}`}>
+                      <td>{formatDate(med.scheduled_date)}</td>
+                      <td>{med.step_number}. {med.step_title}</td>
+                      <td>{med.medication_details?.name || med.medication_details?.generic_name || '—'}</td>
+                      <td>{med.dosage_amount} {med.dosage_unit}</td>
+                      <td>{med.route_display || med.route}</td>
+                      <td>{med.frequency}</td>
+                      <td>{med.eye_side_display || med.eye_side || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+
+          {treatmentSchedule().length > 0 && (
+            <div className="med-schedule-section">
+              <h3>🩺 Treatments & Procedures</h3>
+              <table className="steps-table med-schedule-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Step</th>
+                    <th>Treatment</th>
+                    <th>Type</th>
+                    <th>Eye</th>
+                    <th>Duration</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {treatmentSchedule().map((treat) => (
+                    <tr key={`treat-${treat.step_number}-${treat.id}`}>
+                      <td>{formatDate(treat.scheduled_date)}</td>
+                      <td>{treat.step_number}. {treat.step_title}</td>
+                      <td>{treat.treatment_name}</td>
+                      <td>{treat.treatment_type_display || treat.treatment_type}</td>
+                      <td>{treat.eye_side_display || treat.eye_side || '—'}</td>
+                      <td>{treat.expected_duration_minutes ? `${treat.expected_duration_minutes} min` : '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {testSchedule().length > 0 && (
+            <div className="med-schedule-section">
+              <h3>🔬 Tests & Assessments</h3>
+              <table className="steps-table med-schedule-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Step</th>
+                    <th>Test</th>
+                    <th>Type</th>
+                    <th>Eye</th>
+                    <th>Baseline</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {testSchedule().map((test) => (
+                    <tr key={`test-${test.step_number}-${test.id}`}>
+                      <td>{formatDate(test.scheduled_date)}</td>
+                      <td>{test.step_number}. {test.step_title}</td>
+                      <td>{test.test_name}</td>
+                      <td>{test.test_type_display || test.test_type}</td>
+                      <td>{test.eye_side_display || test.eye_side || '—'}</td>
+                      <td>{test.is_baseline ? 'Yes' : 'No'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {(viewMode === 'timeline' || viewMode === 'list') && filteredSteps().length === 0 && (
         <div className="no-steps">
           <p>No steps match the selected filter.</p>
         </div>

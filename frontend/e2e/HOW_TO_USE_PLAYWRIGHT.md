@@ -1478,8 +1478,8 @@ npx playwright test --grep-invert @slow
 
 ### PreciseOptics Documentation
 - **[Complete Playwright Guide](../../docs/testing/PLAYWRIGHT_GUIDE.md)** - Comprehensive guide
-- **[E2E Testing Expansion Summary](../../E2E_TESTING_EXPANSION_COMPLETE.md)** - Test coverage details
-- **[Quick Start Guide](../../QUICK_START_SCREENSHOTS.md)** - Fast setup guide
+- **[E2E Testing Expansion Summary](../../docs/testing/E2E_TESTING_EXPANSION_COMPLETE.md)** - Test coverage details
+- **[Quick Start Guide](../../docs/guides/QUICK_START_SCREENSHOTS.md)** - Fast setup guide
 
 ### Community Resources
 - **Playwright Discord**: https://aka.ms/playwright/discord

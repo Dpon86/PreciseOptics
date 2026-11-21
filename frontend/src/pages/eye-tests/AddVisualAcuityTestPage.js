@@ -3,6 +3,50 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { usePatient } from '../../context/PatientContext';
 import api from '../../services/api';
 
+// ── VA format hint & inline validation ───────────────────────────────────────
+
+const VA_QUALITATIVE = new Set(['cf', 'hm', 'pl', 'npl', 'lp', 'nlp']);
+const SNELLEN_RE = /^\d{1,4}\/\d{1,4}$/;
+
+/**
+ * Validate a VA string on the client side (mirrors back-end logic).
+ * Returns an error message string, or '' if valid.
+ */
+function validateVA(value) {
+  if (!value) return '';
+  const lower = value.trim().toLowerCase();
+  if (VA_QUALITATIVE.has(lower)) return '';
+  if (SNELLEN_RE.test(value.trim())) {
+    const [, denom] = value.split('/');
+    if (Number(denom) === 0) return 'Denominator cannot be zero.';
+    return '';
+  }
+  const num = parseFloat(value);
+  if (isNaN(num)) {
+    return 'Enter a Snellen fraction (e.g. 6/6), a LogMAR number (−0.3 to 3.0), or CF / HM / PL / NPL.';
+  }
+  if (num < -0.3 || num > 3.0) {
+    return `LogMAR value ${num} is out of range (−0.3 to 3.0).`;
+  }
+  return '';
+}
+
+/** Small hint text shown below every VA input */
+const VAHint = ({ value }) => {
+  const error = validateVA(value);
+  if (error) {
+    return <span className="va-hint va-hint--error" role="alert">{error}</span>;
+  }
+  if (!value) {
+    return <span className="va-hint">Snellen (6/6), LogMAR (0.0), or CF / HM / PL / NPL</span>;
+  }
+  // Show what format was detected
+  const lower = value.trim().toLowerCase();
+  if (VA_QUALITATIVE.has(lower)) return <span className="va-hint va-hint--ok">✓ Qualitative descriptor</span>;
+  if (SNELLEN_RE.test(value.trim())) return <span className="va-hint va-hint--ok">✓ Snellen fraction</span>;
+  return <span className="va-hint va-hint--ok">✓ LogMAR value</span>;
+};
+
 const AddVisualAcuityTestPage = () => {
   const { patientId } = useParams();
   const { selectedPatient } = usePatient();
@@ -314,8 +358,9 @@ const AddVisualAcuityTestPage = () => {
                   value={formData.right_eye_unaided}
                   onChange={handleChange}
                   className="form-input"
-                  placeholder="e.g., 6/60, 20/200"
+                  placeholder="e.g., 6/60, 0.3, CF"
                 />
+                <VAHint value={formData.right_eye_unaided} />
               </div>
               
               <div className="form-group">
@@ -329,8 +374,9 @@ const AddVisualAcuityTestPage = () => {
                   value={formData.right_eye_aided}
                   onChange={handleChange}
                   className="form-input"
-                  placeholder="e.g., 6/6, 20/20"
+                  placeholder="e.g., 6/6, 0.0, 20/20"
                 />
+                <VAHint value={formData.right_eye_aided} />
               </div>
               
               <div className="form-group">
@@ -344,8 +390,9 @@ const AddVisualAcuityTestPage = () => {
                   value={formData.right_eye_pinhole}
                   onChange={handleChange}
                   className="form-input"
-                  placeholder="e.g., 6/12"
+                  placeholder="e.g., 6/12, 0.3"
                 />
+                <VAHint value={formData.right_eye_pinhole} />
               </div>
             </div>
           </div>
@@ -368,8 +415,9 @@ const AddVisualAcuityTestPage = () => {
                   value={formData.left_eye_unaided}
                   onChange={handleChange}
                   className="form-input"
-                  placeholder="e.g., 6/60, 20/200"
+                  placeholder="e.g., 6/60, 0.3, CF"
                 />
+                <VAHint value={formData.left_eye_unaided} />
               </div>
               
               <div className="form-group">
@@ -383,8 +431,9 @@ const AddVisualAcuityTestPage = () => {
                   value={formData.left_eye_aided}
                   onChange={handleChange}
                   className="form-input"
-                  placeholder="e.g., 6/6, 20/20"
+                  placeholder="e.g., 6/6, 0.0, 20/20"
                 />
+                <VAHint value={formData.left_eye_aided} />
               </div>
               
               <div className="form-group">
@@ -398,8 +447,9 @@ const AddVisualAcuityTestPage = () => {
                   value={formData.left_eye_pinhole}
                   onChange={handleChange}
                   className="form-input"
-                  placeholder="e.g., 6/12"
+                  placeholder="e.g., 6/12, 0.3"
                 />
+                <VAHint value={formData.left_eye_pinhole} />
               </div>
             </div>
           </div>
@@ -421,8 +471,9 @@ const AddVisualAcuityTestPage = () => {
                 value={formData.binocular_vision}
                 onChange={handleChange}
                 className="form-input"
-                placeholder="e.g., 6/6, 20/20"
+                placeholder="e.g., 6/6, 0.0, 20/20"
               />
+              <VAHint value={formData.binocular_vision} />
             </div>
           </div>
         )}

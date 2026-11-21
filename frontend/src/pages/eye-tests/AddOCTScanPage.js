@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import ImageUploadField from '../../components/ImageUploadField';
 
 const AddOCTScanPage = () => {
   const [formData, setFormData] = useState({
@@ -42,7 +43,12 @@ const AddOCTScanPage = () => {
   
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [imageFiles, setImageFiles] = useState({ right_eye_image: null, left_eye_image: null });
   const navigate = useNavigate();
+
+  const handleImageChange = (name, file) => {
+    setImageFiles(prev => ({ ...prev, [name]: file }));
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -58,7 +64,18 @@ const AddOCTScanPage = () => {
     setError('');
     
     try {
-      const response = await api.createVisualAcuityTest(formData);
+      // Use multipart/form-data only when images are attached
+      let payload;
+      if (imageFiles.right_eye_image || imageFiles.left_eye_image) {
+        payload = new FormData();
+        Object.entries(formData).forEach(([k, v]) => payload.append(k, v));
+        if (imageFiles.right_eye_image) payload.append('right_eye_image', imageFiles.right_eye_image);
+        if (imageFiles.left_eye_image) payload.append('left_eye_image', imageFiles.left_eye_image);
+      } else {
+        payload = formData;
+      }
+
+      const response = await api.createVisualAcuityTest(payload);
       
       if (response.status === 201) {
         alert('OCT scan results recorded successfully!');
@@ -542,6 +559,25 @@ const AddOCTScanPage = () => {
               className="form-textarea"
               rows="3"
               placeholder="Fluid, drusen, pigment epithelial detachments, epiretinal membranes..."
+            />
+          </div>
+        </div>
+
+        {/* Image Upload */}
+        <div className="form-section">
+          <h3>Scan Images (optional)</h3>
+          <div className="form-row">
+            <ImageUploadField
+              label="Right Eye Image"
+              name="right_eye_image"
+              value={imageFiles.right_eye_image}
+              onChange={handleImageChange}
+            />
+            <ImageUploadField
+              label="Left Eye Image"
+              name="left_eye_image"
+              value={imageFiles.left_eye_image}
+              onChange={handleImageChange}
             />
           </div>
         </div>

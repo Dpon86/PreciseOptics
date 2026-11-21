@@ -174,6 +174,45 @@ const ConsultationDetailPage = () => {
           <Link to={`/consultations/${id}/edit`} className="btn btn-primary">
             Edit Consultation
           </Link>
+          <button
+            className="btn btn-info"
+            onClick={async () => {
+              try {
+                const res = await api.get(`/api/consultations/${id}/clinic-letter/`);
+                if (res.status === 200) {
+                  // Open letter as a printable window
+                  const w = window.open('', '_blank', 'width=800,height=600');
+                  const d = res.data;
+                  w.document.write(`
+                    <html><head><title>Clinic Letter</title>
+                    <style>body{font-family:Arial,sans-serif;max-width:700px;margin:40px auto;padding:20px;line-height:1.6}
+                    h1{color:#2c3e50;border-bottom:2px solid #3498db;padding-bottom:8px}
+                    .section{margin:16px 0}.label{font-weight:bold;color:#555}
+                    table{width:100%;border-collapse:collapse;margin:12px 0}
+                    th,td{border:1px solid #ddd;padding:8px;text-align:left}th{background:#f8f9fa}
+                    @media print{body{margin:20px}}</style></head>
+                    <body>
+                    <h1>${d.letter_type === 'discharge' ? 'Discharge Summary' : 'Clinic Letter'}</h1>
+                    <p class="section"><span class="label">Date:</span> ${new Date(d.consultation.date).toLocaleDateString('en-GB')}</p>
+                    <p class="section"><span class="label">Patient:</span> ${d.patient.full_name} | NHS: ${d.patient.nhs_number} | DOB: ${d.patient.date_of_birth}</p>
+                    <p class="section"><span class="label">Clinician:</span> ${d.clinician.name}</p>
+                    <h2>Diagnosis</h2><p>${d.consultation.diagnosis || 'N/A'}</p>
+                    ${d.consultation.findings ? `<h2>Findings</h2><p>${d.consultation.findings}</p>` : ''}
+                    ${d.consultation.plan ? `<h2>Plan</h2><p>${d.consultation.plan}</p>` : ''}
+                    ${d.latest_injection ? `<h2>Latest Injection</h2><p>${d.latest_injection.drug_name} — ${d.latest_injection.eye} (Batch: ${d.latest_injection.batch_number}) on ${new Date(d.latest_injection.injection_date).toLocaleDateString('en-GB')}</p>` : ''}
+                    ${d.medications.length > 0 ? `<h2>Medications</h2><table><tr><th>Drug</th><th>Dose</th><th>Frequency</th><th>Eye</th></tr>${d.medications.map(m => `<tr><td>${m.name}</td><td>${m.dosage}</td><td>${m.frequency}</td><td>${m.eye_side}</td></tr>`).join('')}</table>` : ''}
+                    ${d.next_appointment ? `<h2>Next Appointment</h2><p>${new Date(d.next_appointment.date).toLocaleDateString('en-GB')} — ${d.next_appointment.type}</p>` : ''}
+                    ${d.conditions.length > 0 ? `<h2>Active Conditions</h2><ul>${d.conditions.map(c => `<li>${c.name} (${c.status})</li>`).join('')}</ul>` : ''}
+                    <p style="margin-top:30px;color:#888;font-size:12px">Generated: ${new Date(d.generated_date).toLocaleString('en-GB')} by ${d.generated_by}</p>
+                    <script>window.print()</script>
+                    </body></html>`);
+                  w.document.close();
+                }
+              } catch (err) { alert('Failed to generate clinic letter.'); }
+            }}
+          >
+            📄 Clinic Letter
+          </button>
         </div>
       </div>
 

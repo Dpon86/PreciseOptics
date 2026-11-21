@@ -534,3 +534,57 @@
     min-width: 600px;
   }
 }
+
+/* Medication Schedule View */
+.medication-schedule-view {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.med-schedule-section {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.med-schedule-section h3 {
+  margin: 0 0 15px 0;
+  color: #2c3e50;
+  font-size: 18px;
+}
+
+.med-schedule-table td,
+.med-schedule-table th {
+  white-space: nowrap;
+}
+
+/* Step medications (timeline) */
+.step-medications {
+  margin: 10px 0;
+}
+
+.step-medications strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #34495e;
+  font-size: 13px;
+}
+
+.medication-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.medication-chip {
+  display: inline-block;
+  padding: 4px 10px;
+  background: #e8f0fe;
+  color: #1a56db;
+  border: 1px solid #c3d8fe;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}

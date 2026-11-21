@@ -35,10 +35,14 @@ const ScheduleAppointmentPage = () => {
     chief_complaint:  '',
     notes:            '',
     primary_doctor:   '',
+    clinic_session:   '',
   });
 
   const [patients,  setPatients]  = useState([]);
   const [staff,     setStaff]     = useState([]);
+  const [sessions,  setSessions]  = useState([]);
+  const [capacity,  setCapacity]  = useState(null);   // { booked, max_appointments, available, is_full }
+  const [checkingCap, setCheckingCap] = useState(false);
   const [loading,   setLoading]   = useState(false);
   const [error,     setError]     = useState('');
   const [success,   setSuccess]   = useState(false);
@@ -50,7 +54,23 @@ const ScheduleAppointmentPage = () => {
     api.getStaff({ limit: 100 })
       .then(r => setStaff(r.data?.results || r.data || []))
       .catch(() => {});
+    api.getClinicSessions({ is_active: true })
+      .then(r => setSessions(r.data?.results || r.data || []))
+      .catch(() => {});
   }, []);
+
+  // Re-check capacity whenever session or date changes
+  useEffect(() => {
+    if (!formData.clinic_session || !formData.scheduled_date) {
+      setCapacity(null);
+      return;
+    }
+    setCheckingCap(true);
+    api.getClinicSessionCapacity(formData.clinic_session, formData.scheduled_date)
+      .then(r => setCapacity(r.data))
+      .catch(() => setCapacity(null))
+      .finally(() => setCheckingCap(false));
+  }, [formData.clinic_session, formData.scheduled_date]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -74,6 +94,7 @@ const ScheduleAppointmentPage = () => {
         status:          'scheduled',
       };
       if (formData.primary_doctor) payload.primary_doctor = formData.primary_doctor;
+      if (formData.clinic_session) payload.clinic_session = formData.clinic_session;
 
       await api.createVisit(payload);
       setSuccess(true);
@@ -130,6 +151,36 @@ const ScheduleAppointmentPage = () => {
               </select>
             </div>
           </div>
+        </div>
+
+        <div className="form-section">
+          <h2>Clinic Session (optional)</h2>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="clinic_session">Assign to Session</label>
+              <select id="clinic_session" name="clinic_session" value={formData.clinic_session} onChange={handleChange}>
+                <option value="">— None (unassigned) —</option>
+                {sessions.map(s => (
+                  <option key={s.id} value={s.id}>
+                    {s.name} · {s.day_of_week_display} {s.start_time}–{s.end_time}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          {/* Capacity check result */}
+          {formData.clinic_session && formData.scheduled_date && (
+            <div className={`capacity-badge${capacity?.is_full ? ' capacity-badge--full' : capacity ? ' capacity-badge--ok' : ''}` }>
+              {checkingCap
+                ? 'Checking capacity…'
+                : capacity
+                  ? capacity.is_full
+                    ? `⚠️ Session is FULL on ${formData.scheduled_date} (${capacity.booked}/${capacity.max_appointments} booked). Booking will overbook this session.`
+                    : `✅ ${capacity.available} of ${capacity.max_appointments} slots available on ${formData.scheduled_date}.`
+                  : null
+              }
+            </div>
+          )}
         </div>
 
         <div className="form-section">

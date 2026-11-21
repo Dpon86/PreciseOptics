@@ -6,7 +6,8 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     TreatmentCategoryViewSet, TreatmentTypeViewSet, TreatmentViewSet,
     TreatmentMedicationViewSet, TreatmentDocumentViewSet,
-    TreatmentFollowUpViewSet, TreatmentComplicationViewSet
+    TreatmentFollowUpViewSet, TreatmentComplicationViewSet,
+    IntravitrealInjectionRecordViewSet,
 )
 
 router = DefaultRouter()
@@ -17,6 +18,7 @@ router.register(r'medications', TreatmentMedicationViewSet, basename='treatmentm
 router.register(r'documents', TreatmentDocumentViewSet, basename='treatmentdocument')
 router.register(r'follow-ups', TreatmentFollowUpViewSet, basename='treatmentfollowup')
 router.register(r'complications', TreatmentComplicationViewSet, basename='treatmentcomplication')
+router.register(r'injections', IntravitrealInjectionRecordViewSet, basename='intravitrealinjection')
 
 urlpatterns = [
     path('api/', include(router.urls)),

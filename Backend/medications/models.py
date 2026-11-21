@@ -190,7 +190,7 @@ class Prescription(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     prescription_number = models.CharField(max_length=50, unique=True)
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='prescriptions')
-    visit = models.ForeignKey(PatientVisit, on_delete=models.CASCADE, related_name='prescriptions')
+    visit = models.ForeignKey(PatientVisit, on_delete=models.SET_NULL, null=True, blank=True, related_name='prescriptions', help_text='Visit is optional for repeat prescriptions')
     prescribing_doctor = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='prescriptions')
     
     # Prescription Details
@@ -311,6 +311,16 @@ class MedicationAdministration(models.Model):
         ),
         null=True,
         blank=True
+    )
+
+    # Batch traceability at point of administration
+    batch_number_administered = models.CharField(
+        max_length=100, blank=True,
+        help_text='Batch/lot number recorded at the time of administration'
+    )
+    expiry_date_administered = models.DateField(
+        null=True, blank=True,
+        help_text='Expiry date of the administered batch'
     )
     
     # Notes
@@ -451,6 +461,9 @@ class MedicationRecall(models.Model):
     )
     resolution_notes = models.TextField(blank=True)
 
+    # Staff notification tracking (avoids duplicate alert emails)
+    notification_sent_at = models.DateTimeField(null=True, blank=True)
+
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -464,10 +477,28 @@ class MedicationRecall(models.Model):
         batch = f" (Batch: {self.batch_number})" if self.batch_number else ""
         return f"[{self.get_severity_display()}] {self.medication.name}{batch} — {self.title}"
 
+    def get_affected_patient_ids(self):
+        """
+        Return the set of patient IDs who may have received the recalled
+        medication/batch, checked against both:
+          - MedicationAdministration.batch_number_administered (authoritative:
+            the batch actually given to the patient at point of care)
+          - PrescriptionItem.medication.batch_number (legacy stock-level link,
+            kept for prescriptions that never went through administration)
+        """
+        administered_qs = MedicationAdministration.objects.filter(medication=self.medication)
+        if self.batch_number:
+            administered_qs = administered_qs.filter(batch_number_administered=self.batch_number)
+        administered_patient_ids = set(administered_qs.values_list('patient_id', flat=True))
+
+        prescribed_qs = PrescriptionItem.objects.filter(medication=self.medication)
+        if self.batch_number:
+            prescribed_qs = prescribed_qs.filter(medication__batch_number=self.batch_number)
+        prescribed_patient_ids = set(prescribed_qs.values_list('prescription__patient_id', flat=True))
+
+        return administered_patient_ids | prescribed_patient_ids
+
     @property
     def affected_prescription_count(self):
-        """Number of prescriptions that included this medication/batch"""
-        qs = PrescriptionItem.objects.filter(medication=self.medication)
-        if self.batch_number:
-            qs = qs.filter(medication__batch_number=self.batch_number)
-        return qs.values('prescription__patient').distinct().count()
+        """Number of distinct patients who received this medication/batch (administered or prescribed)"""
+        return len(self.get_affected_patient_ids())

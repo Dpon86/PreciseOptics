@@ -16,6 +16,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from patients.models import Patient, PatientVisit
 from consultations.models import Consultation
 from accounts.models import CustomUser
+from precise_optics.file_validators import validate_image_extension, validate_file_size
 import uuid
 
 
@@ -763,9 +764,17 @@ class OCTScan(BaseEyeTest):
     left_average_thickness = models.PositiveIntegerField(null=True, blank=True)
     left_findings = models.TextField(blank=True)
     
-    # Images
-    right_eye_image = models.ImageField(upload_to='oct_scans/', null=True, blank=True)
-    left_eye_image = models.ImageField(upload_to='oct_scans/', null=True, blank=True)
+    # Images (validated for type and size)
+    right_eye_image = models.ImageField(
+        upload_to='oct_scans/',
+        null=True, blank=True,
+        validators=[validate_image_extension, validate_file_size],
+    )
+    left_eye_image = models.ImageField(
+        upload_to='oct_scans/',
+        null=True, blank=True,
+        validators=[validate_image_extension, validate_file_size],
+    )
     
     # Quality Assessment
     scan_quality = models.CharField(
@@ -782,3 +791,92 @@ class OCTScan(BaseEyeTest):
     class Meta:
         verbose_name = "OCT Scan"
         verbose_name_plural = "OCT Scans"
+
+
+# FLUORESCEIN ANGIOGRAPHY
+class FluoresceinAngiography(BaseEyeTest):
+    """
+    Fluorescein Angiography (FA / FFA) imaging study.
+
+    Records dye transit findings, leakage patterns, and image uploads
+    for both eyes. Linked to AMD, DR, and other medical retina conditions.
+    """
+
+    PHASE_CHOICES = (
+        ('arterial', 'Arterial Phase'),
+        ('arteriovenous', 'Arteriovenous Phase'),
+        ('venous', 'Venous Phase'),
+        ('late', 'Late Phase / Recirculation'),
+    )
+
+    LEAKAGE_PATTERNS = (
+        ('none', 'None'),
+        ('focal', 'Focal Leakage'),
+        ('diffuse', 'Diffuse Leakage'),
+        ('pooling', 'Pooling (PED)'),
+        ('staining', 'Staining'),
+        ('window_defect', 'Window Defect / Transmission'),
+        ('blocking', 'Blocking / Masking'),
+    )
+
+    machine_model = models.CharField(max_length=100, blank=True, help_text='FA camera model used')
+    dye_dose_mg = models.DecimalField(
+        max_digits=7, decimal_places=2, null=True, blank=True,
+        help_text='Fluorescein dye dose in mg (typically 500 mg / 5 mL of 10%)',
+    )
+    dye_lot_number = models.CharField(max_length=100, blank=True, help_text='Dye vial lot number for adverse-event traceability')
+    adverse_reaction = models.BooleanField(default=False, help_text='Any adverse reaction to dye (nausea, urticaria, anaphylaxis)')
+    adverse_reaction_details = models.TextField(blank=True)
+
+    # Right Eye
+    right_arm_to_retina_time_s = models.PositiveIntegerField(
+        null=True, blank=True, help_text='Arm-to-retina transit time in seconds (right eye)',
+    )
+    right_leakage_pattern = models.CharField(max_length=20, choices=LEAKAGE_PATTERNS, default='none')
+    right_findings = models.TextField(blank=True)
+    right_cnv_present = models.BooleanField(
+        default=False, help_text='Choroidal neovascularisation detected (right eye)',
+    )
+    right_image = models.ImageField(
+        upload_to='fluorescein_angiography/',
+        null=True, blank=True,
+        validators=[validate_image_extension, validate_file_size],
+        help_text='Representative FA image (right eye)',
+    )
+
+    # Left Eye
+    left_arm_to_retina_time_s = models.PositiveIntegerField(
+        null=True, blank=True, help_text='Arm-to-retina transit time in seconds (left eye)',
+    )
+    left_leakage_pattern = models.CharField(max_length=20, choices=LEAKAGE_PATTERNS, default='none')
+    left_findings = models.TextField(blank=True)
+    left_cnv_present = models.BooleanField(
+        default=False, help_text='Choroidal neovascularisation detected (left eye)',
+    )
+    left_image = models.ImageField(
+        upload_to='fluorescein_angiography/',
+        null=True, blank=True,
+        validators=[validate_image_extension, validate_file_size],
+        help_text='Representative FA image (left eye)',
+    )
+
+    # Overall summary
+    overall_interpretation = models.TextField(
+        blank=True,
+        help_text='Overall clinical interpretation of the FA study',
+    )
+    treatment_indicated = models.BooleanField(
+        default=False,
+        help_text='Does the FA result indicate treatment (e.g. anti-VEGF or laser)?',
+    )
+
+    class Meta:
+        verbose_name = 'Fluorescein Angiography'
+        verbose_name_plural = 'Fluorescein Angiographies'
+
+    def __str__(self):
+        return (
+            f'FA — {self.patient.get_full_name()} '
+            f'({self.test_date.strftime("%d %b %Y")})'
+        )
+

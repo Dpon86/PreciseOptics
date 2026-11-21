@@ -249,6 +249,12 @@ const AppointmentsPage = () => {
                         <span>{visitType}</span>
                         <span>·</span>
                         <span>{doctor}</span>
+                        {v.clinic_session_name && (
+                          <>
+                            <span>·</span>
+                            <span className="visit-session-tag" title="Clinic session">📋 {v.clinic_session_name}</span>
+                          </>
+                        )}
                       </div>
                       {v.chief_complaint && (
                         <div className="visit-complaint">"{v.chief_complaint}"</div>

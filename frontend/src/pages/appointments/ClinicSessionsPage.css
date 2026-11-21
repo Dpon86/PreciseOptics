@@ -1,0 +1,267 @@
+/* ClinicSessionsPage styles */
+
+.clinic-sessions-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+/* Header */
+.cs-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.cs-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 4px;
+}
+.cs-subtitle {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin: 0;
+}
+.cs-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* View toggle */
+.cs-view-toggle {
+  display: flex;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.cs-toggle-btn {
+  padding: 7px 16px;
+  background: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #475569;
+  transition: background 0.15s;
+}
+.cs-toggle-btn.active,
+.cs-toggle-btn:hover {
+  background: #0ea5e9;
+  color: #fff;
+}
+
+/* Buttons */
+.cs-btn {
+  padding: 8px 18px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+.cs-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.cs-btn--primary { background: #0ea5e9; color: #fff; }
+.cs-btn--primary:hover:not(:disabled) { background: #0284c7; }
+.cs-btn--secondary { background: #e2e8f0; color: #334155; }
+.cs-btn--secondary:hover:not(:disabled) { background: #cbd5e1; }
+
+/* Alerts */
+.cs-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+.cs-alert--success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.cs-alert--error   { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+.cs-alert-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: inherit;
+  opacity: 0.7;
+}
+
+/* Loading / empty */
+.cs-loading { text-align: center; padding: 40px; color: #64748b; }
+.cs-empty   { text-align: center; padding: 40px; color: #94a3b8; font-size: 0.95rem; }
+
+/* Table */
+.cs-table-wrap { overflow-x: auto; }
+.cs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.cs-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+}
+.cs-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+.cs-table tbody tr:hover { background: #f8fafc; }
+.cs-row--inactive td { opacity: 0.55; }
+.cs-cell--name { font-weight: 600; color: #1e293b; }
+.cs-cell--capacity { text-align: center; }
+
+/* Status badges */
+.cs-status {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.cs-status--active   { background: #dcfce7; color: #166534; }
+.cs-status--inactive { background: #f1f5f9; color: #64748b; }
+
+/* Link buttons inside table */
+.cs-cell--actions { display: flex; gap: 10px; }
+.cs-link-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #0ea5e9;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  padding: 0;
+}
+.cs-link-btn--warn { color: #f59e0b; }
+.cs-link-btn--ok   { color: #22c55e; }
+
+/* Weekly view */
+.cs-week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  overflow-x: auto;
+}
+.cs-day-col {
+  min-width: 140px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.cs-day-header {
+  background: #0ea5e9;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 6px 4px;
+}
+.cs-day-empty {
+  padding: 12px;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+.cs-session-card {
+  padding: 10px;
+  margin: 6px;
+  border-radius: 6px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+.cs-session-card:hover { box-shadow: 0 2px 8px rgba(14,165,233,0.2); }
+.cs-session-card__name { font-weight: 600; font-size: 0.82rem; color: #0c4a6e; margin-bottom: 3px; }
+.cs-session-card__time { font-size: 0.78rem; color: #0369a1; }
+.cs-session-card__type { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+.cs-session-card__room { font-size: 0.73rem; color: #94a3b8; }
+.cs-session-card__cap  { font-size: 0.73rem; color: #475569; margin-top: 4px; font-weight: 600; }
+
+/* Modal */
+.cs-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+.cs-modal {
+  background: #fff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+}
+.cs-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.cs-modal-header h2 { margin: 0; font-size: 1.2rem; color: #1e293b; }
+.cs-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #64748b;
+  line-height: 1;
+}
+
+/* Form */
+.cs-form { padding: 20px 24px; }
+.cs-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.cs-field { display: flex; flex-direction: column; gap: 4px; }
+.cs-field label { font-size: 0.83rem; font-weight: 600; color: #475569; }
+.cs-field input,
+.cs-field select,
+.cs-field textarea {
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #1e293b;
+  background: #fff;
+}
+.cs-field input:focus,
+.cs-field select:focus { outline: none; border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14,165,233,0.15); }
+.cs-field-error { color: #ef4444; font-size: 0.78rem; }
+.cs-field--checkbox { flex-direction: row; align-items: center; gap: 8px; margin-bottom: 16px; }
+.cs-field--checkbox label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+
+.cs-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+@media (max-width: 640px) {
+  .cs-form-row { grid-template-columns: 1fr; }
+  .cs-week-grid { grid-template-columns: repeat(4, minmax(130px, 1fr)); }
+}

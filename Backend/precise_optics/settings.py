@@ -425,6 +425,52 @@ if ENVIRONMENT == 'production':
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
+# =============================================================================
+# Email Configuration
+# =============================================================================
+# In development use the console backend so no real emails are sent.
+# In production, set EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+# and configure the SMTP variables below in your .env file.
+EMAIL_BACKEND = config(
+    'EMAIL_BACKEND',
+    default='django.core.mail.backends.console.EmailBackend',
+)
+EMAIL_HOST = config('EMAIL_HOST', default='localhost')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=False, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='PreciseOptics <noreply@preciseoptics.nhs.uk>')
+# Optional: email address that receives coordinator / alert notifications
+COORDINATOR_EMAIL = config('COORDINATOR_EMAIL', default='')
+
+# =============================================================================
+# Celery (Async Task Queue)
+# =============================================================================
+# Broker URL — use Redis in production; in development you may use a local Redis
+# or switch to the in-memory backend for simple testing.
+CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://127.0.0.1:6379/0')
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='redis://127.0.0.1:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+# Periodic task schedule — appointment reminder scan runs every hour
+from celery.schedules import crontab
+CELERY_BEAT_SCHEDULE = {
+    # Scan all scheduled appointments every 5 minutes for late/missed alerts
+    'scan-appointment-alerts': {
+        'task': 'patients.tasks.scan_appointments_and_notify',
+        'schedule': crontab(minute='*/5'),
+    },
+    # Send 48h and 24h appointment reminder emails — runs every hour at :00
+    'send-appointment-reminders': {
+        'task': 'patients.tasks.send_upcoming_appointment_reminders',
+        'schedule': crontab(minute=0),
+    },
+}
+
 # Error tracking (Sentry)
 SENTRY_DSN = config('SENTRY_DSN', default='')
 if SENTRY_DSN:
@@ -473,14 +519,7 @@ CSRF_USE_SESSIONS = False  # Use cookie-based CSRF (default)
 # Sessions are updated automatically when authentication changes.
 SESSION_SAVE_EVERY_REQUEST = False
 
-# Email configuration (for notifications and reports)
-EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
-EMAIL_HOST = config('EMAIL_HOST', default='localhost')
-EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@preciseoptics.com')
+# Note: EMAIL_* settings are defined once, above, in the "Email Configuration" section.
 
 # Frontend URL for password reset links
 # REQUIRED: must be set in .env. No default — localhost would break production emails.

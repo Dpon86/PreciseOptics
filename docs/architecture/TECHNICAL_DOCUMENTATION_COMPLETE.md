@@ -34,8 +34,8 @@
 
 #### B. Database Schema Documentation
 **Files**: 
-- [`docs/architecture/DATABASE_SCHEMA.md`](../architecture/DATABASE_SCHEMA.md) - Visual schema guide
-- [`docs/DATABASE_SCHEMA_CATALOG.md`](../DATABASE_SCHEMA_CATALOG.md) - Detailed model catalog
+- [`docs/architecture/DATABASE_SCHEMA.md`](DATABASE_SCHEMA.md) - Visual schema guide
+- [`docs/architecture/DATABASE_SCHEMA_CATALOG.md`](DATABASE_SCHEMA_CATALOG.md) - Detailed model catalog
 
 **Coverage**:
 - **10 Django Apps** fully documented
@@ -227,7 +227,7 @@ npm run test:report
 
 1. `docs/api/ALERTS_API.md` (2,100+ lines)
 2. `docs/architecture/DATABASE_SCHEMA.md` (1,800+ lines)
-3. `docs/DATABASE_SCHEMA_CATALOG.md` (Created by subagent)
+3. `docs/architecture/DATABASE_SCHEMA_CATALOG.md` (Created by subagent)
 4. `docs/testing/PLAYWRIGHT_GUIDE.md` (600+ lines)
 5. `frontend/playwright.config.js` (107 lines)
 6. `frontend/e2e/auth.spec.js` (220+ lines)
@@ -317,12 +317,12 @@ docs/
 │   ├── COMPLETE_ARCHITECTURE.md       ✅ Existing
 │   ├── QUICK_REFERENCE_ARCHITECTURE.md ✅ Existing
 │   ├── DEPLOYMENT_RUNBOOK.md          ✅ Existing
-│   └── DATABASE_SCHEMA.md             ✅ NEW (1,800+ lines)
+│   ├── DATABASE_SCHEMA.md             ✅ NEW (1,800+ lines)
+│   └── DATABASE_SCHEMA_CATALOG.md      ✅ NEW (comprehensive)
 ├── testing/
 │   └── PLAYWRIGHT_GUIDE.md            ✅ NEW (600+ lines)
 ├── planning/
 │   └── TODO_CHECKLIST.md              ✅ Updated
-└── DATABASE_SCHEMA_CATALOG.md          ✅ NEW (comprehensive)
 ```
 
 ---

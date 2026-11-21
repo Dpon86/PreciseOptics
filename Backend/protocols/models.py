@@ -6,7 +6,7 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from django.utils import timezone
 from datetime import timedelta
-from patients.models import Patient
+from patients.models import Patient, PatientVisit
 from accounts.models import CustomUser
 from precise_optics.file_validators import validate_document_extension, validate_file_size
 from conditions.models import MedicalCondition
@@ -559,6 +559,76 @@ class PatientProtocol(models.Model):
             self.expected_end_date = self.calculate_expected_end_date()
         super().save(*args, **kwargs)
 
+    def get_suggested_next_step(self):
+        """Recommend the next protocol step to perform for this patient.
+
+        Returns a dict describing the suggested step, or None when the
+        protocol is complete. Branching overrides recorded against completed
+        steps take precedence over the default sequential ordering.
+        """
+        completions = list(
+            self.step_completions.select_related('protocol_step').all()
+        )
+        completion_by_step = {c.protocol_step_id: c for c in completions}
+
+        done_statuses = {'completed', 'not_applicable'}
+        pending_statuses = {'scheduled', 'missed', 'rescheduled'}
+
+        def _serialize(step, completion, reason):
+            medications = list(
+                step.medications.select_related('medication').values_list(
+                    'medication__name', flat=True
+                )
+            )
+            return {
+                'step_id': str(step.id),
+                'step_number': step.step_number,
+                'title': step.title,
+                'description': step.description,
+                'step_type': step.step_type,
+                'reason': reason,
+                'status': completion.status if completion else 'not_scheduled',
+                'scheduled_date': (
+                    completion.scheduled_date.isoformat()
+                    if completion and completion.scheduled_date else None
+                ),
+                'medications': medications,
+            }
+
+        # 1) Branching override: a completed step's recorded result points to a
+        #    different, still-pending step.
+        for completion in completions:
+            if completion.status != 'completed':
+                continue
+            branch = completion.results.filter(
+                triggers_branch=True,
+                next_step_override__isnull=False,
+            ).select_related('next_step_override').first()
+            if branch and branch.next_step_override:
+                target = branch.next_step_override
+                target_completion = completion_by_step.get(target.id)
+                if not target_completion or target_completion.status not in done_statuses:
+                    return _serialize(target, target_completion, 'branch_override')
+
+        # 2) Next still-pending step in protocol order.
+        ordered = sorted(
+            completions,
+            key=lambda c: c.protocol_step.step_number,
+        )
+        for completion in ordered:
+            if completion.status in pending_statuses:
+                return _serialize(
+                    completion.protocol_step, completion, 'next_incomplete'
+                )
+
+        # 3) Protocol steps that have no completion record yet.
+        scheduled_step_ids = {c.protocol_step_id for c in completions}
+        for step in self.protocol.steps.order_by('step_number'):
+            if step.id not in scheduled_step_ids:
+                return _serialize(step, None, 'next_sequential')
+
+        return None
+
 
 class ProtocolStepCompletion(models.Model):
     """
@@ -921,6 +991,16 @@ class ConsentForm(models.Model):
         help_text="Signed consent form"
     )
     
+    # Visit linkage
+    visit = models.ForeignKey(
+        PatientVisit,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name='consent_forms',
+        help_text="Visit during which consent was obtained"
+    )
+
     # Parties involved
     obtained_by = models.ForeignKey(
         CustomUser,

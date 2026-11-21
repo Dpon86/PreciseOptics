@@ -214,13 +214,13 @@ class MedicationRecallSerializer(serializers.ModelSerializer):
             'issued_by', 'issued_by_name', 'issued_date',
             'acknowledged_at', 'acknowledged_by', 'acknowledged_by_name',
             'resolved_at', 'resolved_by', 'resolved_by_name', 'resolution_notes',
-            'affected_patient_count', 'created_at', 'updated_at',
+            'affected_patient_count', 'notification_sent_at', 'created_at', 'updated_at',
         ]
         read_only_fields = [
             'id', 'medication_name', 'medication_batch', 'issued_by_name',
             'acknowledged_by_name', 'resolved_by_name', 'affected_patient_count',
             'status_display', 'severity_display', 'recall_type_display',
-            'issued_date', 'created_at', 'updated_at',
+            'issued_date', 'notification_sent_at', 'created_at', 'updated_at',
         ]
 
     def get_affected_patient_count(self, obj):

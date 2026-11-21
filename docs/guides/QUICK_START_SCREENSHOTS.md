@@ -213,9 +213,9 @@ If you need more screenshots for specific workflows:
 
 ## 📚 Related Documentation
 
-- **[Comprehensive Playwright Guide](docs/testing/PLAYWRIGHT_GUIDE.md)** - Full testing documentation
-- **[E2E Testing Expansion Summary](E2E_TESTING_EXPANSION_COMPLETE.md)** - Complete test coverage details
-- **[TODO Checklist](docs/planning/TODO_CHECKLIST.md)** - Project task tracking
+- **[Comprehensive Playwright Guide](../testing/PLAYWRIGHT_GUIDE.md)** - Full testing documentation
+- **[E2E Testing Expansion Summary](../testing/E2E_TESTING_EXPANSION_COMPLETE.md)** - Complete test coverage details
+- **[TODO Checklist](../planning/TODO_CHECKLIST.md)** - Project task tracking
 
 ---
 

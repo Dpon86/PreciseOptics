@@ -8,4 +8,5 @@ export { default as ProtocolBuilderPage } from './ProtocolBuilderPage';
 export { default as ProtocolSchedulePage } from './ProtocolSchedulePage';
 export { default as CompleteProtocolStepPage } from './CompleteProtocolStepPage';
 export { default as ConsentFormsPage } from './ConsentFormsPage';
+export { default as RecordConsentPage } from './RecordConsentPage';
 

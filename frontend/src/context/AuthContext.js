@@ -5,7 +5,7 @@
 // sessionStorage is cleared when the browser tab/window is closed, so a token
 // cannot persist across browser sessions.  It is still accessible to JavaScript
 // on the same origin but has a much smaller exposure window than localStorage.
-// A full httpOnly-cookie migration is the next step (tracked as HIGH-04 in TODO).
+// A full httpOnly-cookie migration is the next step (tracked in docs/MASTER_TODO.md, section 2 Security Hardening).
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { apiService } from '../services/api';

@@ -22,6 +22,7 @@ from .serializers import (
     ProtocolStepListSerializer, PatientProtocolSerializer,
     PatientProtocolListSerializer, PatientProtocolCreateSerializer,
     ProtocolStepCompletionSerializer, ProtocolStepCompletionListSerializer,
+    ProtocolStepCompletionScheduleSerializer,
     ProtocolStepCompletionCreateSerializer, ConsentFormSerializer,
     ConsentFormListSerializer, ConsentFormCreateSerializer,
     ProtocolStatisticsSerializer
@@ -253,9 +254,10 @@ class ProtocolStepCompletionDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class PatientProtocolScheduleView(generics.ListAPIView):
     """
-    Get the complete schedule for a patient protocol
+    Get the complete schedule for a patient protocol, including per-step
+    medication, treatment and test details for the medication schedule view.
     """
-    serializer_class = ProtocolStepCompletionListSerializer
+    serializer_class = ProtocolStepCompletionScheduleSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [filters.OrderingFilter]
     ordering = ['scheduled_date']
@@ -264,7 +266,13 @@ class PatientProtocolScheduleView(generics.ListAPIView):
         patient_protocol_id = self.kwargs['patient_protocol_id']
         return ProtocolStepCompletion.objects.filter(
             patient_protocol_id=patient_protocol_id
-        ).select_related('protocol_step', 'completed_by')
+        ).select_related(
+            'protocol_step', 'completed_by'
+        ).prefetch_related(
+            'protocol_step__medications__medication',
+            'protocol_step__treatments',
+            'protocol_step__tests'
+        )
 
 
 # ==================== Consent Form Views ====================

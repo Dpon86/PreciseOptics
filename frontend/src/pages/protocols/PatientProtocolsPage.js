@@ -274,6 +274,17 @@ const PatientProtocolsPage = () => {
                   </div>
                 )}
 
+                {/* Suggested Next Step */}
+                {protocol.suggested_next_step && protocol.status === 'active' && (
+                  <div className="suggested-next-step">
+                    <span className="suggested-label">▶ Suggested next step:</span>
+                    <span className="suggested-title">
+                      Step {protocol.suggested_next_step.step_number} — {protocol.suggested_next_step.title}
+                      {protocol.suggested_next_step.reason === 'branch_override' ? ' (branch override)' : ''}
+                    </span>
+                  </div>
+                )}
+
                 {/* Upcoming Steps */}
                 {upcomingSteps.length > 0 && protocol.status === 'active' && (
                   <div className="upcoming-steps">

@@ -182,7 +182,7 @@ Use docs/MASTER_TODO.md as the single active TODO source.
   - ✅ `treatments.spec.js` — 12 screenshot tests (treatment types, laser, injection, history)
   - ✅ `dashboard-reports.spec.js` — 14 screenshot tests (dashboard widgets, reports, statistics)
   - ✅ `admin-system.spec.js` — 25 screenshot tests (admin dashboard, staff management, system settings, audit logs)
-  - ✅ Complete summary document created at `E2E_TESTING_EXPANSION_COMPLETE.md`
+  - ✅ Complete summary document created at `docs/testing/E2E_TESTING_EXPANSION_COMPLETE.md`
 - [ ] **Generate Screenshots** — Run `npm run test:screenshots` to generate all 103 user manual screenshots
 - [ ] Cross-browser testing (run Playwright tests on firefox and webkit projects)
 - [ ] Mobile responsiveness testing (use mobile-chrome and mobile-safari projects)
@@ -204,7 +204,7 @@ Use docs/MASTER_TODO.md as the single active TODO source.
 - [x] **API documentation for protocols** ✅ **COMPLETE**
 - [x] **API documentation for referrals** ✅ **COMPLETE**
 - [x] **API documentation for alerts** ✅ **COMPLETE** — Comprehensive 150-section guide created at `docs/api/ALERTS_API.md`
-- [x] **Database schema documentation** ✅ **COMPLETE** — Visual schema guide created at `docs/architecture/DATABASE_SCHEMA.md` + detailed catalog at `docs/DATABASE_SCHEMA_CATALOG.md` (65+ models across 10 apps documented)
+- [x] **Database schema documentation** ✅ **COMPLETE** — Visual schema guide created at `docs/architecture/DATABASE_SCHEMA.md` + detailed catalog at `docs/architecture/DATABASE_SCHEMA_CATALOG.md` (65+ models across 10 apps documented)
 - [ ] Code comments and docstrings
 
 ### User Documentation
@@ -472,4 +472,4 @@ Use docs/MASTER_TODO.md as the single active TODO source.
 - [ ] Batch tracking reports
 - [ ] Batch recall alerts
 
-**See Also**: `UPDATED_TODO_PRIORITY.md` for complete sprint planning.
+**See Also**: `docs/MASTER_TODO.md` for the active sprint/priority list.

@@ -871,7 +871,7 @@ long_query_time = 2
 ## Support & Maintenance
 
 For questions about the database schema:
-- **Technical Documentation**: See detailed catalog at `docs/DATABASE_SCHEMA_CATALOG.md`
+- **Technical Documentation**: See detailed catalog at `docs/architecture/DATABASE_SCHEMA_CATALOG.md`
 - **Migration Issues**: Contact database administrator
 - **Schema Change Requests**: Submit pull request with migration files
 - **Performance Issues**: Run EXPLAIN on slow queries and submit findings

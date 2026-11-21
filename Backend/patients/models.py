@@ -6,6 +6,7 @@ from django.core.validators import RegexValidator
 from accounts.models import CustomUser
 from precise_optics.file_validators import validate_document_extension, validate_file_size
 import uuid
+import re
 
 
 class Patient(models.Model):
@@ -73,7 +74,10 @@ class Patient(models.Model):
     # Insurance Information
     insurance_provider = models.CharField(max_length=200, null=True, blank=True)
     insurance_number = models.CharField(max_length=100, null=True, blank=True)
-    nhs_number = models.CharField(max_length=20, unique=True, null=True, blank=True)
+    nhs_number = models.CharField(
+        max_length=20, unique=True, null=True, blank=True,
+        help_text='NHS Number (10 digits, passes Modulus 11 check)'
+    )
     
     # Medical Information
     allergies = models.TextField(blank=True, help_text="Known allergies")
@@ -107,6 +111,51 @@ class Patient(models.Model):
         today = date.today()
         return today.year - self.date_of_birth.year - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
 
+    @staticmethod
+    def validate_nhs_number(nhs_number):
+        """
+        Validate an NHS number using the Modulus 11 check digit algorithm.
+
+        NHS numbers are 10-digit numeric values where the 10th digit is a check digit.
+        The algorithm: multiply each of the first 9 digits by 10, 9, 8, ..., 2,
+        sum the results, divide by 11, and the remainder must equal the 10th digit.
+        A remainder of 10 means the number is invalid.
+
+        Args:
+            nhs_number: A string representing the NHS number.
+
+        Returns:
+            (bool, str): Tuple of (is_valid, error_message).
+        """
+        if not nhs_number:
+            return False, "NHS number is required."
+
+        # Remove spaces, hyphens
+        nhs_str = re.sub(r'[\s\-]', '', str(nhs_number))
+
+        if not re.match(r'^\d{10}$', nhs_str):
+            return False, "NHS number must be exactly 10 digits (numbers only)."
+
+        digits = [int(ch) for ch in nhs_str]
+        check_digit = digits[9]
+        # Multiply first 9 digits by weighting factors 10 down to 2
+        total = sum(digits[i] * (10 - i) for i in range(9))
+        remainder = total % 11
+
+        if remainder == 10:
+            return False, "NHS number fails Modulus 11 check (remainder is 10)."
+
+        # NHS standard: final remainder = 11 - total mod 11, compared to check digit
+        expected_check = (11 - remainder) % 11  # % 11 in case remainder == 0 → 0
+
+        if expected_check != check_digit:
+            return False, (
+                f"NHS number fails Modulus 11 check (expected check digit {expected_check}, "
+                f"got {check_digit})."
+            )
+
+        return True, ""
+
 
 class PatientVisit(models.Model):
     """
@@ -134,7 +183,17 @@ class PatientVisit(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='visits')
     visit_type = models.CharField(max_length=20, choices=VISIT_TYPES)
     status = models.CharField(max_length=20, choices=VISIT_STATUS, default='scheduled')
-    
+
+    # Clinic session link (optional — allows grouping visits by session and enforcing capacity)
+    clinic_session = models.ForeignKey(
+        'ClinicSession',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='visits',
+        help_text='Clinic session this visit belongs to (used for capacity tracking and calendar view)',
+    )
+
     # Visit Details
     scheduled_date = models.DateTimeField()
     actual_arrival_time = models.DateTimeField(null=True, blank=True)
@@ -361,4 +420,97 @@ class AlertConfiguration(models.Model):
             # Create default configuration if none exists
             config = cls.objects.create(is_active=True)
         return config
+
+
+class ClinicSession(models.Model):
+    """
+    Represents a scheduled clinic session (e.g. AMD Monday AM, Glaucoma Wednesday PM).
+
+    PatientVisits are linked to a ClinicSession so the system can enforce
+    capacity limits, group appointments by session type, and display the
+    week/month calendar view correctly.
+    """
+
+    CLINIC_TYPES = (
+        ('amd', 'AMD / Anti-VEGF'),
+        ('glaucoma', 'Glaucoma'),
+        ('cataract', 'Cataract'),
+        ('diabetic', 'Diabetic Retinopathy'),
+        ('retina', 'Medical Retina'),
+        ('paediatrics', 'Paediatrics'),
+        ('corneal', 'Corneal'),
+        ('general', 'General Ophthalmology'),
+        ('emergency', 'Eye Casualty / Emergency'),
+        ('other', 'Other'),
+    )
+
+    DAY_CHOICES = (
+        (0, 'Monday'),
+        (1, 'Tuesday'),
+        (2, 'Wednesday'),
+        (3, 'Thursday'),
+        (4, 'Friday'),
+        (5, 'Saturday'),
+        (6, 'Sunday'),
+    )
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    name = models.CharField(max_length=200, help_text='Descriptive name, e.g. "AMD Monday Morning"')
+    clinic_type = models.CharField(max_length=20, choices=CLINIC_TYPES)
+    consultant = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='clinic_sessions',
+        help_text='Lead consultant for this session',
+    )
+
+    # Recurring schedule
+    day_of_week = models.IntegerField(choices=DAY_CHOICES, help_text='0 = Monday, 6 = Sunday')
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    room_location = models.CharField(max_length=100, blank=True, help_text='Room or location identifier')
+
+    # Capacity
+    max_appointments = models.PositiveIntegerField(
+        default=20,
+        help_text='Maximum number of patient appointments per session',
+    )
+
+    is_active = models.BooleanField(default=True)
+
+    # Audit
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.PROTECT,
+        related_name='created_clinic_sessions',
+    )
+
+    class Meta:
+        verbose_name = 'Clinic Session'
+        verbose_name_plural = 'Clinic Sessions'
+        ordering = ['day_of_week', 'start_time']
+
+    def __str__(self):
+        day_name = dict(self.DAY_CHOICES).get(self.day_of_week, str(self.day_of_week))
+        return f'{self.name} ({day_name} {self.start_time.strftime("%H:%M")}–{self.end_time.strftime("%H:%M")})'
+
+    def booked_count_on_date(self, date):
+        """Return the number of non-cancelled visits linked to this session on a given date."""
+        return self.visits.filter(
+            scheduled_date__date=date,
+        ).exclude(status='cancelled').count()
+
+    def is_full_on_date(self, date):
+        """Return True if the session has reached max_appointments for the given date."""
+        return self.booked_count_on_date(date) >= self.max_appointments
+
+    def available_slots_on_date(self, date):
+        """Return the number of remaining slots for a given date."""
+        return max(0, self.max_appointments - self.booked_count_on_date(date))
+
 

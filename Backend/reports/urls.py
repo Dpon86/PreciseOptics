@@ -5,6 +5,10 @@ from django.urls import path
 from . import views
 from . import comprehensive_api
 from . import treatment_effectiveness_api
+from . import injection_audit
+from patients.iop_trend import patient_iop_trend
+from patients.vf_trend import patient_vf_trend
+from patients.sar_export import sar_export
 from .views.outcome_reports import condition_medication_outcomes
 
 
@@ -34,4 +38,16 @@ urlpatterns = [
     # Comprehensive data APIs
     path('api/data/all-models/', comprehensive_api.all_models_data, name='all-models-data'),
     path('api/data/model-counts/', comprehensive_api.model_counts, name='model-counts'),
+
+    # Injection Audit
+    path('api/reports/injection-audit/', injection_audit.injection_audit_report, name='injection-audit-report'),
+
+    # IOP Trend
+    path('api/patients/<uuid:patient_id>/iop-trend/', patient_iop_trend, name='patient-iop-trend'),
+
+    # Visual Field Trend
+    path('api/patients/<uuid:patient_id>/vf-trend/', patient_vf_trend, name='patient-vf-trend'),
+
+    # SAR / GDPR Export
+    path('api/patients/<uuid:patient_id>/sar-export/', sar_export, name='patient-sar-export'),
 ]

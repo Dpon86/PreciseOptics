@@ -10,6 +10,7 @@ router.register(r'patients', views.PatientViewSet)
 router.register(r'visits', views.PatientVisitViewSet)
 router.register(r'alerts', views.AppointmentAlertViewSet, basename='alert')
 router.register(r'alert-config', views.AlertConfigurationViewSet, basename='alert-config')
+router.register(r'clinic-sessions', views.ClinicSessionViewSet, basename='clinic-session')
 
 urlpatterns = [
     path('api/', include(router.urls)),

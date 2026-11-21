@@ -25,6 +25,11 @@ pytest-cov==4.1.0  # Code coverage support
 factory-boy==3.3.0  # Test data factories
 faker==24.0.0  # Generate realistic test data
 
+# Async task queue (Celery + Redis broker)
+celery==5.4.0
+redis==5.2.1
+django-celery-beat==2.7.0  # DB-backed periodic tasks for celery-beat
+
 # Production deployment (optional)
 # gunicorn==21.2.0
 # whitenoise==6.6.0

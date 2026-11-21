@@ -9,3 +9,7 @@ export { default as AddSlitLampExamPage } from './AddSlitLampExamPage';
 export { default as AddVisualFieldTestPage } from './AddVisualFieldTestPage';
 export { default as AddOCTScanPage } from './AddOCTScanPage';
 export { default as AddFluoresceinAngiographyPage } from './AddFluoresceinAngiographyPage';
+export { default as AddGlaucomaAssessmentPage } from './AddGlaucomaAssessmentPage';
+export { default as AddDiabeticRetinopathyScreeningPage } from './AddDiabeticRetinopathyScreeningPage';
+export { default as AddCataractAssessmentPage } from './AddCataractAssessmentPage';
+export { default as AddRetinalAssessmentPage } from './AddRetinalAssessmentPage';

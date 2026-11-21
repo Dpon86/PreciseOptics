@@ -10,7 +10,7 @@ from django.db.models import Count, Avg, Q, F, Sum
 from django.utils import timezone
 from datetime import datetime, timedelta
 from consultations.models import Consultation
-from medications.models import Prescription, DrugAllergy, Medication, PrescriptionItem
+from medications.models import Prescription, DrugAllergy, Medication, PrescriptionItem, MedicationAdministration
 from eye_tests.models import (
     VisualAcuityTest, VisualFieldTest, OCTScan, 
     RetinalAssessment, CataractAssessment, GlaucomaAssessment
@@ -297,6 +297,7 @@ def batch_tracking_report(request):
         today = timezone.now().date()
         warning_days = 90  # flag as expiring within 90 days
 
+        # --- Stock-based batches (Medication model) ---
         meds_qs = Medication.objects.exclude(batch_number='').filter(approval_status=True)
 
         if search:
@@ -304,7 +305,6 @@ def batch_tracking_report(request):
                 Q(batch_number__icontains=search) | Q(name__icontains=search)
             )
 
-        # Annotate with prescription usage
         meds_qs = meds_qs.annotate(
             prescription_count=Count('prescriptionitem__prescription', distinct=True),
             patient_count=Count('prescriptionitem__prescription__patient', distinct=True),
@@ -314,40 +314,95 @@ def batch_tracking_report(request):
         )
 
         batches = []
+        seen_batches = set()
         total_expired = 0
         total_expiring = 0
         total_active = 0
 
-        for med in meds_qs:
-            expiry = med['expiry_date']
+        def add_batch(batch_number, med_name, strength, expiry, stock, price, presc_count, pat_count, source):
+            key = f'{batch_number}|{med_name}'
+            if key in seen_batches:
+                return
+            seen_batches.add(key)
+
             if expiry is None:
                 batch_status = 'no_expiry'
             elif expiry < today:
                 batch_status = 'expired'
-                total_expired += 1
             elif expiry <= today + timedelta(days=warning_days):
                 batch_status = 'expiring_soon'
-                total_expiring += 1
             else:
                 batch_status = 'active'
-                total_active += 1
 
             if status_filter and status_filter != batch_status:
-                continue
+                return
+
+            nonlocal total_expired, total_expiring, total_active
+            if batch_status == 'expired':
+                total_expired += 1
+            elif batch_status == 'expiring_soon':
+                total_expiring += 1
+            elif batch_status == 'active':
+                total_active += 1
 
             batches.append({
-                'id': str(med['id']),
-                'medication_name': med['name'],
-                'strength': med['strength'],
-                'batch_number': med['batch_number'],
+                'batch_number': batch_number,
+                'medication_name': med_name,
+                'strength': strength,
                 'expiry_date': expiry.isoformat() if expiry else None,
                 'days_until_expiry': (expiry - today).days if expiry else None,
                 'status': batch_status,
-                'current_stock': med['current_stock'],
-                'unit_price': float(med['unit_price']) if med['unit_price'] else 0.0,
-                'prescription_count': med['prescription_count'],
-                'patient_count': med['patient_count'],
+                'current_stock': stock,
+                'unit_price': float(price) if price else 0.0,
+                'prescription_count': presc_count,
+                'patient_count': pat_count,
+                'source': source,  # 'stock' or 'administered'
             })
+
+        # Stock records
+        for med in meds_qs:
+            add_batch(
+                med['batch_number'], med['name'], med['strength'],
+                med['expiry_date'], med['current_stock'], med['unit_price'],
+                med['prescription_count'], med['patient_count'],
+                source='stock'
+            )
+
+        # --- Administered batches (MedicationAdministration model) ---
+        admin_qs = MedicationAdministration.objects.exclude(
+            batch_number_administered=''
+        ).select_related('medication', 'patient').order_by('-administration_time')
+
+        if search:
+            admin_qs = admin_qs.filter(
+                Q(batch_number_administered__icontains=search) |
+                Q(medication__name__icontains=search)
+            )
+
+        administered_batches = {}
+        for admin in admin_qs:
+            batch = admin.batch_number_administered
+            key = f'{batch}|{admin.medication.name}'
+            if key not in administered_batches:
+                administered_batches[key] = {
+                    'batch_number': batch,
+                    'medication_name': admin.medication.name,
+                    'strength': admin.medication.strength,
+                    'expiry_date': admin.expiry_date_administered,
+                    'patient_ids': set(),
+                    'prescription_count': 0,
+                    'current_stock': admin.medication.current_stock,
+                    'unit_price': float(admin.medication.unit_price) if admin.medication.unit_price else 0.0,
+                }
+            administered_batches[key]['patient_ids'].add(str(admin.patient_id))
+
+        for data in administered_batches.values():
+            add_batch(
+                data['batch_number'], data['medication_name'], data['strength'],
+                data['expiry_date'], data['current_stock'], data['unit_price'],
+                data['prescription_count'], len(data['patient_ids']),
+                source='administered'
+            )
 
         # Sort: expired first, then expiring soon, then active
         status_order = {'expired': 0, 'expiring_soon': 1, 'active': 2, 'no_expiry': 3}

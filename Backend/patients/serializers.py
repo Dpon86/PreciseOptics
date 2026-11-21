@@ -2,7 +2,7 @@
 Serializers for PreciseOptics Eye Hospital Management System - Patients
 """
 from rest_framework import serializers
-from .models import Patient, PatientVisit, PatientDocument, AppointmentAlert, AlertConfiguration
+from .models import Patient, PatientVisit, PatientDocument, AppointmentAlert, AlertConfiguration, ClinicSession
 from precise_optics.file_validators import validate_document_extension, validate_file_size
 
 
@@ -40,24 +40,76 @@ class PatientSerializer(serializers.ModelSerializer):
         return today.year - obj.date_of_birth.year - ((today.month, today.day) < (obj.date_of_birth.month, obj.date_of_birth.day))
 
 
+class ClinicSessionSerializer(serializers.ModelSerializer):
+    """
+    Serializer for ClinicSession model.
+    """
+    consultant_name = serializers.CharField(source='consultant.get_full_name', read_only=True)
+    created_by_name = serializers.CharField(source='created_by.get_full_name', read_only=True)
+    day_of_week_display = serializers.CharField(source='get_day_of_week_display', read_only=True)
+    clinic_type_display = serializers.CharField(source='get_clinic_type_display', read_only=True)
+
+    class Meta:
+        model = ClinicSession
+        fields = [
+            'id', 'name', 'clinic_type', 'clinic_type_display',
+            'consultant', 'consultant_name',
+            'day_of_week', 'day_of_week_display',
+            'start_time', 'end_time', 'room_location',
+            'max_appointments', 'is_active',
+            'created_at', 'updated_at', 'created_by', 'created_by_name',
+        ]
+        read_only_fields = [
+            'id', 'consultant_name', 'created_by_name', 'day_of_week_display',
+            'clinic_type_display', 'created_at', 'updated_at',
+        ]
+
+    def validate(self, data):
+        start = data.get('start_time')
+        end = data.get('end_time')
+        if start and end and start >= end:
+            raise serializers.ValidationError({'end_time': 'End time must be after start time.'})
+        return data
+
+
+class ClinicSessionListSerializer(serializers.ModelSerializer):
+    """Lightweight serializer for list views."""
+    consultant_name = serializers.CharField(source='consultant.get_full_name', read_only=True)
+    day_of_week_display = serializers.CharField(source='get_day_of_week_display', read_only=True)
+    clinic_type_display = serializers.CharField(source='get_clinic_type_display', read_only=True)
+
+    class Meta:
+        model = ClinicSession
+        fields = [
+            'id', 'name', 'clinic_type', 'clinic_type_display',
+            'consultant', 'consultant_name',
+            'day_of_week', 'day_of_week_display',
+            'start_time', 'end_time', 'room_location',
+            'max_appointments', 'is_active',
+        ]
+        read_only_fields = fields
+
+
 class PatientVisitSerializer(serializers.ModelSerializer):
     """
     Serializer for PatientVisit model
     """
     patient_name = serializers.CharField(source='patient.get_full_name', read_only=True)
     primary_doctor_name = serializers.CharField(source='primary_doctor.get_full_name', read_only=True)
-    
+    clinic_session_name = serializers.CharField(source='clinic_session.name', read_only=True)
+
     class Meta:
         model = PatientVisit
         fields = [
             'id', 'patient', 'patient_name', 'visit_type', 'status',
+            'clinic_session', 'clinic_session_name',
             'scheduled_date', 'actual_arrival_time', 'check_in_time',
             'consultation_start_time', 'consultation_end_time',
             'primary_doctor', 'primary_doctor_name', 'attending_staff',
             'chief_complaint', 'notes', 'total_cost', 'payment_status',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'patient_name', 'primary_doctor_name', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'patient_name', 'primary_doctor_name', 'clinic_session_name', 'created_at', 'updated_at']
 
 
 class PatientCreateSerializer(serializers.ModelSerializer):
@@ -235,3 +287,15 @@ class AlertConfigurationSerializer(serializers.ModelSerializer):
             'created_by', 'created_by_name'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at', 'created_by_name']
+
+
+class ClinicSessionCapacitySerializer(serializers.Serializer):
+    """
+    Read-only serializer that returns capacity information for a session on a specific date.
+    Used by the /clinic-sessions/{id}/capacity/?date=YYYY-MM-DD endpoint.
+    """
+    date = serializers.DateField()
+    max_appointments = serializers.IntegerField()
+    booked = serializers.IntegerField()
+    available = serializers.IntegerField()
+    is_full = serializers.BooleanField()

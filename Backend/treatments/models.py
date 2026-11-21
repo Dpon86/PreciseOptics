@@ -8,7 +8,7 @@ from precise_optics.file_validators import validate_document_extension, validate
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from consultations.models import Consultation
-from patients.models import Patient
+from patients.models import Patient, PatientVisit
 from accounts.models import CustomUser
 from medications.models import Medication
 import uuid
@@ -389,3 +389,143 @@ class TreatmentComplication(models.Model):
     
     def __str__(self):
         return f"{self.get_complication_type_display()} - {self.get_severity_display()}"
+
+
+class IntravitrealInjectionRecord(models.Model):
+    """
+    Records intravitreal anti-VEGF / steroid injection events for medical retina patients.
+    Tracks injection number, phase (loading/maintenance/treat-and-extend),
+    pre- and post-injection visual acuity and IOP, batch traceability,
+    adverse events, and links to the patient's visit and condition.
+    """
+    PHASE_CHOICES = (
+        ('loading', 'Loading Dose'),
+        ('maintenance', 'Maintenance'),
+        ('treat_and_extend', 'Treat-and-Extend'),
+    )
+
+    EYE_CHOICES = (
+        ('right', 'Right Eye (OD)'),
+        ('left', 'Left Eye (OS)'),
+    )
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='intravitreal_injections')
+    visit = models.ForeignKey(
+        PatientVisit,
+        on_delete=models.PROTECT,
+        related_name='intravitreal_injections',
+        help_text='Visit during which the injection was administered'
+    )
+    condition = models.ForeignKey(
+        'conditions.PatientCondition',
+        on_delete=models.PROTECT,
+        related_name='intravitreal_injections',
+        help_text='Underlying condition being treated (e.g. AMD, RVO)'
+    )
+
+    # Drug and batch traceability
+    drug_name = models.CharField(max_length=200, help_text='Name of drug administered (e.g. Aflibercept, Ranibizumab, Faricimab)')
+    batch_number = models.CharField(max_length=100, help_text='Batch/lot number from vial')
+    injection_number = models.PositiveIntegerField(
+        help_text='Sequential injection number for this patient (e.g. 1st, 2nd, 3rd)'
+    )
+
+    # Treatment phase
+    phase = models.CharField(max_length=20, choices=PHASE_CHOICES, default='loading')
+
+    # Eye
+    eye = models.CharField(max_length=10, choices=EYE_CHOICES)
+
+    # Pre-injection measurements
+    pre_va_right = models.CharField(
+        max_length=20, blank=True,
+        help_text='Pre-injection visual acuity right eye (Snellen or LogMAR)'
+    )
+    pre_va_left = models.CharField(
+        max_length=20, blank=True,
+        help_text='Pre-injection visual acuity left eye (Snellen or LogMAR)'
+    )
+    pre_iop = models.DecimalField(
+        max_digits=5, decimal_places=1, null=True, blank=True,
+        validators=[MinValueValidator(0), MaxValueValidator(80)],
+        help_text='Pre-injection intraocular pressure (mmHg)'
+    )
+
+    # Post-injection measurements (typically 30 min after)
+    post_va_right = models.CharField(
+        max_length=20, blank=True,
+        help_text='Post-injection visual acuity right eye (~30 min after)'
+    )
+    post_va_left = models.CharField(
+        max_length=20, blank=True,
+        help_text='Post-injection visual acuity left eye (~30 min after)'
+    )
+    post_iop = models.DecimalField(
+        max_digits=5, decimal_places=1, null=True, blank=True,
+        validators=[MinValueValidator(0), MaxValueValidator(80)],
+        help_text='Post-injection intraocular pressure (mmHg)'
+    )
+
+    # Clinician
+    treating_clinician = models.ForeignKey(
+        CustomUser,
+        on_delete=models.PROTECT,
+        related_name='administered_injections',
+        limit_choices_to={'user_type__in': ['doctor']},
+        help_text='Clinician who performed the injection'
+    )
+
+    # Consent — nullable until PatientConsent model is implemented (Phase 1 item 1.10)
+    # consent = models.ForeignKey(
+    #     'protocols.PatientConsent',
+    #     on_delete=models.PROTECT,
+    #     null=True, blank=True,
+    #     related_name='injection_records'
+    # )
+
+    # Adverse event
+    adverse_event = models.BooleanField(default=False, help_text='Did an adverse event occur?')
+    adverse_event_description = models.TextField(
+        blank=True,
+        help_text='Description of adverse event if one occurred'
+    )
+
+    # General notes
+    notes = models.TextField(blank=True)
+
+    # Timestamps
+    injection_date = models.DateTimeField(help_text='Date and time of injection')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.PROTECT, related_name='created_injection_records')
+
+    class Meta:
+        verbose_name = 'Intravitreal Injection Record'
+        verbose_name_plural = 'Intravitreal Injection Records'
+        ordering = ['-injection_date']
+        indexes = [
+            models.Index(fields=['patient', '-injection_date']),
+            models.Index(fields=['drug_name', 'batch_number']),
+            models.Index(fields=['adverse_event']),
+        ]
+
+    def __str__(self):
+        return (
+            f"Injection #{self.injection_number} — {self.drug_name} "
+            f"{self.get_eye_display()} — {self.patient.get_full_name()} "
+            f"({self.injection_date.date()})"
+        )
+
+    @property
+    def days_since_last_injection(self):
+        """Calculate days since the patient's previous injection, or None if this is the first."""
+        previous = (
+            IntravitrealInjectionRecord.objects
+            .filter(patient=self.patient, injection_date__lt=self.injection_date)
+            .order_by('-injection_date')
+            .first()
+        )
+        if previous:
+            return (self.injection_date.date() - previous.injection_date.date()).days
+        return None

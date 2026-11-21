@@ -1,6 +1,7 @@
 ﻿import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../../services/api';
+import InjectionSummaryWidget from '../../components/InjectionSummaryWidget';
 import './PatientDetailPage.css';
 
 // ─── Helper utilities ────────────────────────────────────────────────────────
@@ -228,6 +229,8 @@ const PatientDetailPage = () => {
         ))}
       </div>
 
+      <InjectionSummaryWidget patientId={patientId} />
+
       <div className="tabs-container">
         <div className="tabs">
           {tabs.map(t => (
@@ -411,8 +414,7 @@ const PatientDetailPage = () => {
             )}
             {!tabLoading.protocols && protocols?.map(pp => {
               const progress = pp.completion_progress || {};
-              const upcoming = pp.upcoming_steps || [];
-              const nextStep = upcoming[0];
+              const nextStep = pp.suggested_next_step;
               const pct = progress.completion_percentage ?? (pp.adherence_percentage ?? 0);
               return (
                 <div key={pp.id} className={`protocol-card ${pp.status === 'active' ? 'protocol-card--active' : ''}`}>
@@ -441,27 +443,22 @@ const PatientDetailPage = () => {
                   </div>
                   {nextStep && pp.status === 'active' && (
                     <div className="next-step-banner">
-                      <div className="next-step-badge">▶ Next Step Due</div>
+                      <div className="next-step-badge">▶ Next Step: Step {nextStep.step_number}</div>
                       <div className="next-step-detail">
-                        <strong>{nextStep.step_details?.name || nextStep.step_name || 'Step'}</strong>
-                        <span> — due {fmtDate(nextStep.scheduled_date)}</span>
-                        {nextStep.step_details?.description && <p className="next-step-desc">{nextStep.step_details.description}</p>}
-                        {nextStep.step_details?.required_action && <p className="next-step-action"><strong>Action required:</strong> {nextStep.step_details.required_action}</p>}
-                        {nextStep.step_details?.medications && <p className="next-step-meds"><strong>Medication:</strong> {nextStep.step_details.medications}</p>}
+                        <strong>
+                          {nextStep.title || 'Step'}
+                          {nextStep.reason === 'branch_override' ? ' (branch override)' : ''}
+                        </strong>
+                        {nextStep.scheduled_date ? (
+                          <span> — due {fmtDate(nextStep.scheduled_date)}</span>
+                        ) : (
+                          <span> — not yet scheduled</span>
+                        )}
+                        {nextStep.description && <p className="next-step-desc">{nextStep.description}</p>}
+                        {nextStep.medications && nextStep.medications.length > 0 && (
+                          <p className="next-step-meds"><strong>Medication:</strong> {nextStep.medications.join(', ')}</p>
+                        )}
                       </div>
-                    </div>
-                  )}
-                  {upcoming.length > 1 && (
-                    <div className="upcoming-steps">
-                      <strong>Upcoming:</strong>
-                      <ol>
-                        {upcoming.map((s, i) => (
-                          <li key={s.id || i} className={i === 0 ? 'step-next' : ''}>
-                            {s.step_details?.name || s.step_name || `Step ${i + 1}`}
-                            <span className="step-date"> – {fmtDate(s.scheduled_date)}</span>
-                          </li>
-                        ))}
-                      </ol>
                     </div>
                   )}
                   <div className="protocol-card-actions">
@@ -602,12 +599,22 @@ const PatientDetailPage = () => {
             { to: `/protocols/assign/${patientId}`, icon: '📄', label: 'Assign Protocol' },
             { to: `/patients/${patientId}/conditions/add`, icon: '🏥', label: 'Add Condition' },
             { to: `/patients/${patientId}/records`, icon: '📊', label: 'View Records' },
-          ].map(a => (
-            <Link key={a.to} to={a.to} className="quick-action-card">
-              <div className="action-icon">{a.icon}</div>
-              <div className="action-label">{a.label}</div>
-            </Link>
-          ))}
+            { to: `/patients/${patientId}/iop-trend`, icon: '📈', label: 'IOP Trend' },
+            { to: `/patients/${patientId}/vf-trend`, icon: '📉', label: 'V/F Trend' },
+            { onClick: async () => { try { const r = await api.get(`/api/patients/${patientId}/sar-export/`); const b = new Blob([JSON.stringify(r.data, null, 2)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `SAR_${patientId}_${new Date().toISOString().slice(0,10)}.json`; a.click(); } catch(e) { alert('SAR export failed'); } }, icon: '📦', label: 'SAR Export' },
+          ].map(a =>
+            a.to ? (
+              <Link key={a.to} to={a.to} className="quick-action-card">
+                <div className="action-icon">{a.icon}</div>
+                <div className="action-label">{a.label}</div>
+              </Link>
+            ) : (
+              <button key={a.label} onClick={a.onClick} className="quick-action-card" style={{ border: 'none', background: 'white', cursor: 'pointer', padding: 0, width: '100%' }}>
+                <div className="action-icon">{a.icon}</div>
+                <div className="action-label">{a.label}</div>
+              </button>
+            )
+          )}
         </div>
       </div>
 

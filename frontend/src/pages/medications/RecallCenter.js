@@ -44,6 +44,8 @@ const RecallCenter = () => {
   const [selected, setSelected] = useState(null);
   const [affectedPatients, setAffectedPatients] = useState([]);
   const [loadingPatients, setLoadingPatients] = useState(false);
+  const [usageStats, setUsageStats] = useState(null);
+  const [loadingUsageStats, setLoadingUsageStats] = useState(false);
 
   // Create form state
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -107,6 +109,7 @@ const RecallCenter = () => {
   const handleSelectRecall = async (recall) => {
     setSelected(recall);
     setAffectedPatients([]);
+    setUsageStats(null);
     try {
       setLoadingPatients(true);
       const res = await api.getRecallAffectedPatients(recall.id);
@@ -115,6 +118,18 @@ const RecallCenter = () => {
       setAffectedPatients([]);
     } finally {
       setLoadingPatients(false);
+    }
+    try {
+      setLoadingUsageStats(true);
+      const res = await api.getBatchUsageStats({
+        medication: recall.medication,
+        batch_number: recall.batch_number || undefined,
+      });
+      setUsageStats(res.data);
+    } catch {
+      setUsageStats(null);
+    } finally {
+      setLoadingUsageStats(false);
     }
   };
 
@@ -373,6 +388,36 @@ const RecallCenter = () => {
                 <button className="btn btn-success" onClick={() => openResolveModal(selected)}>
                   ✅ Mark Resolved
                 </button>
+              )}
+            </div>
+
+            {/* Batch Usage Statistics */}
+            <div className="recall-detail__section">
+              <h3>📊 Batch Usage Statistics</h3>
+              {loadingUsageStats && <p className="recall-loading">Loading usage statistics…</p>}
+              {!loadingUsageStats && usageStats && (
+                <div className="recall-usage-stats">
+                  <div className="recall-usage-stats__grid">
+                    <div><strong>Total Administrations</strong><p>{usageStats.total_administrations}</p></div>
+                    <div><strong>Unique Patients</strong><p>{usageStats.unique_patients}</p></div>
+                    <div><strong>First Administered</strong><p>{usageStats.first_administration ? new Date(usageStats.first_administration).toLocaleDateString('en-GB') : '—'}</p></div>
+                    <div><strong>Last Administered</strong><p>{usageStats.last_administration ? new Date(usageStats.last_administration).toLocaleDateString('en-GB') : '—'}</p></div>
+                    <div><strong>Adverse Reactions Logged</strong><p>{usageStats.adverse_reaction_count}</p></div>
+                  </div>
+                  {usageStats.by_clinician?.length > 0 && (
+                    <div className="recall-usage-stats__breakdown">
+                      <strong>By Clinician</strong>
+                      <ul>
+                        {usageStats.by_clinician.map((row, i) => (
+                          <li key={i}>{row.clinician}: {row.count}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+              {!loadingUsageStats && !usageStats && (
+                <p className="recall-no-patients">No administration records found for this medication/batch.</p>
               )}
             </div>
 

@@ -256,7 +256,10 @@ class MedicationRecallViewSet(viewsets.ModelViewSet):
         return queryset.order_by('-issued_date')
 
     def perform_create(self, serializer):
-        serializer.save(issued_by=self.request.user)
+        recall = serializer.save(issued_by=self.request.user)
+        if recall.severity in ('medium', 'high', 'critical'):
+            from .tasks import notify_staff_of_recall
+            notify_staff_of_recall.delay(str(recall.id))
 
     @action(detail=True, methods=['post'])
     def acknowledge(self, request, pk=None):
@@ -307,18 +310,69 @@ class MedicationRecallViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'])
     def affected_patients(self, request, pk=None):
-        """List patients who received the recalled medication/batch"""
+        """List patients who received the recalled medication/batch (administered or prescribed)"""
         from patients.models import Patient
         recall = self.get_object()
-        qs = PrescriptionItem.objects.filter(medication=recall.medication).select_related(
-            'prescription__patient'
-        )
-        if recall.batch_number:
-            qs = qs.filter(medication__batch_number=recall.batch_number)
-
-        patient_ids = qs.values_list('prescription__patient', flat=True).distinct()
+        patient_ids = recall.get_affected_patient_ids()
         patients = Patient.objects.filter(id__in=patient_ids).values(
             'id', 'first_name', 'last_name', 'date_of_birth', 'phone_number'
         )
         return Response(list(patients))
+
+    @action(detail=False, methods=['get'], url_path='batch-usage-stats')
+    def batch_usage_stats(self, request):
+        """
+        Usage statistics for a medication batch — how many units were
+        administered, to how many patients, over what date range, and by
+        which clinicians. Independent of whether a recall exists.
+
+        Query params: medication (medication UUID, required),
+                       batch_number (optional — omit to aggregate all batches)
+        """
+        from django.db.models import Count, Min, Max
+
+        medication_id = request.query_params.get('medication')
+        batch_number = request.query_params.get('batch_number', '').strip()
+
+        if not medication_id:
+            return Response({'error': 'medication query parameter is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        admin_qs = MedicationAdministration.objects.filter(medication_id=medication_id)
+        if batch_number:
+            admin_qs = admin_qs.filter(batch_number_administered=batch_number)
+
+        totals = admin_qs.aggregate(
+            total_administrations=Count('id'),
+            unique_patients=Count('patient', distinct=True),
+            first_administration=Min('administration_time'),
+            last_administration=Max('administration_time'),
+        )
+
+        by_clinician = list(
+            admin_qs.values('administered_by__first_name', 'administered_by__last_name')
+            .annotate(count=Count('id'))
+            .order_by('-count')[:10]
+        )
+        by_route = list(
+            admin_qs.values('route').annotate(count=Count('id')).order_by('-count')
+        )
+        adverse_reaction_count = admin_qs.exclude(adverse_reactions='').count()
+
+        return Response({
+            'medication_id': medication_id,
+            'batch_number': batch_number or None,
+            'total_administrations': totals['total_administrations'] or 0,
+            'unique_patients': totals['unique_patients'] or 0,
+            'first_administration': totals['first_administration'],
+            'last_administration': totals['last_administration'],
+            'adverse_reaction_count': adverse_reaction_count,
+            'by_clinician': [
+                {
+                    'clinician': f"{row['administered_by__first_name']} {row['administered_by__last_name']}".strip() or 'Unknown',
+                    'count': row['count'],
+                }
+                for row in by_clinician
+            ],
+            'by_route': by_route,
+        })
 

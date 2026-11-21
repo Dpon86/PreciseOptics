@@ -7,4 +7,6 @@ export { default as EditPatientPage } from './EditPatientPage';
 export { default as AddDiagnosisPage } from './AddDiagnosisPage';
 export { default as AddTreatmentPage } from './AddTreatmentPage';
 export { default as PatientProgressDashboard } from './PatientProgressDashboard';
+export { default as IopTrendPage } from './IopTrendPage';
+export { default as VfTrendPage } from './VfTrendPage';
 export { default as PatientOutcomeForm } from './PatientOutcomeForm';

@@ -399,6 +399,8 @@ export const apiService = {
     axios.post(`/api/medication-recalls/${id}/close/`, { resolution_notes }),
   getRecallAffectedPatients: (id) =>
     axios.get(`/api/medication-recalls/${id}/affected_patients/`),
+  getBatchUsageStats: (params = {}) =>
+    axios.get('/api/medication-recalls/batch-usage-stats/', { params }),
 
   // Follow-up Alerts
   getFollowUpAlerts: (params = {}) =>
@@ -494,6 +496,30 @@ export const apiService = {
   getPatientUpcomingAppointments: (patientId) =>
     axios.get(`/api/patients/${patientId}/upcoming_appointments/`),
 
+  // Clinic Sessions
+  getClinicSessions: (params = {}) =>
+    axios.get('/api/clinic-sessions/', { params }),
+  getClinicSession: (id) =>
+    axios.get(`/api/clinic-sessions/${id}/`),
+  createClinicSession: (data) =>
+    axios.post('/api/clinic-sessions/', data),
+  updateClinicSession: (id, data) =>
+    axios.put(`/api/clinic-sessions/${id}/`, data),
+  patchClinicSession: (id, data) =>
+    axios.patch(`/api/clinic-sessions/${id}/`, data),
+  deleteClinicSession: (id) =>
+    axios.delete(`/api/clinic-sessions/${id}/`),
+  getClinicSessionCapacity: (id, date) =>
+    axios.get(`/api/clinic-sessions/${id}/capacity/`, { params: { date } }),
+  getClinicSessionsByDay: () =>
+    axios.get('/api/clinic-sessions/by-day/'),
+
+  // Duplicate Patient Check
+  checkDuplicatePatient: (firstName, lastName, dateOfBirth) =>
+    axios.get('/api/patients/api/patients/check_duplicate/', {
+      params: { first_name: firstName, last_name: lastName, date_of_birth: dateOfBirth }
+    }).then(res => res.data),
+
   // Patient Reported Outcome Measures (PROMs)
   getPatientOutcomes: (params = {}) =>
     axios.get('/api/patient-outcomes/', { params }),
@@ -509,6 +535,24 @@ export const apiService = {
   // Condition → Medication → Outcomes report (clinical + PROs)
   getConditionMedicationOutcomes: (params = {}) =>
     axios.get('/api/reports/condition-medication-outcomes/', { params }),
+
+  // Intravitreal Injections
+  getInjections: (params = {}) =>
+    axios.get('/api/treatments/api/injections/', { params }),
+  getInjection: (id) =>
+    axios.get(`/api/treatments/api/injections/${id}/`),
+  createInjection: (data) =>
+    axios.post('/api/treatments/api/injections/', data),
+  updateInjection: (id, data) =>
+    axios.put(`/api/treatments/api/injections/${id}/`, data),
+  deleteInjection: (id) =>
+    axios.delete(`/api/treatments/api/injections/${id}/`),
+  getInjectionsByPatient: (patientId) =>
+    axios.get(`/api/treatments/api/injections/by_patient/?patient_id=${patientId}`),
+  lookupInjectionBatch: (params = {}) =>
+    axios.get('/api/treatments/api/injections/batch_lookup/', { params }),
+  getInjectionSummary: () =>
+    axios.get('/api/treatments/api/injections/summary/'),
 };
 
 export default apiService;

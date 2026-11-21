@@ -9,12 +9,14 @@ from django.utils import timezone
 from django.db.models import Q, Count, Avg
 from .models import (
     TreatmentCategory, TreatmentType, Treatment, TreatmentMedication,
-    TreatmentDocument, TreatmentFollowUp, TreatmentComplication
+    TreatmentDocument, TreatmentFollowUp, TreatmentComplication,
+    IntravitrealInjectionRecord,
 )
 from .serializers import (
     TreatmentCategorySerializer, TreatmentTypeSerializer, TreatmentSerializer,
     TreatmentBasicSerializer, TreatmentCreateSerializer, TreatmentMedicationSerializer,
-    TreatmentDocumentSerializer, TreatmentFollowUpSerializer, TreatmentComplicationSerializer
+    TreatmentDocumentSerializer, TreatmentFollowUpSerializer, TreatmentComplicationSerializer,
+    IntravitrealInjectionRecordSerializer, IntravitrealInjectionRecordListSerializer,
 )
 
 
@@ -271,3 +273,129 @@ class TreatmentComplicationViewSet(viewsets.ModelViewSet):
             summary['preventable_rate'] = round((preventable / total) * 100, 2)
         
         return Response(summary)
+
+
+class IntravitrealInjectionRecordViewSet(viewsets.ModelViewSet):
+    queryset = IntravitrealInjectionRecord.objects.select_related(
+        'patient', 'visit', 'condition', 'treating_clinician', 'created_by'
+    ).all()
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = [
+        'patient', 'drug_name', 'phase', 'eye', 'adverse_event',
+        'treating_clinician',
+    ]
+    search_fields = [
+        'patient__first_name', 'patient__last_name', 'patient__patient_id',
+        'drug_name', 'batch_number', 'treating_clinician__first_name',
+        'treating_clinician__last_name',
+    ]
+    ordering_fields = ['injection_date', 'injection_number', 'drug_name', 'created_at']
+    ordering = ['-injection_date']
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return IntravitrealInjectionRecordListSerializer
+        return IntravitrealInjectionRecordSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    @action(detail=False, methods=['get'])
+    def by_patient(self, request):
+        """Get injections filtered by patient_id query param, ordered chronologically."""
+        patient_id = request.query_params.get('patient_id')
+        if not patient_id:
+            return Response(
+                {'error': 'patient_id query parameter is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        injections = self.queryset.filter(patient_id=patient_id).order_by('injection_date')
+        serializer = IntravitrealInjectionRecordListSerializer(injections, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def batch_lookup(self, request):
+        """Look up all injections by batch number for audit / recall."""
+        batch = request.query_params.get('batch')
+        drug = request.query_params.get('drug')
+        if not batch and not drug:
+            return Response(
+                {'error': 'Provide at least batch or drug query parameter'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        qs = self.queryset
+        if batch:
+            qs = qs.filter(batch_number__iexact=batch)
+        if drug:
+            qs = qs.filter(drug_name__iexact=drug)
+        serializer = IntravitrealInjectionRecordListSerializer(qs.order_by('-injection_date'), many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def summary(self, request):
+        """Aggregate injection statistics."""
+        summary = {
+            'total_injections': self.queryset.count(),
+            'by_drug': {},
+            'by_phase': {},
+            'adverse_event_count': self.queryset.filter(adverse_event=True).count(),
+        }
+        for item in self.queryset.values('drug_name').annotate(count=Count('id')):
+            summary['by_drug'][item['drug_name']] = item['count']
+        for item in self.queryset.values('phase').annotate(count=Count('id')):
+            summary['by_phase'][item['phase']] = item['count']
+        return Response(summary)
+
+    @action(detail=False, methods=['get'])
+    def patient_summary(self, request):
+        """
+        Per-patient injection summary — designed for the Injection Summary widget.
+        Query param: patient_id (required)
+        """
+        patient_id = request.query_params.get('patient_id')
+        if not patient_id:
+            return Response(
+                {'error': 'patient_id query parameter is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        injections = self.queryset.filter(patient_id=patient_id).order_by('injection_date')
+
+        if not injections.exists():
+            return Response({'patient_id': patient_id, 'total_injections': 0})
+
+        latest = injections.last()
+        previous = injections[:injections.count() - 1].last() if injections.count() > 1 else None
+
+        # Interval calculation
+        intervals = []
+        sorted_injs = list(injections)
+        for i in range(1, len(sorted_injs)):
+            delta = (sorted_injs[i].injection_date.date() - sorted_injs[i - 1].injection_date.date()).days
+            intervals.append(delta)
+        avg_interval = round(sum(intervals) / len(intervals)) if intervals else None
+
+        # Count by phase
+        phase_counts = {p: 0 for p, _ in IntravitrealInjectionRecord.PHASE_CHOICES}
+        for inj in injections:
+            phase_counts[inj.phase] = phase_counts.get(inj.phase, 0) + 1
+
+        return Response({
+            'patient_id': patient_id,
+            'total_injections': injections.count(),
+            'last_injection_date': latest.injection_date.isoformat() if latest else None,
+            'last_injection_drug': latest.drug_name if latest else None,
+            'last_injection_eye': latest.get_eye_display() if latest else None,
+            'days_since_last': latest.days_since_last_injection,
+            'phase_counts': {
+                'loading': phase_counts.get('loading', 0),
+                'maintenance': phase_counts.get('maintenance', 0),
+                'treat_and_extend': phase_counts.get('treat_and_extend', 0),
+            },
+            'current_phase': latest.get_phase_display() if latest else None,
+            'avg_interval_days': avg_interval,
+            'total_loading_doses': phase_counts.get('loading', 0),
+            'loading_phase_complete': phase_counts.get('loading', 0) >= 3,  # typical 3 loading doses
+            'adverse_events': injections.filter(adverse_event=True).count(),
+            'previous_injection_date': previous.injection_date.isoformat() if previous else None,
+        })

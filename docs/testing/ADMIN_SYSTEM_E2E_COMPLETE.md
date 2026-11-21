@@ -273,9 +273,9 @@ Screenshots follow clear naming convention:
 ## 📖 Related Documentation
 
 - **Complete E2E Summary**: [`E2E_TESTING_EXPANSION_COMPLETE.md`](E2E_TESTING_EXPANSION_COMPLETE.md)
-- **Playwright Guide**: [`frontend/e2e/HOW_TO_USE_PLAYWRIGHT.md`](frontend/e2e/HOW_TO_USE_PLAYWRIGHT.md)
-- **Quick Start**: [`QUICK_START_SCREENSHOTS.md`](QUICK_START_SCREENSHOTS.md)
-- **TODO Checklist**: [`docs/planning/TODO_CHECKLIST.md`](docs/planning/TODO_CHECKLIST.md)
+- **Playwright Guide**: [`HOW_TO_USE_PLAYWRIGHT.md`](../../frontend/e2e/HOW_TO_USE_PLAYWRIGHT.md)
+- **Quick Start**: [`QUICK_START_SCREENSHOTS.md`](../guides/QUICK_START_SCREENSHOTS.md)
+- **TODO Checklist**: [`TODO_CHECKLIST.md`](../planning/TODO_CHECKLIST.md)
 
 ---
 

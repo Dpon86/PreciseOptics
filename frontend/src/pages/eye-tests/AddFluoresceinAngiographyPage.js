@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import ImageUploadField from '../../components/ImageUploadField';
 
 const AddFluoresceinAngiographyPage = () => {
   const [formData, setFormData] = useState({
@@ -50,7 +51,12 @@ const AddFluoresceinAngiographyPage = () => {
   
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [imageFiles, setImageFiles] = useState({ right_image: null, left_image: null });
   const navigate = useNavigate();
+
+  const handleImageChange = (name, file) => {
+    setImageFiles(prev => ({ ...prev, [name]: file }));
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -66,7 +72,17 @@ const AddFluoresceinAngiographyPage = () => {
     setError('');
     
     try {
-      const response = await api.createVisualAcuityTest(formData);
+      let payload;
+      if (imageFiles.right_image || imageFiles.left_image) {
+        payload = new FormData();
+        Object.entries(formData).forEach(([k, v]) => payload.append(k, v));
+        if (imageFiles.right_image) payload.append('right_image', imageFiles.right_image);
+        if (imageFiles.left_image) payload.append('left_image', imageFiles.left_image);
+      } else {
+        payload = formData;
+      }
+
+      const response = await api.createVisualAcuityTest(payload);
       
       if (response.status === 201) {
         alert('Fluorescein angiography results recorded successfully!');
@@ -599,6 +615,25 @@ const AddFluoresceinAngiographyPage = () => {
               className="form-textarea"
               rows="3"
               placeholder="Follow-up angiography, treatment recommendations, monitoring intervals..."
+            />
+          </div>
+        </div>
+
+        {/* Image Upload */}
+        <div className="form-section">
+          <h3>FA Images (optional)</h3>
+          <div className="form-row">
+            <ImageUploadField
+              label="Right Eye FA Image"
+              name="right_image"
+              value={imageFiles.right_image}
+              onChange={handleImageChange}
+            />
+            <ImageUploadField
+              label="Left Eye FA Image"
+              name="left_image"
+              value={imageFiles.left_image}
+              onChange={handleImageChange}
             />
           </div>
         </div>

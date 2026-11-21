@@ -182,6 +182,7 @@ class PatientProtocolListSerializer(serializers.ModelSerializer):
     protocol_code = serializers.CharField(source='protocol.code', read_only=True)
     status_display = serializers.CharField(source='get_status_display', read_only=True)
     days_remaining = serializers.SerializerMethodField()
+    suggested_next_step = serializers.SerializerMethodField()
     
     class Meta:
         model = PatientProtocol
@@ -189,7 +190,8 @@ class PatientProtocolListSerializer(serializers.ModelSerializer):
             'id', 'patient', 'patient_name', 'patient_id', 'protocol',
             'protocol_name', 'protocol_code', 'status', 'status_display',
             'start_date', 'expected_end_date', 'current_step_number',
-            'total_steps_completed', 'adherence_percentage', 'days_remaining'
+            'total_steps_completed', 'adherence_percentage', 'days_remaining',
+            'suggested_next_step'
         ]
     
     def get_days_remaining(self, obj):
@@ -198,6 +200,10 @@ class PatientProtocolListSerializer(serializers.ModelSerializer):
             delta = (obj.expected_end_date - timezone.now().date()).days
             return delta
         return None
+    
+    def get_suggested_next_step(self, obj):
+        """Recommend the next protocol step to perform for this patient."""
+        return obj.get_suggested_next_step()
 
 
 class PatientProtocolSerializer(serializers.ModelSerializer):
@@ -209,6 +215,7 @@ class PatientProtocolSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source='get_status_display', read_only=True)
     completion_progress = serializers.SerializerMethodField()
     upcoming_steps = serializers.SerializerMethodField()
+    suggested_next_step = serializers.SerializerMethodField()
     
     class Meta:
         model = PatientProtocol
@@ -221,7 +228,8 @@ class PatientProtocolSerializer(serializers.ModelSerializer):
             'discontinuation_date', 'completion_notes', 'outcome_assessment',
             'protocol_modifications', 'current_step_number',
             'total_steps_completed', 'adherence_percentage',
-            'completion_progress', 'upcoming_steps', 'created_at', 'updated_at'
+            'completion_progress', 'upcoming_steps', 'suggested_next_step',
+            'created_at', 'updated_at'
         ]
         read_only_fields = ['assigned_date', 'created_at', 'updated_at', 'adherence_percentage']
     
@@ -247,6 +255,10 @@ class PatientProtocolSerializer(serializers.ModelSerializer):
         ).order_by('scheduled_date')[:3]
         
         return ProtocolStepCompletionListSerializer(upcoming, many=True).data
+    
+    def get_suggested_next_step(self, obj):
+        """Recommend the next protocol step to perform for this patient."""
+        return obj.get_suggested_next_step()
 
 
 class PatientProtocolCreateSerializer(serializers.ModelSerializer):
@@ -329,6 +341,45 @@ class ProtocolStepCompletionListSerializer(serializers.ModelSerializer):
             'completed_date', 'outcome', 'outcome_display',
             'completed_within_window', 'adverse_event'
         ]
+
+
+class ProtocolStepCompletionScheduleSerializer(serializers.ModelSerializer):
+    """Schedule serializer including the clinical details for each step.
+
+    Enables the frontend "medication schedule" view to show exactly when and
+    what to use for every scheduled step (medications, treatments, tests).
+    """
+    step_number = serializers.IntegerField(source='protocol_step.step_number', read_only=True)
+    step_title = serializers.CharField(source='protocol_step.title', read_only=True)
+    step_type = serializers.CharField(source='protocol_step.step_type', read_only=True)
+    step_type_display = serializers.CharField(source='protocol_step.get_step_type_display', read_only=True)
+    step_description = serializers.CharField(source='protocol_step.description', read_only=True)
+    pre_instructions = serializers.CharField(source='protocol_step.pre_instructions', read_only=True)
+    post_instructions = serializers.CharField(source='protocol_step.post_instructions', read_only=True)
+    timing_days = serializers.IntegerField(source='protocol_step.timing_days', read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    outcome_display = serializers.CharField(source='get_outcome_display', read_only=True)
+    completed_by_name = serializers.SerializerMethodField()
+    notes = serializers.CharField(source='clinical_notes', read_only=True)
+    medications = ProtocolStepMedicationSerializer(source='protocol_step.medications', many=True, read_only=True)
+    treatments = ProtocolStepTreatmentSerializer(source='protocol_step.treatments', many=True, read_only=True)
+    tests = ProtocolStepTestSerializer(source='protocol_step.tests', many=True, read_only=True)
+    
+    class Meta:
+        model = ProtocolStepCompletion
+        fields = [
+            'id', 'protocol_step', 'step_number', 'step_title', 'step_type',
+            'step_type_display', 'step_description', 'pre_instructions',
+            'post_instructions', 'timing_days', 'scheduled_date',
+            'status', 'status_display', 'completed_date', 'completed_by_name',
+            'outcome', 'outcome_display', 'notes', 'completed_within_window',
+            'adverse_event', 'medications', 'treatments', 'tests'
+        ]
+    
+    def get_completed_by_name(self, obj):
+        if obj.completed_by:
+            return obj.completed_by.get_full_name()
+        return None
 
 
 class ProtocolStepCompletionSerializer(serializers.ModelSerializer):

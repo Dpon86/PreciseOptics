@@ -5,7 +5,8 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
     TreatmentCategory, TreatmentType, Treatment, TreatmentMedication,
-    TreatmentDocument, TreatmentFollowUp, TreatmentComplication
+    TreatmentDocument, TreatmentFollowUp, TreatmentComplication,
+    IntravitrealInjectionRecord,
 )
 
 
@@ -186,4 +187,61 @@ class TreatmentComplicationAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if not change:  # Creating new object
             obj.reported_by = request.user
+        super().save_model(request, obj, form, change)
+
+
+@admin.register(IntravitrealInjectionRecord)
+class IntravitrealInjectionRecordAdmin(admin.ModelAdmin):
+    list_display = [
+        'patient_name', 'drug_name', 'eye', 'injection_number', 'phase',
+        'injection_date', 'treating_clinician', 'adverse_event_flag'
+    ]
+    list_filter = [
+        'phase', 'eye', 'drug_name', 'adverse_event', 'injection_date',
+    ]
+    search_fields = [
+        'patient__first_name', 'patient__last_name', 'patient__patient_id',
+        'drug_name', 'batch_number',
+    ]
+    readonly_fields = ['created_at', 'updated_at', 'created_by']
+
+    fieldsets = (
+        ('Patient & Visit', {
+            'fields': ('patient', 'visit', 'condition')
+        }),
+        ('Injection Details', {
+            'fields': ('drug_name', 'batch_number', 'injection_number', 'phase', 'eye')
+        }),
+        ('Pre-Injection Measurements', {
+            'fields': ('pre_va_right', 'pre_va_left', 'pre_iop')
+        }),
+        ('Post-Injection Measurements', {
+            'fields': ('post_va_right', 'post_va_left', 'post_iop')
+        }),
+        ('Clinician & Date', {
+            'fields': ('treating_clinician', 'injection_date')
+        }),
+        ('Adverse Event', {
+            'fields': ('adverse_event', 'adverse_event_description')
+        }),
+        ('Notes', {
+            'fields': ('notes',)
+        }),
+        ('Audit', {
+            'fields': ('created_at', 'updated_at', 'created_by'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def patient_name(self, obj):
+        return obj.patient.get_full_name()
+    patient_name.short_description = 'Patient'
+
+    def adverse_event_flag(self, obj):
+        return '⚠️ Yes' if obj.adverse_event else '✓ No'
+    adverse_event_flag.short_description = 'Adverse Event'
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.created_by = request.user
         super().save_model(request, obj, form, change)

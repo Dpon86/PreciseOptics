@@ -1,6 +1,9 @@
 """
 Serializers for PreciseOptics Eye Hospital Management System - Eye Tests
 """
+import re
+from decimal import Decimal, InvalidOperation
+
 from rest_framework import serializers
 from .models import (
     VisualAcuityTest, RefractionTest, CataractAssessment, GlaucomaAssessment,
@@ -8,6 +11,74 @@ from .models import (
     VitreoretinalAssessment, StrabismusAssessment, PediatricEyeExam,
     EyeCasualtyAssessment, CornealAssessment, OCTScan
 )
+
+# ── VA validation helpers ──────────────────────────────────────────────────────
+
+#: Recognised qualitative VA descriptors that bypass numeric checks.
+_VA_QUALITATIVE = {'cf', 'hm', 'pl', 'npl', 'lp', 'nlp', 'csr', 'n/a', '', 'nil'}
+
+#: Snellen fraction pattern: numerator/denominator (both positive integers).
+_SNELLEN_RE = re.compile(r'^\d{1,4}/\d{1,4}$')
+
+LOGMAR_MIN = Decimal('-0.3')
+LOGMAR_MAX = Decimal('3.0')
+
+
+def validate_va_value(value: str, field_name: str) -> str:
+    """
+    Validate a visual acuity string field.
+
+    Accepts:
+    - Empty / blank string (field is optional)
+    - Qualitative descriptors: CF, HM, PL, NPL, LP, NLP (case-insensitive)
+    - Snellen fraction: "6/6", "6/60", "20/200", "3/60", etc.
+    - LogMAR numeric: any decimal between -0.3 and 3.0
+
+    Raises serializers.ValidationError on invalid input.
+    Returns the cleaned value.
+    """
+    if not value:
+        return value
+
+    normalised = value.strip()
+    lower = normalised.lower()
+
+    # Qualitative descriptors
+    if lower in _VA_QUALITATIVE:
+        return normalised.upper()
+
+    # Snellen fraction
+    if _SNELLEN_RE.match(normalised):
+        parts = normalised.split('/')
+        numerator, denominator = int(parts[0]), int(parts[1])
+        if denominator == 0:
+            raise serializers.ValidationError(
+                {field_name: 'Snellen denominator cannot be zero.'}
+            )
+        return normalised
+
+    # LogMAR numeric
+    try:
+        numeric = Decimal(normalised)
+    except InvalidOperation:
+        raise serializers.ValidationError(
+            {field_name: (
+                f'"{normalised}" is not a valid VA value. '
+                f'Enter a Snellen fraction (e.g. 6/6, 6/60), '
+                f'a LogMAR number ({LOGMAR_MIN} to {LOGMAR_MAX}), '
+                f'or a qualitative descriptor (CF, HM, PL, NPL).'
+            )}
+        )
+
+    if not (LOGMAR_MIN <= numeric <= LOGMAR_MAX):
+        raise serializers.ValidationError(
+            {field_name: (
+                f'LogMAR value {numeric} is out of range. '
+                f'Allowed range: {LOGMAR_MIN} to {LOGMAR_MAX}.'
+            )}
+        )
+
+    return normalised
 
 
 class BaseEyeTestSerializer(serializers.ModelSerializer):
@@ -43,6 +114,29 @@ class VisualAcuityTestSerializer(BaseEyeTestSerializer):
             'test_method', 'right_eye_unaided', 'right_eye_aided', 'right_eye_pinhole',
             'left_eye_unaided', 'left_eye_aided', 'left_eye_pinhole', 'binocular_vision'
         ]
+
+    # ── Per-field validation (3.13) ───────────────────────────────────────────
+
+    def validate_right_eye_unaided(self, value):
+        return validate_va_value(value, 'right_eye_unaided')
+
+    def validate_right_eye_aided(self, value):
+        return validate_va_value(value, 'right_eye_aided')
+
+    def validate_right_eye_pinhole(self, value):
+        return validate_va_value(value, 'right_eye_pinhole')
+
+    def validate_left_eye_unaided(self, value):
+        return validate_va_value(value, 'left_eye_unaided')
+
+    def validate_left_eye_aided(self, value):
+        return validate_va_value(value, 'left_eye_aided')
+
+    def validate_left_eye_pinhole(self, value):
+        return validate_va_value(value, 'left_eye_pinhole')
+
+    def validate_binocular_vision(self, value):
+        return validate_va_value(value, 'binocular_vision')
 
 
 class RefractionTestSerializer(BaseEyeTestSerializer):

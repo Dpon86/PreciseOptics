@@ -1,0 +1,86 @@
+.iop-trend-page {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.header-controls select {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.chart-container {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.chart-svg-container {
+  overflow-x: auto;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #555;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.legend-dash {
+  width: 16px;
+  height: 0;
+  border-top: 2px dashed;
+  display: inline-block;
+}
+
+.iop-table-container {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.iop-table-container h3 {
+  margin-top: 0;
+  color: #2c3e50;
+}
+
+.iop-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.iop-table th {
+  text-align: left;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  font-weight: 600;
+  color: #495057;
+}
+
+.iop-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+}

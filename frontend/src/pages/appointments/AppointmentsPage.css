@@ -121,6 +121,7 @@
 .visit-patient-name { font-weight: 700; font-size: 1rem; color: #111827; margin-bottom: 2px; }
 .visit-patient-id   { font-size: 0.78rem; color: #9ca3af; margin-bottom: 4px; }
 .visit-meta         { font-size: 0.83rem; color: #6b7280; display: flex; gap: 6px; flex-wrap: wrap; }
+.visit-session-tag  { color: #0369a1; font-weight: 600; }
 .visit-complaint    { font-size: 0.82rem; color: #9ca3af; font-style: italic; margin-top: 4px; }
 
 .appt-status {

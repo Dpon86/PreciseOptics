@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../../services/api';
+import ImageUploadField from '../../components/ImageUploadField';
 import './EyeTestDetailPage.css';
 
 const EyeTestDetailPage = () => {
@@ -590,6 +591,33 @@ const EyeTestDetailPage = () => {
           <Link to={`/consultations/${test.consultation}`} className="btn btn-primary">
             View Consultation Details →
           </Link>
+        </div>
+      )}
+
+      {/* Images (OCT / FA) */}
+      {(test.right_eye_image || test.left_eye_image || test.right_image || test.left_image) && (
+        <div className="detail-card">
+          <h2>Scan Images</h2>
+          <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+            {(test.right_eye_image || test.right_image) && (
+              <ImageUploadField
+                label="Right Eye Image"
+                name="right_eye_image"
+                existingUrl={test.right_eye_image || test.right_image}
+                onChange={() => {}}
+                disabled
+              />
+            )}
+            {(test.left_eye_image || test.left_image) && (
+              <ImageUploadField
+                label="Left Eye Image"
+                name="left_eye_image"
+                existingUrl={test.left_eye_image || test.left_image}
+                onChange={() => {}}
+                disabled
+              />
+            )}
+          </div>
         </div>
       )}
 

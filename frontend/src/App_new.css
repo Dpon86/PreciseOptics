@@ -276,6 +276,16 @@ body {
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+/* VA inline hint / validation (3.14) */
+.va-hint {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 3px;
+  display: block;
+}
+.va-hint--ok    { color: #16a34a; }
+.va-hint--error { color: #dc2626; font-weight: 600; }
+
 .form-select {
   width: 100%;
   padding: 0.75rem;

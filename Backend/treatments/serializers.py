@@ -4,7 +4,8 @@ Serializers for Treatments app
 from rest_framework import serializers
 from .models import (
     TreatmentCategory, TreatmentType, Treatment, TreatmentMedication,
-    TreatmentDocument, TreatmentFollowUp, TreatmentComplication
+    TreatmentDocument, TreatmentFollowUp, TreatmentComplication,
+    IntravitrealInjectionRecord,
 )
 from precise_optics.file_validators import validate_document_extension, validate_file_size
 # Note: Import serializers only when needed to avoid circular imports
@@ -156,3 +157,61 @@ class TreatmentCreateSerializer(serializers.ModelSerializer):
                 )
         
         return data
+
+
+class IntravitrealInjectionRecordSerializer(serializers.ModelSerializer):
+    patient_name = serializers.CharField(source='patient.get_full_name', read_only=True)
+    treating_clinician_name = serializers.CharField(source='treating_clinician.get_full_name', read_only=True)
+    phase_display = serializers.CharField(source='get_phase_display', read_only=True)
+    eye_display = serializers.CharField(source='get_eye_display', read_only=True)
+    days_since_last_injection = serializers.ReadOnlyField()
+
+    class Meta:
+        model = IntravitrealInjectionRecord
+        fields = '__all__'
+        read_only_fields = ('id', 'created_at', 'updated_at', 'created_by', 'days_since_last_injection')
+
+    def validate(self, data):
+        """Custom validation for injection records."""
+        # Ensure at least pre- or post- measurements are provided for the injected eye
+        eye = data.get('eye')
+        if eye == 'right':
+            has_measurement = any([
+                data.get('pre_va_right'), data.get('post_va_right'),
+                data.get('pre_iop'), data.get('post_iop'),
+            ])
+        elif eye == 'left':
+            has_measurement = any([
+                data.get('pre_va_left'), data.get('post_va_left'),
+                data.get('pre_iop'), data.get('post_iop'),
+            ])
+        if not has_measurement:
+            raise serializers.ValidationError(
+                "At least one VA or IOP measurement must be provided for the injected eye."
+            )
+
+        # Ensure adverse event description if flag is set
+        if data.get('adverse_event') and not data.get('adverse_event_description'):
+            raise serializers.ValidationError(
+                "Adverse event description is required when adverse_event is True."
+            )
+
+        return data
+
+
+class IntravitrealInjectionRecordListSerializer(serializers.ModelSerializer):
+    """Lightweight serializer for list views / patient timeline."""
+    patient_name = serializers.CharField(source='patient.get_full_name', read_only=True)
+    treating_clinician_name = serializers.CharField(source='treating_clinician.get_full_name', read_only=True)
+    phase_display = serializers.CharField(source='get_phase_display', read_only=True)
+    eye_display = serializers.CharField(source='get_eye_display', read_only=True)
+    days_since_last_injection = serializers.ReadOnlyField()
+
+    class Meta:
+        model = IntravitrealInjectionRecord
+        fields = [
+            'id', 'patient', 'patient_name', 'drug_name', 'batch_number',
+            'injection_number', 'phase', 'phase_display', 'eye', 'eye_display',
+            'injection_date', 'treating_clinician', 'treating_clinician_name',
+            'adverse_event', 'days_since_last_injection', 'created_at',
+        ]
